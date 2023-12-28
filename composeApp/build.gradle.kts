@@ -1,6 +1,8 @@
 import org.jetbrains.compose.ExperimentalComposeLibrary
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 
+val packagePrefix = "tanoshi.multiplatform"
+
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.androidApplication)
@@ -40,7 +42,7 @@ kotlin {
 }
 
 android {
-    namespace = "org.example.project"
+    namespace = "$packagePrefix.android"
     compileSdk = libs.versions.android.compileSdk.get().toInt()
 
     sourceSets["main"].manifest.srcFile("src/androidMain/AndroidManifest.xml")
@@ -48,7 +50,7 @@ android {
     sourceSets["main"].resources.srcDirs("src/commonMain/resources")
 
     defaultConfig {
-        applicationId = "org.example.project"
+        applicationId = "$packagePrefix.android"
         minSdk = libs.versions.android.minSdk.get().toInt()
         targetSdk = libs.versions.android.targetSdk.get().toInt()
         versionCode = 1
@@ -75,11 +77,11 @@ android {
 
 compose.desktop {
     application {
-        mainClass = "MainKt"
+        mainClass = "$packagePrefix.desktop.MyApplication"
 
         nativeDistributions {
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
-            packageName = "org.example.project"
+            packageName = "${packagePrefix}.desktop"
             packageVersion = "1.0.0"
         }
     }

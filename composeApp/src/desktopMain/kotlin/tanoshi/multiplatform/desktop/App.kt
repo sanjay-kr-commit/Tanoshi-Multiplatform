@@ -1,3 +1,5 @@
+package tanoshi.multiplatform.desktop
+
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.onClick
 import androidx.compose.material.Text
@@ -9,7 +11,7 @@ import androidx.compose.ui.window.Window
 import tanoshi.multiplatform.shared.naviagtion.NavigationController
 import tanoshi.multiplatform.shared.naviagtion.*
 
-fun main() = application {
+fun application() = application {
     val navController by NavController( "Hello" )
     Window( onCloseRequest = ::exitApplication ) {
         screens( navController )
