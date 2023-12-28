@@ -1,7 +1,11 @@
 import org.jetbrains.compose.ExperimentalComposeLibrary
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 
-val packagePrefix = "tanoshi.multiplatform"
+val packagePrefix by properties
+val okHttp by properties
+val jsoup by properties
+val sharedVersionName by properties
+val sharedVersionCode by properties
 
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
@@ -34,6 +38,8 @@ kotlin {
             implementation(compose.ui)
             @OptIn(ExperimentalComposeLibrary::class)
             implementation(compose.components.resources)
+            implementation("com.squareup.okhttp:okhttp:$okHttp")
+            implementation("org.jsoup:jsoup:$jsoup")
         }
         desktopMain.dependencies {
             implementation(compose.desktop.currentOs)
@@ -53,8 +59,8 @@ android {
         applicationId = "$packagePrefix.android"
         minSdk = libs.versions.android.minSdk.get().toInt()
         targetSdk = libs.versions.android.targetSdk.get().toInt()
-        versionCode = 1
-        versionName = "1.0"
+        versionCode = sharedVersionCode.toString().toInt()
+        versionName = sharedVersionName.toString()
     }
     packaging {
         resources {
@@ -82,7 +88,7 @@ compose.desktop {
         nativeDistributions {
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
             packageName = "${packagePrefix}.desktop"
-            packageVersion = "1.0.0"
+            packageVersion = sharedVersionName.toString()
         }
     }
 }
