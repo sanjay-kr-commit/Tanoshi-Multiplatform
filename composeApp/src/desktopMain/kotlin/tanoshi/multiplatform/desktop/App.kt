@@ -8,8 +8,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.window.application
 import androidx.compose.ui.window.Window
-import tanoshi.multiplatform.shared.naviagtion.NavigationController
-import tanoshi.multiplatform.shared.naviagtion.*
+import tanoshi.multiplatform.common.naviagtion.NavigationController
+import tanoshi.multiplatform.common.naviagtion.*
 
 fun application() = application {
     val navController by NavController( "Hello" )

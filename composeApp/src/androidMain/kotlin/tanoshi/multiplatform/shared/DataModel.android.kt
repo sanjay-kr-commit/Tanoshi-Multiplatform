@@ -1,4 +1,4 @@
-package tanoshi.multiplatform.common
+package tanoshi.multiplatform.shared
 
 import androidx.lifecycle.ViewModel
 

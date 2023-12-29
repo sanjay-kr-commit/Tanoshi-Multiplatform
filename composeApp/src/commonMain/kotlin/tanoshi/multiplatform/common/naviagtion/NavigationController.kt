@@ -1,4 +1,4 @@
-package tanoshi.multiplatform.shared.naviagtion
+package tanoshi.multiplatform.common.naviagtion
 
 import androidx.compose.runtime.*
 
