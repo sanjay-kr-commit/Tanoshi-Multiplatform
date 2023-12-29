@@ -1,5 +1,5 @@
 package tanoshi.multiplatform.common.extension.interfaces
 
-interface Extension < container : Container > {
+interface Extension < container : Container< * > > {
     
 }
