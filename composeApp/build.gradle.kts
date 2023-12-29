@@ -6,6 +6,7 @@ val okHttp by properties
 val jsoup by properties
 val sharedVersionName by properties
 val sharedVersionCode by properties
+val appName by properties
 
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
@@ -68,7 +69,14 @@ android {
         }
     }
     buildTypes {
+        getByName( "debug" ) {
+            isDebuggable = true
+            applicationIdSuffix += ".debug"
+            versionNameSuffix += "-debug"
+            resValue( "string" , "app_name" , "$appName debug" )
+        }
         getByName("release") {
+            resValue( "string" , "app_name" , "$appName" )
             isMinifyEnabled = false
         }
     }
