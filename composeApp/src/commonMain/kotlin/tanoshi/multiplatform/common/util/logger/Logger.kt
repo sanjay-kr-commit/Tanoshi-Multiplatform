@@ -9,6 +9,7 @@ class Logger {
     private val buffer : StringBuffer = StringBuffer()
     
     fun saveLog( file : File , overwrite : Boolean = false ) {
+        if ( buffer.isEmpty() || buffer.isBlank() ) return
         try {
             if ( file.isFile && !overwrite ) throw LogFileAlreadyExist( file.name )
             file.outputStream().bufferedWriter().use { logFile ->
