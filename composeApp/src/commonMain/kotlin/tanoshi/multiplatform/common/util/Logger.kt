@@ -21,7 +21,7 @@ class Logger {
     val read : String
         get() = buffer.toString()
     
-    infix fun write( logScope : LogScope.() -> String ) = LogScope().run {
+    infix fun log(logScope : LogScope.() -> String ) = LogScope().run {
         val message = logScope()
         val tag = toString()
         buffer.append(
