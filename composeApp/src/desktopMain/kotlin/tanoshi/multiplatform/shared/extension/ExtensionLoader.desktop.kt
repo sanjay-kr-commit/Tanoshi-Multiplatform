@@ -5,11 +5,10 @@ import java.net.URL
 import java.util.zip.ZipFile
 import java.net.URLClassLoader
 import tanoshi.multiplatform.common.extension.interfaces.Extension
-import tanoshi.multiplatform.common.extension.annotations.EXTENSION
 
 actual class ExtensionLoader {
 
-    actual val loadedExtensionClasses : HashMap< String , Extension<*> > = HashMap()
+    actual val loadedExtensionClasses : HashMap< String , Extension > = HashMap()
 
     actual fun loadTanoshiExtension( vararg tanoshiExtensionFile : String ) = tanoshiExtensionFile.forEach { extensionFile ->
         try {
@@ -32,8 +31,9 @@ actual class ExtensionLoader {
         }
         classNameList.forEach { name ->
             try {
-                val loadedClass = classLoader.loadClass(name)
-                if ( loadedClass.annotations.any { it == EXTENSION::class.java } ) loadedExtensionClasses[ name ] = loadedClass.getDeclaredConstructor().newInstance() as Extension<*>
+                val loadedClass : Class<*> = classLoader.loadClass(name)
+                val obj : Any = loadedClass.getDeclaredConstructor().newInstance()
+                if ( obj is Extension ) loadedExtensionClasses[ name ] = obj
             } catch ( _ : Exception ) {
             } catch ( _ : Error ) {
             }

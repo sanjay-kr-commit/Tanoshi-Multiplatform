@@ -2,7 +2,6 @@ package tanoshi.multiplatform.shared.extension
 
 import android.content.Context
 import dalvik.system.PathClassLoader
-import tanoshi.multiplatform.common.extension.annotations.EXTENSION
 import tanoshi.multiplatform.common.extension.interfaces.Extension
 import java.io.File
 import java.lang.Exception
@@ -11,7 +10,7 @@ actual class ExtensionLoader {
     
     lateinit var applicationContext : Context
     
-    actual val loadedExtensionClasses : HashMap< String , Extension<*> > = HashMap()
+    actual val loadedExtensionClasses : HashMap< String , Extension > = HashMap()
 
     actual fun loadTanoshiExtension( vararg tanoshiExtensionFile : String ) {
         if ( !::applicationContext.isInitialized ) throw UninitializedPropertyAccessException( "application context not initialised" )
@@ -54,10 +53,9 @@ actual class ExtensionLoader {
         }
         classNameList.forEach { className -> 
             try {
-                val loadedClass = classLoader.loadClass( className )
-                if ( loadedClass.annotations.any { it == EXTENSION::class.java }) {
-                    loadedExtensionClasses[className] = loadedClass.getDeclaredConstructor().newInstance() as Extension<*>
-                }
+                val loadedClass : Class<*> = classLoader.loadClass( className )
+                val obj : Any = loadedClass.getDeclaredConstructor().newInstance()
+                if ( obj is Extension ) loadedExtensionClasses[className] = obj as Extension
             } catch ( _ : Exception ) {
             } catch ( _ : Error ) {
             }
