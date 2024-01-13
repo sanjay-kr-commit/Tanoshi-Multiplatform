@@ -3,7 +3,7 @@ package tanoshi.multiplatform.shared.extension
 import java.io.File
 import java.net.URL
 import java.util.zip.ZipFile
-import java.net.URLClassLoader
+import tanoshi.multiplatform.desktop.util.CustomClassLoader
 import tanoshi.multiplatform.common.extension.interfaces.Extension
 
 actual class ExtensionLoader {
@@ -19,7 +19,7 @@ actual class ExtensionLoader {
     }
     
     private fun loadExtension(tanoshiExtensionFile : String ) {
-        val classLoader = URLClassLoader(
+        val classLoader = CustomClassLoader(
             arrayOf( tanoshiExtensionFile.url ) ,
             this.javaClass.classLoader
         )
