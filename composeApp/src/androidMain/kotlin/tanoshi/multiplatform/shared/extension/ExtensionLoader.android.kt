@@ -1,10 +1,10 @@
 package tanoshi.multiplatform.shared.extension
 
 import android.content.Context
-import tanoshi.multiplatform.android.util.CustomClassLoader
 import tanoshi.multiplatform.common.extension.interfaces.Extension
 import java.io.File
 import java.lang.Exception
+import dalvik.system.PathClassLoader
 
 actual class ExtensionLoader {
     
@@ -41,7 +41,7 @@ actual class ExtensionLoader {
     
     private fun loadDexFile( tanoshiExtensionFile: String , dexFileName : String ) = applicationContext.run {
         val file = File( getDir( "extension/$tanoshiExtensionFile" , Context.MODE_PRIVATE ) , dexFileName )
-        val classLoader = CustomClassLoader( file , classLoader )
+        val classLoader = PathClassLoader( file.absolutePath , classLoader )
         val classNameList : List<String> = Regex( "L[a-zA-Z0-9/]*;" ).findAll( file.readText() ).run {
             val nameList = ArrayList<String>( count() )
             forEach {  lClassPath ->
