@@ -10,6 +10,9 @@ class MyApplication : SharedApplicationData() {
         extensionManager.apply {
             applicationContext = this@MyApplication.applicationContext
         }
+        startCrashActivity = {
+            Toast.makeText( this , "App Crashed" , Toast.LENGTH_SHORT ).show()
+        }
         // set uncaught exception thread
         Thread.setDefaultUncaughtExceptionHandler { thread, throwable ->
             handleUncaughtException( thread , throwable )
@@ -21,6 +24,7 @@ class MyApplication : SharedApplicationData() {
             ERROR
             throwable.stackTraceToString()
         }
+        startCrashActivity()
     }
     
 }

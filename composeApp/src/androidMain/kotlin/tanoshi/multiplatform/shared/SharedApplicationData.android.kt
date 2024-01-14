@@ -26,4 +26,6 @@ actual open class SharedApplicationData(
     actual val portrait : Boolean
         get() = _portrait
     
+    lateinit var startCrashActivity : () -> Unit
+
 }
