@@ -19,12 +19,11 @@ class CrashActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         sharedApplicaData = application as SharedApplicationData
-        val log = sharedApplicaData.logger.read
         setContent {
             Column( Modifier.fillMaxSize() ) {
                 Spacer( Modifier.height( 20.dp ) )
                 LogScreen(
-                    log
+                    sharedApplicaData.logger
                 )
             }
         }

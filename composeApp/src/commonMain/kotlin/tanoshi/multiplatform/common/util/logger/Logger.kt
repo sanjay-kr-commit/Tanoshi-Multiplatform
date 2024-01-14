@@ -6,27 +6,36 @@ import java.lang.Exception
 
 class Logger {
     
-    private val buffer : StringBuffer = StringBuffer()
+    private val log : ArrayList<Pair<String,String>> = ArrayList()
     
     fun saveLog( file : File , overwrite : Boolean = false ) {
-        if ( buffer.isEmpty() || buffer.isBlank() ) return
+        if ( log.isEmpty() ) return
         try {
             if ( file.isFile && !overwrite ) throw LogFileAlreadyExist( file.name )
             file.outputStream().bufferedWriter().use { logFile ->
-                logFile.write( buffer.toString() )
+                logFile.write( toString() )
             }
         } catch ( _ : Exception ) {}
     }
     
     val read : String
-        get() = buffer.toString()
+        get() = toString()
+
+    val list : List<Pair<String,String>>
+        get() = log
     
     infix fun log(logScope : LogScope.() -> String ) = LogScope().run {
         val message = logScope()
         val tag = toString()
-        buffer.append(
-            "$tag : $message\n"
+        log.add(
+            Pair( tag , message )
         )
+    }
+
+    override fun toString(): String {
+        val buffer = StringBuilder()
+        for ( ( tag , message ) in log ) buffer.append( "$tag : $message" )
+        return buffer.toString()
     }
     
     
