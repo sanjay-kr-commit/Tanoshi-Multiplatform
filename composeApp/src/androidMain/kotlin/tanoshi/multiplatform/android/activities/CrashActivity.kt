@@ -9,7 +9,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import tanoshi.multiplatform.common.screens.ErrorScreen
+import tanoshi.multiplatform.common.screens.LogScreen
 import tanoshi.multiplatform.shared.SharedApplicationData
 
 class CrashActivity : ComponentActivity() {
@@ -23,7 +23,7 @@ class CrashActivity : ComponentActivity() {
         setContent {
             Column( Modifier.fillMaxSize() ) {
                 Spacer( Modifier.height( 20.dp ) )
-                ErrorScreen(
+                LogScreen(
                     log
                 )
             }
