@@ -42,9 +42,6 @@ fun LogScreen(
                 color = Color.Black
             )
         }
-        item {
-            Text( "Hello" )
-        }
     }
     
 }
