@@ -17,7 +17,9 @@ actual open class SharedApplicationData(
 
     actual val extensionManager : ExtensionManager = ExtensionManager(),
 
-    actual val logger : Logger = logger() 
+    actual val logger : Logger = logger() ,
+
+    var startCrashActivity : () -> Unit = {}
     
 ) : Application() {
     
@@ -25,7 +27,5 @@ actual open class SharedApplicationData(
     
     actual val portrait : Boolean
         get() = _portrait
-    
-    lateinit var startCrashActivity : () -> Unit
 
 }

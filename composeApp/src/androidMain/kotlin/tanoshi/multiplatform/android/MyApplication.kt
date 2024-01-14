@@ -7,11 +7,12 @@ class MyApplication : SharedApplicationData() {
 
     override fun onCreate() {
         super.onCreate()
+        logger log {
+            DEBUG
+            "App Started At $appStartUpTime"
+        }
         extensionManager.apply {
             applicationContext = this@MyApplication.applicationContext
-        }
-        startCrashActivity = {
-            Toast.makeText( this , "App Crashed" , Toast.LENGTH_SHORT ).show()
         }
         // set uncaught exception thread
         Thread.setDefaultUncaughtExceptionHandler { thread, throwable ->
