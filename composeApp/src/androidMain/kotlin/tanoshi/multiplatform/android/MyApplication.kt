@@ -1,20 +1,26 @@
 package tanoshi.multiplatform.android
 
-import android.app.Application
-import android.util.Log
 import android.widget.Toast
+import tanoshi.multiplatform.shared.SharedApplicationData
 
-class MyApplication : Application() {
+class MyApplication : SharedApplicationData() {
 
     override fun onCreate() {
         super.onCreate()
+        extensionManager.apply {
+            applicationContext = this@MyApplication.applicationContext
+        }
+        // set uncaught exception thread
         Thread.setDefaultUncaughtExceptionHandler { thread, throwable ->
             handleUncaughtException( thread , throwable )
         }
     }
     
     private fun handleUncaughtException( thread : Thread , throwable : Throwable ) {
-        Log.d( "Uncaught_Exception" , throwable.stackTraceToString() )
+        logger log {
+            ERROR
+            throwable.stackTraceToString()
+        }
     }
     
 }
