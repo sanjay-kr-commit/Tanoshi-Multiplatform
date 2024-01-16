@@ -2,4 +2,4 @@ package tanoshi.multiplatform.shared
 
 import androidx.lifecycle.ViewModel
 
-actual open class DataModel : ViewModel()
+actual open class ViewModel actual constructor() : ViewModel()
