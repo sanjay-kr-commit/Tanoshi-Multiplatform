@@ -5,18 +5,31 @@ import androidx.compose.foundation.onClick
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.window.application
 import androidx.compose.ui.window.Window
 import tanoshi.multiplatform.common.naviagtion.NavigationController
 import tanoshi.multiplatform.common.naviagtion.*
+import tanoshi.multiplatform.desktop.util.customApplication
+import tanoshi.multiplatform.shared.SharedApplicationData
 
-fun application() = application {
+
+@ExperimentalComposeUiApi
+fun app(
+    sharedApplicationData : SharedApplicationData
+) = customApplication( sharedApplicationData ) {
     val navController by NavController( "Hello" )
-    Window( onCloseRequest = ::exitApplication ) {
+    Window(
+        onCloseRequest = ::exitApplication ,
+        state = sharedApplicationData.windowState ,
+        title = "Project T"
+    ) {
+
         screens( navController )
+
     }
 }
+
 
 @Composable
 fun screens( navController : NavigationController ) : Unit = navController.run {
@@ -35,6 +48,7 @@ fun screens( navController : NavigationController ) : Unit = navController.run {
 fun NavigationController.Settings() {
     Text( "Settings" ,
           modifier = Modifier.onClick {
+              throw Exception( "Hello" )
               this navigateTo "Hello"
           }
     )

@@ -5,7 +5,6 @@ import androidx.compose.ui.window.WindowState
 import tanoshi.multiplatform.common.util.currentDateTime
 import tanoshi.multiplatform.common.util.logger
 import tanoshi.multiplatform.common.util.logger.Logger
-import tanoshi.multiplatform.desktop.util.ExitTask
 import tanoshi.multiplatform.shared.extension.ExtensionManager
 
 actual data class SharedApplicationData(
@@ -17,8 +16,6 @@ actual data class SharedApplicationData(
     actual val extensionManager : ExtensionManager = ExtensionManager(),
 
     actual val logger : Logger = logger(),
-
-    val exitTasks : ExitTask = ExitTask( logger = logger , logFileName = logFileName ),
 
     val windowState: WindowState = WindowState() ,
 
