@@ -12,6 +12,12 @@ import kotlin.reflect.KProperty
 // i.e import tanoshi.multiplatform.shared.naviagtion.*
 
 // All the Nav Controller Component
+
+fun navController(
+    startScreen: String ,
+    stack : MutableSet<String> = mutableSetOf()
+) : NavigationController = NavigationController( startScreen , stack )
+
 @Composable
 fun NavController (
     startScreen : String ,
@@ -19,12 +25,6 @@ fun NavController (
 ) : MutableState<NavigationController> = rememberSaveable {
     mutableStateOf( NavigationController( startScreen, stack ) )
 }
-
-fun navController(
-    startScreen: String ,
-    stack : MutableSet<String> = mutableSetOf()
-) : NavigationController = NavigationController( startScreen , stack )
-
 operator fun NavigationController.getValue( thisObj : Any? , kProperty: KProperty<*>) : NavigationController = this
 infix fun NavigationController.backStackLambdaPush( lambda : BackLambdaStack.() -> Any ) = backLambdaStackObject.push(lambda)
 fun NavigationController.backStackLambdPeek() = backLambdaStackObject.peek()
@@ -36,9 +36,10 @@ val NavigationController.back : Unit
 
 // All The Navigation Host Component
 @Composable
-infix fun NavigationController.CreateScreenCatalog(
+fun CreateScreenCatalog(
+    navigationController: NavigationController ,
     screen : @Composable NavigationHost.NavigationGraphBuilder.() -> Unit
-) = NavigationHost( this , screen ).also { it.renderView() }
+) = NavigationHost( navigationController , screen ).also { it.renderView() }
 
 @Composable
 fun NavigationHost.NavigationGraphBuilder.Screen(
