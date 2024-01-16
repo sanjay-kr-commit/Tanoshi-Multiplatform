@@ -8,25 +8,25 @@ import tanoshi.multiplatform.shared.SharedApplicationData
 
 open class ApplicationActivity : ComponentActivity() {
 
-    var sharedApplicationData : SharedApplicationData? = null
+    lateinit var sharedApplicationData : SharedApplicationData
     
     lateinit var saved : () -> Unit
     
     override fun onCreate(savedInstanceState: Bundle? ) {
-        if ( application is SharedApplicationData ) sharedApplicationData = application as SharedApplicationData
-        sharedApplicationData?._portrait = resources.configuration.orientation == 1
-        sharedApplicationData?.startCrashActivity = {}
+        sharedApplicationData = application as SharedApplicationData
+        sharedApplicationData._portrait = resources.configuration.orientation == 1
+        sharedApplicationData.startCrashActivity = {}
         super.onCreate(savedInstanceState)
     }
 
     override fun onConfigurationChanged(newConfig: Configuration) {
-        sharedApplicationData?._portrait = newConfig.orientation == 1
+        sharedApplicationData._portrait = newConfig.orientation == 1
         super.onConfigurationChanged(newConfig)
     }
 
     override fun onResume() {
         super.onResume()
-        sharedApplicationData?.startCrashActivity = saved
+        sharedApplicationData.startCrashActivity = saved
     }
     
 }
@@ -34,10 +34,14 @@ open class ApplicationActivity : ComponentActivity() {
 var ApplicationActivity.setCrashActivity : Class<*>
     get() = "This Variable is Used to assign Crash Activity" as Class<*>
     set(value) {
-        sharedApplicationData?.startCrashActivity = {
+        sharedApplicationData.startCrashActivity = {
             finish()
             startActivity( Intent( this , value ) )
         }.also {
             saved = it
+        }
+        sharedApplicationData.logger log {
+            DEBUG
+            "Attached Crash Handling Activity : ${this@setCrashActivity::class.java} -> ${value.canonicalName}".replace( "class" , "" )
         }
     }
