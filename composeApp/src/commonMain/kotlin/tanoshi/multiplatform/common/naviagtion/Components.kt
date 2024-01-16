@@ -19,6 +19,12 @@ fun NavController (
 ) : MutableState<NavigationController> = rememberSaveable {
     mutableStateOf( NavigationController( startScreen, stack ) )
 }
+
+fun navController(
+    startScreen: String ,
+    stack : MutableSet<String> = mutableSetOf()
+) : NavigationController = NavigationController( startScreen , stack )
+
 operator fun NavigationController.getValue( thisObj : Any? , kProperty: KProperty<*>) : NavigationController = this
 infix fun NavigationController.backStackLambdaPush( lambda : BackLambdaStack.() -> Any ) = backLambdaStackObject.push(lambda)
 fun NavigationController.backStackLambdPeek() = backLambdaStackObject.peek()

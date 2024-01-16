@@ -14,7 +14,7 @@ open class ApplicationActivity : ComponentActivity() {
     
     override fun onCreate(savedInstanceState: Bundle? ) {
         if ( application is SharedApplicationData ) sharedApplicationData = application as SharedApplicationData
-        sharedApplicationData?._portrait = requestedOrientation == 1
+        sharedApplicationData?._portrait = resources.configuration.orientation == 1
         sharedApplicationData?.startCrashActivity = {}
         super.onCreate(savedInstanceState)
     }
