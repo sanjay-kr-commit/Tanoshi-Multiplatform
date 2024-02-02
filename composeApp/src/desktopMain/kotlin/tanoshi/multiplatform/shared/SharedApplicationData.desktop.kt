@@ -7,7 +7,7 @@ import tanoshi.multiplatform.common.util.logger
 import tanoshi.multiplatform.common.util.logger.Logger
 import tanoshi.multiplatform.shared.extension.ExtensionManager
 
-actual data class SharedApplicationData(
+actual open class SharedApplicationData(
 
     actual val appStartUpTime : String = currentDateTime,
 

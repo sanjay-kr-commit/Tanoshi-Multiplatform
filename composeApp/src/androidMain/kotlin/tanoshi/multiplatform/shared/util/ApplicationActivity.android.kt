@@ -1,4 +1,4 @@
-package tanoshi.multiplatform.android.util
+package tanoshi.multiplatform.shared.util
 
 import android.content.Intent
 import android.content.res.Configuration
@@ -6,7 +6,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import tanoshi.multiplatform.shared.SharedApplicationData
 
-open class ApplicationActivity : ComponentActivity() {
+actual open class ApplicationActivity : ComponentActivity() {
 
     lateinit var sharedApplicationData : SharedApplicationData
     
@@ -27,6 +27,14 @@ open class ApplicationActivity : ComponentActivity() {
     override fun onResume() {
         super.onResume()
         sharedApplicationData.startCrashActivity = saved
+    }
+
+    actual fun <applicationActivity:ApplicationActivity> changeActivity(
+        applicationActivityName : Class<applicationActivity> ,
+        vararg objects : Any
+    ) {
+        val intent = Intent( this@ApplicationActivity , applicationActivityName )
+        startActivity( intent )
     }
     
 }

@@ -39,8 +39,8 @@ kotlin {
             implementation(compose.ui)
             @OptIn(ExperimentalComposeLibrary::class)
             implementation(compose.components.resources)
-            implementation("com.squareup.okhttp:okhttp:$okHttp")
-            implementation("org.jsoup:jsoup:$jsoup")
+            implementation( libs.okhttp )
+            implementation( libs.jsoup )
         }
         desktopMain.dependencies {
             implementation(compose.desktop.currentOs)

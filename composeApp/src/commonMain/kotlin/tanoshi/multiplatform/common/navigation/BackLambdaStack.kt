@@ -1,4 +1,4 @@
-package tanoshi.multiplatform.common.naviagtion
+package tanoshi.multiplatform.common.navigation
 
 // why create this class because we are gonna perform stack operation
 // and linked constant time for retrieval and addition

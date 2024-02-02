@@ -16,8 +16,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 import tanoshi.multiplatform.common.model.MainScreenViewModel
-import tanoshi.multiplatform.common.naviagtion.CreateScreenCatalog
-import tanoshi.multiplatform.common.naviagtion.Screen
+import tanoshi.multiplatform.common.navigation.CreateScreenCatalog
+import tanoshi.multiplatform.common.navigation.Screen
 import tanoshi.multiplatform.shared.SharedApplicationData
 
 @Composable

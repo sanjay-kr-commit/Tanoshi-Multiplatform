@@ -1,33 +1,20 @@
 package tanoshi.multiplatform.desktop
 
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.ui.ExperimentalComposeUiApi
-import androidx.compose.ui.window.Window
 import tanoshi.multiplatform.common.model.MainScreenViewModel
 import tanoshi.multiplatform.common.screens.MainScreen
-import tanoshi.multiplatform.desktop.util.customApplication
-import tanoshi.multiplatform.shared.SharedApplicationData
+import tanoshi.multiplatform.shared.util.ApplicationActivity
 
-
-@ExperimentalComposeUiApi
-fun app(
-    sharedApplicationData : SharedApplicationData
-) = customApplication( sharedApplicationData ) {
-
-    val mainScreenViewModel by remember { mutableStateOf( MainScreenViewModel() ) }
-
-    Window(
-        onCloseRequest = ::exitApplication ,
-        state = sharedApplicationData.windowState ,
-        title = "Project T"
-    ) {
-
+class App : ApplicationActivity() {
+    @Composable
+    override fun onCreate() {
+        val mainScreenViewModel by remember { mutableStateOf( MainScreenViewModel() ) }
         MainScreen(
-            sharedApplicationData ,
+            applicationData ,
             mainScreenViewModel
         )
-
     }
 }

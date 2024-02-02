@@ -10,8 +10,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import tanoshi.multiplatform.android.util.ApplicationActivity
-import tanoshi.multiplatform.android.util.setCrashActivity
+import tanoshi.multiplatform.shared.util.ApplicationActivity
+import tanoshi.multiplatform.shared.util.setCrashActivity
 import tanoshi.multiplatform.common.model.MainScreenViewModel
 import tanoshi.multiplatform.common.screens.MainScreen
 

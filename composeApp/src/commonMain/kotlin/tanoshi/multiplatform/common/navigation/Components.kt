@@ -1,4 +1,4 @@
-package tanoshi.multiplatform.common.naviagtion
+package tanoshi.multiplatform.common.navigation
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState

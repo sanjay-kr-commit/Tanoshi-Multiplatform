@@ -1,7 +1,7 @@
 package tanoshi.multiplatform.common.model
 
-import tanoshi.multiplatform.common.naviagtion.NavigationController
-import tanoshi.multiplatform.common.naviagtion.navController
+import tanoshi.multiplatform.common.navigation.NavigationController
+import tanoshi.multiplatform.common.navigation.navController
 import tanoshi.multiplatform.common.screens.MainScreen
 import tanoshi.multiplatform.shared.ViewModel
 

@@ -3,26 +3,29 @@ package tanoshi.multiplatform.desktop
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Settings
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
 import tanoshi.multiplatform.common.screens.LogScreen
+import tanoshi.multiplatform.desktop.util.WindowStack
+import tanoshi.multiplatform.desktop.util.customApplication
 import tanoshi.multiplatform.shared.SharedApplicationData
 
 
-@OptIn(ExperimentalComposeUiApi::class)
 fun main() : Unit = SharedApplicationData().run {
 
     logger log {
-        DEBUG
-       "App Started At $appStartUpTime"
+        "App Started At $appStartUpTime"
     }
 
-    // app
-    app( this )
+    val windowStack = WindowStack( App() , this )
 
-    // open window if any exception of error was found
+    customApplication( this ) {
+        Window( onCloseRequest = ::exitApplication ) {
+            windowStack.render()
+        }
+    }
+
     error?.let {
         application( false ) {
             Window( onCloseRequest = ::exitApplication , title = "App Log" ,

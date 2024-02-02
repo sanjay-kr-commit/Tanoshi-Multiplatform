@@ -7,8 +7,8 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material.Button
 import androidx.compose.material.Text
 import androidx.compose.ui.Modifier
-import tanoshi.multiplatform.android.util.ApplicationActivity
-import tanoshi.multiplatform.android.util.setCrashActivity
+import tanoshi.multiplatform.shared.util.ApplicationActivity
+import tanoshi.multiplatform.shared.util.setCrashActivity
 
 class SecondActivity : ApplicationActivity() {
 
@@ -24,7 +24,8 @@ class SecondActivity : ApplicationActivity() {
                     Text( "Portrait : ${sharedApplicationData?.portrait}" )
                 }
                 Button( {
-                    Intent( this@SecondActivity , MainActivity::class.java )
+                    val i = Intent( this@SecondActivity , MainActivity::class.java )
+                    startActivity( i )
                 } ) {
                     Text( "Change Activity" )
                 }

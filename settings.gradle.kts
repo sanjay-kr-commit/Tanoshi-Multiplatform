@@ -1,5 +1,5 @@
 rootProject.name = "Tanoshi"
-enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
+//enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 
 pluginManagement {
     repositories {
@@ -18,4 +18,4 @@ dependencyResolutionManagement {
     }
 }
 
-include(":composeApp")
+include(":composeApp" , ":extensions")
