@@ -1,5 +1,8 @@
 package tanoshi.multiplatform.shared
 
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.window.ApplicationScope
 import androidx.compose.ui.window.WindowState
 import tanoshi.multiplatform.common.util.currentDateTime
@@ -25,7 +28,9 @@ actual open class SharedApplicationData(
 
     var error : Throwable? = null
 
+    var _portrait : Boolean by mutableStateOf( true )
+
     actual val portrait : Boolean
-        get() = windowState.size.height > windowState.size.width
+        get() = _portrait
     
 }
