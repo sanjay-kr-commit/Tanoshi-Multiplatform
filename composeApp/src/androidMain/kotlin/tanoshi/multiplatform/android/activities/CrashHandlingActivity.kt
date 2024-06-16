@@ -2,6 +2,7 @@ package tanoshi.multiplatform.android.activities
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -12,7 +13,7 @@ import androidx.compose.ui.unit.dp
 import tanoshi.multiplatform.common.screens.LogScreen
 import tanoshi.multiplatform.shared.SharedApplicationData
 
-class CrashActivity : ComponentActivity() {
+class CrashHandlingActivity : ComponentActivity() {
 
     lateinit var sharedApplicaData : SharedApplicationData
 
@@ -25,6 +26,9 @@ class CrashActivity : ComponentActivity() {
                 LogScreen(
                     sharedApplicaData.logger
                 )
+                BackHandler {
+                    finishAffinity()
+                }
             }
         }
     }
