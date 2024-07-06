@@ -1,16 +1,26 @@
 package tanoshi.multiplatform.shared.extension
 
 import android.content.Context
-import tanoshi.multiplatform.common.extension.interfaces.Extension
+import tanoshi.multiplatform.common.extension.core.Extension
 import java.io.File
 import java.lang.Exception
 import dalvik.system.PathClassLoader
+import tanoshi.multiplatform.common.extension.PlayableExtension
+import tanoshi.multiplatform.common.extension.ReadableExtension
+import tanoshi.multiplatform.common.extension.ViewableExtension
+import tanoshi.multiplatform.common.extension.core.insertSharedDependencies
+import tanoshi.multiplatform.common.util.logger.Logger
 
 actual class ExtensionLoader {
-    
+
+    lateinit var logger : Logger
+
     lateinit var applicationContext : Context
-    
-    actual val loadedExtensionClasses : HashMap< String , Extension > = HashMap()
+
+    val classList : HashSet<String> = hashSetOf()
+
+    // pair( pair(package name , archive name) , extension )
+    actual val loadedExtensionClasses : ArrayList< Pair<Pair<String,String> , Extension> > = ArrayList()
 
     actual fun loadTanoshiExtension( vararg tanoshiExtensionFile : String ) {
         if ( !::applicationContext.isInitialized ) throw UninitializedPropertyAccessException( "application context not initialised" )
@@ -51,15 +61,76 @@ actual class ExtensionLoader {
             }
             nameList
         }
-        classNameList.forEach { className -> 
+        classNameList.forEach { name ->
             try {
-                val loadedClass : Class<*> = classLoader.loadClass( className )
+                val loadedClass : Class<*> = classLoader.loadClass( name )
                 val obj : Any = loadedClass.getDeclaredConstructor().newInstance()
-                if ( obj is Extension ) loadedExtensionClasses[className] = obj as Extension
-            } catch ( _ : Exception ) {
-            } catch ( _ : Error ) {
+                if (obj is Extension) {
+                    try {
+                        if ( classList.contains( name ) ) throw Exception( "Duplicate Class Found" )
+                        loadedExtensionClasses.add( Pair( Pair( name , tanoshiExtensionFile) , obj ) )
+                        classList.add( name )
+                        logger log {
+                            DEBUG
+                            title = "Loaded Extension $name"
+                            """
+                               |Name          : ${obj.name}
+                               |Type          : ${
+                                when ( obj ) {
+                                    is PlayableExtension -> "Playable Extension"
+                                    is ReadableExtension -> "Readable Extension"
+                                    is ViewableExtension -> "Viewable Extension"
+                                    else -> "Unknown Extended Extension"
+                                }
+                            }
+                               |Language      : ${obj.language}
+                               |Package       : $name
+                               |Domain List   : ${obj.domainsList.entries().toList()}
+                            """.trimMargin("|")
+                        }
+                        obj.injectDefaultSharedDependencies
+                    } catch ( e : Exception ) {
+                        logger log {
+                            ERROR
+                            title = "Failed to load Extension : $name"
+                            e.stackTraceToString()
+                        }
+                    } catch ( e : Error ) {
+                        logger log {
+                            ERROR
+                            title = "Failed to load Extension : $name"
+                            e.stackTraceToString()
+                        }
+                    }
+                }
+            } catch ( e : Exception ) {
+                logger log {
+                    ERROR
+                    title = "Failed to load class : $name"
+                    e.stackTraceToString()
+                }
+            } catch ( e : Error ) {
+                logger log {
+                    ERROR
+                    title = "Failed to load class : $name"
+                    e.stackTraceToString()
+                }
             }
         }
     }
+
+    val Extension.injectDefaultSharedDependencies : Unit
+        get() {
+            insertSharedDependencies {
+                logger = this@ExtensionLoader.logger
+                logger log {
+                    DEBUG
+                    title = "$name injected SharedDependencies"
+                    """
+                        |Injected Logger
+                    """.trimMargin()
+                }
+            }
+        }
     
 }

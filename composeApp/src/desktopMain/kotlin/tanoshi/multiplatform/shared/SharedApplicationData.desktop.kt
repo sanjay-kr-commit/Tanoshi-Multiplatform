@@ -27,5 +27,19 @@ actual open class SharedApplicationData(
 
     actual val portrait : Boolean
         get() = windowState.size.height > windowState.size.width
+
+    init {
+        logger log {
+            title = "App Start Up Time"
+            "App Started At $appStartUpTime"
+        }
+        extensionManager.logger = logger
+        extensionManager.extensionLoader.logger = logger
+        extensionManager.dir.listFiles()?.forEach { extensionId ->
+            extensionId.listFiles()?.forEach { jar ->
+                extensionManager.extensionLoader.loadTanoshiExtension( jar.absolutePath )
+            }
+        }
+    }
     
 }

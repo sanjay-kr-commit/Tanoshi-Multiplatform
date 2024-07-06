@@ -8,8 +8,7 @@ import androidx.compose.material.Icon
 import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.List
+import androidx.compose.material.icons.filled.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -126,13 +125,21 @@ enum class MainScreen(
     val label : String ,
     val icon : ImageVector
 ) {
-    BrowseScreen(
-        "Browse Screen" ,
+    HomeScreen(
+        "Home" ,
         Icons.Filled.Home
     ) ,
-    LogScreen(
-        "Log Screen" ,
-        Icons.Filled.List
+    ExtensionScreen(
+        "Extensions" ,
+        Icons.Filled.Extension
+    ),
+    HistoryScreen(
+        "History" ,
+        Icons.Filled.History
+    ) ,
+    MoreScreen(
+        "More" ,
+        Icons.Filled.Settings
     )
 }
 
@@ -141,11 +148,17 @@ private fun SharedApplicationData.MainScreenCatalog(
     viewModel : MainScreenViewModel
 ) {
     CreateScreenCatalog( viewModel.navController ) {
-        Screen( MainScreen.BrowseScreen.name ) {
-            BrowseScreen( this@MainScreenCatalog )
+        Screen( MainScreen.HomeScreen.name ) {
+            HomeScreen()
         }
-        Screen( MainScreen.LogScreen.name ) {
-            LogScreen( logger )
+        Screen( MainScreen.ExtensionScreen.name ) {
+            ExtensionScreen( extensionManager )
+        }
+        Screen( MainScreen.HistoryScreen.name ) {
+            HistoryScreen()
+        }
+        Screen( MainScreen.MoreScreen.name ) {
+            MoreScreen( this@MainScreenCatalog , viewModel.moreScreenPersistentData )
         }
     }
 }

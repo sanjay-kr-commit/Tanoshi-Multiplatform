@@ -4,15 +4,17 @@ import com.squareup.okhttp.OkHttpClient
 import com.squareup.okhttp.Request
 import org.jsoup.Jsoup
 import tanoshi.multiplatform.common.extension.*
-import tanoshi.multiplatform.common.extension.helper.defaultArg
-import tanoshi.multiplatform.common.extension.helper.request
+import tanoshi.multiplatform.common.extension.annotations.IconName
+import tanoshi.multiplatform.common.extension.core.SharedDependencies
 import tanoshi.multiplatform.common.util.SelectableMenu
 
-class Gogoanime : PlayableExtension , ApplicationAccess() {
+@IconName( "icon.png" )
+class Gogoanime : PlayableExtension , SharedDependencies() {
     
     override val name: String = "Gogoanime"
     override val domainsList: SelectableMenu<String>  = SelectableMenu( "https://ww2.gogoanimes.fi/" )
     override val language: String = "English"
+
 
     override fun search(name: String, index: Int): List<PlayableEntry> {
         val list = ArrayList<PlayableEntry>()

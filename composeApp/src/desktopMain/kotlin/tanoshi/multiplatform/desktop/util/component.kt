@@ -18,7 +18,8 @@ private fun ApplicationScope.redirectErrors(
             WindowExceptionHandler {
                 logger log {
                     ERROR
-                    "Uncaught Exception\n${it.stackTraceToString()}"
+                    title = "Uncaught Exception"
+                    it.stackTraceToString()
                 }
                 error = it
                 window.dispatchEvent(WindowEvent(window, WindowEvent.WINDOW_CLOSING))

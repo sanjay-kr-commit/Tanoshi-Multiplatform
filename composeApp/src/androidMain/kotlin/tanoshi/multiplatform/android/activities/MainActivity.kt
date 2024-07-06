@@ -19,7 +19,7 @@ class MainActivity : ApplicationActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setCrashActivity = CrashActivity::class.java
+        setCrashActivity = CrashHandlingActivity::class.java
         val mainScreenViewModel by viewModels<MainScreenViewModel>()
         setContent {
             Column {
@@ -33,7 +33,3 @@ class MainActivity : ApplicationActivity() {
     }
 
 }
-
-@Preview
-@Composable
-fun AppAndroidPreview() {}

@@ -41,6 +41,7 @@ kotlin {
             implementation(compose.components.resources)
             implementation( libs.okhttp )
             implementation( libs.jsoup )
+            implementation(compose.materialIconsExtended)
         }
         desktopMain.dependencies {
             implementation(compose.desktop.currentOs)
@@ -86,6 +87,9 @@ android {
     }
     dependencies {
         debugImplementation(libs.compose.ui.tooling)
+    }
+    buildFeatures {
+        buildConfig = true
     }
 }
 

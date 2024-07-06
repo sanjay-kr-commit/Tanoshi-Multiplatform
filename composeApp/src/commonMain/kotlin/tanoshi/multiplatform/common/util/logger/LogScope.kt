@@ -4,7 +4,9 @@ import tanoshi.multiplatform.common.exception.logger.AnotherTagIsAlreadyInUseExc
 
 class LogScope {
 
-    private var tag : Tag = Tag.NOTSPECIFIED
+    var tag : Tag = Tag.NOTSPECIFIED
+    var title : String = "UNSPECIFIED"
+
     val WARN : Unit
         get() {
             if ( tag != Tag.NOTSPECIFIED ) throw AnotherTagIsAlreadyInUseException( tag.toString() )

@@ -6,7 +6,7 @@ import java.lang.Exception
 
 class Logger {
     
-    private val log : ArrayList<Pair<String,String>> = ArrayList()
+    private val log : ArrayList<Pair<Pair<String,String>,String>> = ArrayList()
     
     fun saveLog( file : File , overwrite : Boolean = false ) {
         if ( log.isEmpty() ) return
@@ -21,14 +21,13 @@ class Logger {
     val read : String
         get() = toString()
 
-    val list : List<Pair<String,String>>
+    val list : List<Pair<Pair<String,String>,String>>
         get() = log
-    
-    infix fun log(logScope : LogScope.() -> String ) = LogScope().run {
-        val message = logScope()
-        val tag = toString()
+
+    infix fun log(logBlock : LogScope.() -> String ) = LogScope().run {
+        val message = logBlock()
         log.add(
-            Pair( tag , message )
+            Pair( Pair(tag.name,title) , message )
         )
     }
 
@@ -37,6 +36,6 @@ class Logger {
         for ( ( tag , message ) in log ) buffer.append( "$tag : $message" )
         return buffer.toString()
     }
-    
-    
+
+
 }

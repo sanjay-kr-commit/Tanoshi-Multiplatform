@@ -1,15 +1,15 @@
 package tanoshi.multiplatform.common.extension
 
-import tanoshi.multiplatform.common.extension.interfaces.Extension
+import tanoshi.multiplatform.common.extension.core.Extension
 import tanoshi.multiplatform.common.util.SelectableMenu
 
 interface PlayableExtension : Extension {
-    
-    val name : String
-    
-    val domainsList : SelectableMenu<String>
-    
-    val language : String
+
+    override val name : String
+
+    override val domainsList : SelectableMenu<String>
+
+    override val language : String
     
     fun search( name : String , index : Int ) : List<PlayableEntry>
     

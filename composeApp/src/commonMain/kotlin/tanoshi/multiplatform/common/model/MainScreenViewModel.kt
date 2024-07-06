@@ -7,6 +7,7 @@ import tanoshi.multiplatform.shared.ViewModel
 
 class MainScreenViewModel : ViewModel() {
     
-    val navController : NavigationController = navController( startScreen = MainScreen.BrowseScreen.name )
+    val navController : NavigationController = navController( startScreen = MainScreen.HomeScreen.name )
+    val moreScreenPersistentData = MoreScreenPersistentData()
     
 }

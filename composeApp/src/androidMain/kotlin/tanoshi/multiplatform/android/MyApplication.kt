@@ -1,16 +1,13 @@
 package tanoshi.multiplatform.android
 
-import android.widget.Toast
 import tanoshi.multiplatform.shared.SharedApplicationData
 
 class MyApplication : SharedApplicationData() {
 
+    var manageStorage : Boolean = false
+
     override fun onCreate() {
         super.onCreate()
-        logger log {
-            DEBUG
-            "App Started At $appStartUpTime"
-        }
         extensionManager.apply {
             applicationContext = this@MyApplication.applicationContext
         }
@@ -23,9 +20,11 @@ class MyApplication : SharedApplicationData() {
     private fun handleUncaughtException( thread : Thread , throwable : Throwable ) {
         logger log {
             ERROR
+            title = "Uncaught Exception"
             throwable.stackTraceToString()
         }
         startCrashActivity()
     }
+
     
 }

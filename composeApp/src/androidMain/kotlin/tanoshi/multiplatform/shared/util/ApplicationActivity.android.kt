@@ -4,16 +4,15 @@ import android.content.Intent
 import android.content.res.Configuration
 import android.os.Bundle
 import androidx.activity.ComponentActivity
-import tanoshi.multiplatform.shared.SharedApplicationData
+import tanoshi.multiplatform.android.MyApplication
 
 actual open class ApplicationActivity : ComponentActivity() {
 
-    lateinit var sharedApplicationData : SharedApplicationData
-    
+    lateinit var sharedApplicationData : MyApplication
     lateinit var saved : () -> Unit
     
     override fun onCreate(savedInstanceState: Bundle? ) {
-        sharedApplicationData = application as SharedApplicationData
+        sharedApplicationData = application as MyApplication
         sharedApplicationData._portrait = resources.configuration.orientation == 1
         sharedApplicationData.startCrashActivity = {}
         super.onCreate(savedInstanceState)
@@ -50,6 +49,7 @@ var ApplicationActivity.setCrashActivity : Class<*>
         }
         sharedApplicationData.logger log {
             DEBUG
-            "Attached Crash Handling Activity : ${this@setCrashActivity::class.java} -> ${value.canonicalName}".replace( "class" , "" )
+            title = "Attached Crash Handling Activity"
+            "${this@setCrashActivity::class.java} -> ${value.canonicalName}".replace( "class" , "" )
         }
     }

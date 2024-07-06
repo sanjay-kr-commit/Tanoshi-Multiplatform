@@ -28,4 +28,13 @@ actual open class SharedApplicationData(
     actual val portrait : Boolean
         get() = _portrait
 
+    init {
+        logger log {
+            title = "App Start Up Time"
+            "App Started At $appStartUpTime"
+        }
+        extensionManager.logger = logger
+        extensionManager.extensionLoader.logger = logger
+    }
+
 }
