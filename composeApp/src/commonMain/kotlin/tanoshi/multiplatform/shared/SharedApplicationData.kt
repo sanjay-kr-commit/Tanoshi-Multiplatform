@@ -2,6 +2,7 @@ package tanoshi.multiplatform.shared
 
 import tanoshi.multiplatform.common.util.logger.Logger
 import tanoshi.multiplatform.shared.extension.ExtensionManager
+import java.io.File
 
 expect class SharedApplicationData {
     
@@ -14,5 +15,7 @@ expect class SharedApplicationData {
     val logger : Logger
 
     val portrait : Boolean
-    
+
+    var appDir : File
+
 }

@@ -8,6 +8,7 @@ import tanoshi.multiplatform.common.util.currentDateTime
 import tanoshi.multiplatform.common.util.logger
 import tanoshi.multiplatform.common.util.logger.Logger
 import tanoshi.multiplatform.shared.extension.ExtensionManager
+import java.io.File
 
 actual open class SharedApplicationData(
 
@@ -36,5 +37,7 @@ actual open class SharedApplicationData(
         extensionManager.logger = logger
         extensionManager.extensionLoader.logger = logger
     }
+
+    actual var appDir: File = File( "" )
 
 }

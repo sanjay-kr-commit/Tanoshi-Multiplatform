@@ -12,7 +12,9 @@ import tanoshi.multiplatform.desktop.util.customApplication
 import tanoshi.multiplatform.shared.SharedApplicationData
 import java.io.File
 
-fun main() : Unit = SharedApplicationData().apply {
+fun main() : Unit = SharedApplicationData(
+
+).apply {
 //    extensionManager.uninstall( "com.sanjay.extension" )
 //    extensionManager.install( "com.sanjay.extension" , File( "/home/sanjay/projects/Tanoshi-Multiplatform/extensions/build/libs/extensions-jvm.jar.tanoshi" ) )
 //    extensionManager.loadExtensions()

@@ -1,14 +1,8 @@
 package tanoshi.multiplatform.shared.extension
 
-import androidx.compose.material.Icon
 import androidx.compose.material.Text
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Warning
 import androidx.compose.runtime.Composable
-import org.jetbrains.compose.resources.ExperimentalResourceApi
-import org.jetbrains.compose.resources.painterResource
 import tanoshi.multiplatform.common.exception.extensionManager.IllegalDependenciesFoundException
-import tanoshi.multiplatform.common.extension.annotations.IconName
 import tanoshi.multiplatform.common.extension.core.Extension
 import tanoshi.multiplatform.common.util.logger.Logger
 import tanoshi.multiplatform.common.util.restrictedClasses

@@ -19,6 +19,18 @@ class MyApplication : SharedApplicationData() {
 
     override fun onCreate() {
         super.onCreate()
+        try {
+            appDir = Environment.getExternalStorageDirectory()
+            logger log {
+                title = "Internal Storage Path"
+                appDir.absolutePath
+            }
+        } catch ( e : Exception ) {
+            logger log {
+                title = "Cannot Access Internal Storage Path"
+                e.stackTraceToString()
+            }
+        }
         extensionManager.apply {
             applicationContext = this@MyApplication.applicationContext
         }

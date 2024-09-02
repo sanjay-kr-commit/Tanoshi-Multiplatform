@@ -6,6 +6,7 @@ import tanoshi.multiplatform.common.util.currentDateTime
 import tanoshi.multiplatform.common.util.logger
 import tanoshi.multiplatform.common.util.logger.Logger
 import tanoshi.multiplatform.shared.extension.ExtensionManager
+import java.io.File
 
 actual open class SharedApplicationData(
 
@@ -18,6 +19,8 @@ actual open class SharedApplicationData(
     actual val logger : Logger = logger(),
 
     val windowState: WindowState = WindowState() ,
+
+    actual var appDir: File = File( System.getProperty( "user.dir" ) , "tanoshi" )
 
 ) {
 
@@ -33,6 +36,11 @@ actual open class SharedApplicationData(
             title = "App Start Up Time"
             "App Started At $appStartUpTime"
         }
+        logger log {
+            title = "App Directory"
+            appDir.absolutePath
+        }
+        extensionManager.dir = File( appDir , "extensions" )
         extensionManager.logger = logger
         extensionManager.extensionLoader.logger = logger
         extensionManager.dir.listFiles()?.forEach { extensionId ->
@@ -41,5 +49,5 @@ actual open class SharedApplicationData(
             }
         }
     }
-    
+
 }
