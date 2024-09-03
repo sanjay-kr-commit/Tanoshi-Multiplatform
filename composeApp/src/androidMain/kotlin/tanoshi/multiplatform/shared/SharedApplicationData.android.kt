@@ -20,8 +20,12 @@ actual open class SharedApplicationData(
 
     actual val logger : Logger = logger() ,
 
-    var startCrashActivity : () -> Unit = {}
-    
+    var startCrashActivity : () -> Unit = {} ,
+
+    actual var publicDir: File = File( "" ) ,
+
+    actual var privateDir : File = File("")
+
 ) : Application() {
     
     var _portrait : Boolean by mutableStateOf( true )
@@ -38,6 +42,5 @@ actual open class SharedApplicationData(
         extensionManager.extensionLoader.logger = logger
     }
 
-    actual var appDir: File = File( "" )
 
 }

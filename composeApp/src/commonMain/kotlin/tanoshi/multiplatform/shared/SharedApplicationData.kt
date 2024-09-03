@@ -16,6 +16,8 @@ expect class SharedApplicationData {
 
     val portrait : Boolean
 
-    var appDir : File
+    var publicDir : File
+
+    var privateDir : File
 
 }

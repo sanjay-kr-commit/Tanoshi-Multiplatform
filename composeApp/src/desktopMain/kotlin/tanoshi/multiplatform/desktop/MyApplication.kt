@@ -10,7 +10,6 @@ import tanoshi.multiplatform.common.screens.LogScreen
 import tanoshi.multiplatform.desktop.util.WindowStack
 import tanoshi.multiplatform.desktop.util.customApplication
 import tanoshi.multiplatform.shared.SharedApplicationData
-import java.io.File
 
 fun main() : Unit = SharedApplicationData(
 
@@ -21,7 +20,6 @@ fun main() : Unit = SharedApplicationData(
 }.run {
 
     val windowStack = WindowStack( App() , this )
-
 
     customApplication( this ) {
         Window( onCloseRequest = ::exitApplication , state = windowState) {

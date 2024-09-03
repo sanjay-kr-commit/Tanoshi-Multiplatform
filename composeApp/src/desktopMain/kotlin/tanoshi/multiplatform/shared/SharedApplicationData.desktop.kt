@@ -20,7 +20,9 @@ actual open class SharedApplicationData(
 
     val windowState: WindowState = WindowState() ,
 
-    actual var appDir: File = File( System.getProperty( "user.dir" ) , "tanoshi" )
+    actual var publicDir: File = File( System.getProperty( "user.dir" ) , "tanoshi" ) ,
+
+    actual var privateDir : File = File( System.getProperty( "user.dir" ) , ".tanoshi" )
 
 ) {
 
@@ -38,9 +40,9 @@ actual open class SharedApplicationData(
         }
         logger log {
             title = "App Directory"
-            appDir.absolutePath
+            publicDir.absolutePath
         }
-        extensionManager.dir = File( appDir , "extensions" )
+        extensionManager.dir = File( privateDir , "extensions" )
         extensionManager.logger = logger
         extensionManager.extensionLoader.logger = logger
         extensionManager.dir.listFiles()?.forEach { extensionId ->

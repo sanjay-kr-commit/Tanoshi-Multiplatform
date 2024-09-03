@@ -20,10 +20,22 @@ class MyApplication : SharedApplicationData() {
     override fun onCreate() {
         super.onCreate()
         try {
-            appDir = Environment.getExternalStorageDirectory()
+            privateDir = getDir( "tanoshi" , MODE_PRIVATE )
+            logger log {
+                title = "Private Storage Path"
+                privateDir.absolutePath
+            }
+        } catch ( e : Exception ) {
+            logger log {
+                title = "Cannot Access App Internal Storage Path"
+                e.stackTraceToString()
+            }
+        }
+        try {
+            publicDir = Environment.getExternalStorageDirectory()
             logger log {
                 title = "Internal Storage Path"
-                appDir.absolutePath
+                publicDir.absolutePath
             }
         } catch ( e : Exception ) {
             logger log {
