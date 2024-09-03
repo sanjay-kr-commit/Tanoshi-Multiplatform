@@ -17,7 +17,7 @@ junit = "4.13.2"
 kotlin = "1.9.21"
 okhttp="2.7.5"
 jsoup="1.17.1"
-exposedVersion="0.51.1"
+exposedVersion="0.54.0"
 
 [libraries]
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
