@@ -6,11 +6,14 @@ import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Build.VERSION.SDK_INT
 import android.os.Environment
+import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.core.content.ContextCompat
+import dalvik.system.ZipPathValidator
 import tanoshi.multiplatform.shared.SharedApplicationData
+import java.io.File
 
 
 class MyApplication : SharedApplicationData() {
@@ -19,6 +22,12 @@ class MyApplication : SharedApplicationData() {
 
     override fun onCreate() {
         super.onCreate()
+
+        // set uncaught exception thread
+        Thread.setDefaultUncaughtExceptionHandler { thread, throwable ->
+            handleUncaughtException( thread , throwable )
+        }
+
         try {
             privateDir = getDir( "tanoshi" , MODE_PRIVATE )
             logger log {
@@ -44,13 +53,11 @@ class MyApplication : SharedApplicationData() {
             }
         }
         extensionManager.apply {
-            applicationContext = this@MyApplication.applicationContext
+            dir = File( privateDir , "extensions" )
         }
         manageStorage = checkForStoragePermission()
-        // set uncaught exception thread
-        Thread.setDefaultUncaughtExceptionHandler { thread, throwable ->
-            handleUncaughtException( thread , throwable )
-        }
+
+        disableZipValidator()
     }
     
     private fun handleUncaughtException( thread : Thread , throwable : Throwable ) {
@@ -59,6 +66,7 @@ class MyApplication : SharedApplicationData() {
             title = "Uncaught Exception"
             throwable.stackTraceToString()
         }
+        Log.e( "err" , throwable.stackTraceToString() )
         startCrashActivity()
     }
 
@@ -70,6 +78,22 @@ class MyApplication : SharedApplicationData() {
              result == PackageManager.PERMISSION_GRANTED && result1 == PackageManager.PERMISSION_GRANTED
         }
     }
+
+    private fun disableZipValidator() {
+        if (SDK_INT >= 34) {
+            ZipPathValidator.clearCallback()
+        }
+    }
+
+//    private fun receiveCallback(){
+//        if (Build.VERSION.SDK_INT >= 34) {
+//            ZipPathValidator.setCallback(object : ZipPathValidator.Callback {
+//                override fun onZipEntryAccess(path: String) {
+//                    Log.d( "invalid" , path )
+//                }
+//            })
+//        }
+//    }
 
     
 }

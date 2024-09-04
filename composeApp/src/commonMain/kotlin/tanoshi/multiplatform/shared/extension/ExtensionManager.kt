@@ -21,4 +21,13 @@ expect class ExtensionManager {
 
     val Extension.icon : @Composable () -> Unit
 
+    var dir : File
+
 }
+
+val ExtensionManager.packageList : List<String>
+    get() = ArrayList<String>().apply {
+        dir.listFiles()?.let { addAll( it.map { file ->
+            file.name.toString()
+        } ) }
+    }

@@ -14,7 +14,7 @@ actual class ExtensionManager {
 
     lateinit var logger: Logger
 
-    var dir : File = File( System.getProperty( "user.dir" ) , "tanoshi/extensions" )
+    actual var dir : File = File( System.getProperty( "user.dir" ) , ".tanoshi/extensions" )
     
     actual val extensionLoader: ExtensionLoader = ExtensionLoader()
 
@@ -143,7 +143,7 @@ actual class ExtensionManager {
         }
         dir.listFiles()?.forEach { extensionId ->
             extensionId.listFiles()?.forEach { jar ->
-                extensionLoader.loadTanoshiExtension( jar.absolutePath )
+                extensionLoader.loadTanoshiExtension( jar )
             }
         }
     }

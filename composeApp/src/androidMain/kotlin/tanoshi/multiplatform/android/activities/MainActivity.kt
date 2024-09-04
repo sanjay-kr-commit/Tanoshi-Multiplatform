@@ -31,8 +31,10 @@ class MainActivity : ApplicationActivity() {
         setContent {
             when {
                 !sharedApplicationData.manageStorage -> RequestStoragePermission()
-                else -> Column {
-                    Spacer( Modifier.height( 20.dp ) )
+                else -> Column(
+                    modifier = Modifier.fillMaxSize()
+                        .systemBarsPadding()
+                ) {
                     MainScreen(
                         sharedApplicationData ,
                         mainScreenViewModel

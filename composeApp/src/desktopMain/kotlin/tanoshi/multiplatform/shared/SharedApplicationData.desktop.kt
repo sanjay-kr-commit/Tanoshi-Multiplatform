@@ -47,7 +47,7 @@ actual open class SharedApplicationData(
         extensionManager.extensionLoader.logger = logger
         extensionManager.dir.listFiles()?.forEach { extensionId ->
             extensionId.listFiles()?.forEach { jar ->
-                extensionManager.extensionLoader.loadTanoshiExtension( jar.absolutePath )
+                extensionManager.extensionLoader.loadTanoshiExtension( jar )
             }
         }
     }

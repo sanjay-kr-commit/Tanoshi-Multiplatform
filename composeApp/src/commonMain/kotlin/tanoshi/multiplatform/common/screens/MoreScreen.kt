@@ -13,6 +13,7 @@ import androidx.compose.material.Icon
 import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.DeveloperMode
 import androidx.compose.material.icons.filled.Error
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.runtime.Composable
@@ -82,7 +83,8 @@ private enum class MoreScreenEntries(
     val icon : ImageVector
 ) {
     LogScreen( "Log Screen" , Icons.Filled.Error ),
-    InternalStateScreen( "Internal State" , Icons.Filled.Info )
+    InternalStateScreen( "Internal State" , Icons.Filled.Info ) ,
+    DeveloperOptions( "Developer Option" , Icons.Filled.DeveloperMode )
 }
 
 @Composable
@@ -95,6 +97,9 @@ private fun SharedApplicationData.MoreScreenCatalog(
         }
         Screen( MoreScreenEntries.InternalStateScreen.name ) {
             InternalStateScreen( this@MoreScreenCatalog )
+        }
+        Screen( MoreScreenEntries.DeveloperOptions.name ) {
+            DeveloperOptionsScreen( this@MoreScreenCatalog )
         }
     }
 }

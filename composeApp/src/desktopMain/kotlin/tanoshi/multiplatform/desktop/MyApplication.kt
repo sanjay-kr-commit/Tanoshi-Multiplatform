@@ -13,11 +13,7 @@ import tanoshi.multiplatform.shared.SharedApplicationData
 
 fun main() : Unit = SharedApplicationData(
 
-).apply {
-//    extensionManager.uninstall( "com.sanjay.extension" )
-//    extensionManager.install( "com.sanjay.extension" , File( "/home/sanjay/projects/Tanoshi-Multiplatform/extensions/build/libs/extensions-jvm.jar.tanoshi" ) )
-//    extensionManager.loadExtensions()
-}.run {
+).run {
 
     val windowStack = WindowStack( App() , this )
 

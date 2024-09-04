@@ -1,29 +1,25 @@
 package tanoshi.multiplatform.shared.extension
 
-import android.content.Context
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import tanoshi.multiplatform.common.exception.extensionManager.IllegalDependenciesFoundException
 import tanoshi.multiplatform.common.extension.core.Extension
 import tanoshi.multiplatform.common.util.logger.Logger
 import tanoshi.multiplatform.common.util.restrictedClasses
+import java.io.BufferedInputStream
 import java.io.File
 import java.io.FileInputStream
-import java.util.zip.ZipFile
+import java.util.zip.ZipEntry
+import java.util.zip.ZipInputStream
+
 
 actual class ExtensionManager {
 
+    actual var dir : File = File("")
+
     lateinit var logger: Logger
 
-    private lateinit var _applicationContext : Context
-    
     actual val extensionLoader: ExtensionLoader = ExtensionLoader()
-    var applicationContext : Context
-        get() = _applicationContext
-        set(value) {
-            extensionLoader.applicationContext = value
-            _applicationContext = value
-        }
     
     var mappedRestrictedDependencies = HashMap<String,HashSet<String>>()
 
@@ -47,24 +43,30 @@ actual class ExtensionManager {
             }
         }
 
-    actual fun install( extensionId: String , file: File ) {
+    actual fun install(extensionId: String, file: File ) {
         install( extensionId , file.inputStream() )
     }
-    
-    actual fun install(extensionId: String, fileInputStream: FileInputStream) : Unit = _applicationContext.run {
+
+    actual fun install(extensionId: String, fileInputStream: FileInputStream) : Unit {
+
         logger log {
             DEBUG
             title = "Installing $extensionId"
             title
         }
+
         // clean up
         mappedRestrictedDependencies = HashMap()
-        getDir( "extension/temp" , Context.MODE_PRIVATE ).deleteRecursively()
+
+        File( dir , "temp" ).deleteRecursively()
+
         // extract extension in temporary directory
-        val extensionDir = getDir( "extension/temp/" , Context.MODE_PRIVATE ).also {
-            if ( !it.isDirectory ) it.mkdirs()
+        val extensionDir = File( dir , "temp" ).apply {
+            if ( !isDirectory ) mkdirs()
         }
+
         val extensionFile = File( extensionDir , "extension.tanoshi" )
+
         extensionFile.outputStream().use { output ->
             fileInputStream.use { input ->
                 val buffer = ByteArray( 1024 )
@@ -74,24 +76,17 @@ actual class ExtensionManager {
                 }
             }
         }
-        ZipFile( extensionFile ).use { extension ->
-            extension.entries().asSequence().forEach { entry ->
-                val name = entry.name
-                if ( name.endsWith( ".dex" ) ) {
-                    extension.getInputStream( entry ).use { input ->
-                        File(
-                            extensionDir ,
-                            if ( name.contains( "/" ) ) name.substring( name.lastIndexOf( "/" )+1 )
-                            else name
-                        ).outputStream().use { output ->
-                            val buffer = ByteArray( 1024 )
-                            var len = 0
-                            while ( input.read( buffer ).also { len = it } > 0 ) {
-                                output.write( buffer , 0 , len )
-                            }
-                        }
-                    }
-                }
+
+        ZipInputStream( BufferedInputStream( FileInputStream( extensionFile ) ) ).use { extension ->
+            var zipEntry : ZipEntry? = extension.nextEntry
+            while (zipEntry != null) {
+
+                val isDirectory = zipEntry.name.endsWith(File.separator)
+
+                if ( isDirectory ) File( extensionDir , zipEntry.name ).mkdirs()
+                else extension.copyTo( File( extensionDir , zipEntry.name ).outputStream() )
+
+                zipEntry = extension.nextEntry
             }
         }
 
@@ -118,20 +113,18 @@ actual class ExtensionManager {
 
         // installed
         extensionDir.renameTo(
-            getDir(
-                "extension/$extensionId" , Context.MODE_PRIVATE
-            )
+            File( dir , extensionId )
         )
 
     }
 
-    actual fun uninstall(extensionId: String) : Unit = _applicationContext.run {
+    actual fun uninstall(extensionId: String) : Unit {
         logger log {
             DEBUG
             title = "Uninstalling $extensionId"
             title
         }
-        getDir( "extension/$extensionId" , Context.MODE_PRIVATE ).deleteRecursively()
+        File( dir , extensionId ).deleteRecursively()
         extensionLoader.loadedExtensionClasses.clear()
         loadExtensions()
     }
@@ -141,14 +134,14 @@ actual class ExtensionManager {
         extensionLoader.classList.clear()
     }
 
-    actual fun loadExtensions() : Unit = _applicationContext.run {
+    actual fun loadExtensions() {
         logger log {
             DEBUG
             title = "Loading Extension"
             title
         }
-        getDir( "extension" , Context.MODE_PRIVATE ).listFiles()?.forEach { extensionId ->
-            extensionLoader.loadTanoshiExtension( extensionId.toString() )
+        dir.listFiles()?.forEach { extensionId ->
+            extensionLoader.loadTanoshiExtension( extensionId )
         }
     }
 

@@ -22,15 +22,15 @@ actual class ExtensionLoader {
     // pair( pair(package name , archive name) , extension )
     actual val loadedExtensionClasses : ArrayList< Pair<Pair<String,String> , Extension> > = ArrayList()
 
-    actual fun loadTanoshiExtension( vararg tanoshiExtensionFile : String ) {
+    actual fun loadTanoshiExtension( vararg tanoshiExtensionFile : File ) {
         if ( !::applicationContext.isInitialized ) throw UninitializedPropertyAccessException( "application context not initialised" )
         tanoshiExtensionFile.forEach { tanoshiFile ->
             loadTanoshiFile( tanoshiFile )
         }
     }
     
-    private fun loadTanoshiFile( tanoshiExtensionFile: String ) = applicationContext.run {
-        val dexFiles : List<String> = getDir( "extension/$tanoshiExtensionFile" , Context.MODE_PRIVATE ).listFiles().run {
+    private fun loadTanoshiFile( tanoshiExtensionFile: File ) = applicationContext.run {
+        val dexFiles : List<String> = tanoshiExtensionFile.listFiles().run {
             val listOfDexFile = ArrayList<String>()
             forEach { file ->
                 val fileString = file.toString()
@@ -49,8 +49,8 @@ actual class ExtensionLoader {
         }
     }
     
-    private fun loadDexFile( tanoshiExtensionFile: String , dexFileName : String ) = applicationContext.run {
-        val file = File( getDir( "extension/$tanoshiExtensionFile" , Context.MODE_PRIVATE ) , dexFileName )
+    private fun loadDexFile( tanoshiExtensionFile: File , dexFileName : String ) = applicationContext.run {
+        val file = File( tanoshiExtensionFile , dexFileName )
         val classLoader = PathClassLoader( file.absolutePath , classLoader )
         val classNameList : List<String> = Regex( "L[a-zA-Z0-9/]*;" ).findAll( file.readText() ).run {
             val nameList = ArrayList<String>( count() )
@@ -68,7 +68,7 @@ actual class ExtensionLoader {
                 if (obj is Extension) {
                     try {
                         if ( classList.contains( name ) ) throw Exception( "Duplicate Class Found" )
-                        loadedExtensionClasses.add( Pair( Pair( name , tanoshiExtensionFile) , obj ) )
+                        loadedExtensionClasses.add( Pair( Pair( name , tanoshiExtensionFile.absolutePath) , obj ) )
                         classList.add( name )
                         logger log {
                             DEBUG
@@ -132,5 +132,5 @@ actual class ExtensionLoader {
                 }
             }
         }
-    
+
 }

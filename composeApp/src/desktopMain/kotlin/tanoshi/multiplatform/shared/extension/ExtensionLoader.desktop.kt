@@ -20,7 +20,7 @@ actual class ExtensionLoader {
     // pair( pair(package name , archive name) , extension )
     actual val loadedExtensionClasses : ArrayList<Pair< Pair<String,String> , Extension >> = ArrayList()
 
-    actual fun loadTanoshiExtension( vararg tanoshiExtensionFile : String ) = tanoshiExtensionFile.forEach { extensionFile ->
+    actual fun loadTanoshiExtension( vararg tanoshiExtensionFile : File ) = tanoshiExtensionFile.forEach { extensionFile ->
         try {
             loadExtension( extensionFile )
         } catch ( e : Exception ) {
@@ -38,9 +38,9 @@ actual class ExtensionLoader {
         } 
     }
     
-    private fun loadExtension(tanoshiExtensionFile : String ) {
+    private fun loadExtension(tanoshiExtensionFile : File ) {
         val classLoader = URLClassLoader(
-            arrayOf( tanoshiExtensionFile.url ) ,
+            arrayOf( tanoshiExtensionFile.absolutePath.url ) ,
             this.javaClass.classLoader
         )
         val classNameList : ArrayList<String> = ArrayList()
@@ -56,7 +56,7 @@ actual class ExtensionLoader {
                 if (obj is Extension) {
                     try {
                         if ( classList.contains( name ) ) throw Exception( "Duplicate Class Found" )
-                        loadedExtensionClasses.add( Pair( Pair( name , tanoshiExtensionFile) , obj ) )
+                        loadedExtensionClasses.add( Pair( Pair( name , tanoshiExtensionFile.absolutePath) , obj ) )
                         classList.add( name )
                         logger log {
                             DEBUG
