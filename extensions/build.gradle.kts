@@ -22,6 +22,13 @@ kotlin {
     }
 }
 
+
+tasks.withType( Jar::class.java ) {
+    manifest {
+        attributes["extension-namespace"] = "hello.world"
+    }
+}
+
 tasks.register<Zip>("sourcesJar") {
     println( "Hello world" )
 }
