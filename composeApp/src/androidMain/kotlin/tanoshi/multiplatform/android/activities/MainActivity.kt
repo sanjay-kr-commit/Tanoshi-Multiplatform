@@ -9,20 +9,25 @@ import android.os.Bundle
 import android.provider.Settings
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.material.Button
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
 import androidx.core.app.ActivityCompat
 import tanoshi.multiplatform.common.model.MainScreenViewModel
 import tanoshi.multiplatform.common.screens.MainScreen
 import tanoshi.multiplatform.shared.util.ApplicationActivity
 import tanoshi.multiplatform.shared.util.setCrashActivity
+import java.util.Stack
 
 class MainActivity : ApplicationActivity() {
+
+    val onResumeTask : Stack<()->Unit> = Stack()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -44,12 +49,19 @@ class MainActivity : ApplicationActivity() {
         }
     }
 
+    override fun onResume() {
+        super.onResume()
+        while ( onResumeTask.isNotEmpty() ) onResumeTask.pop().invoke()
+    }
+
     @Composable
     fun RequestStoragePermission() {
         Box( modifier = Modifier.fillMaxSize() , contentAlignment = Alignment.Center ) {
             Button( onClick = {
                 requestPermission()
-                sharedApplicationData.manageStorage = sharedApplicationData.checkForStoragePermission()
+                onResumeTask.push {
+                    sharedApplicationData.manageStorage = sharedApplicationData.checkForStoragePermission()
+                }
             } ) {
                 Text( "Storage Permission Required" )
             }
