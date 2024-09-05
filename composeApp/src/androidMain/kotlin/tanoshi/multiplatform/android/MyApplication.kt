@@ -7,6 +7,7 @@ import android.os.Build
 import android.os.Build.VERSION.SDK_INT
 import android.os.Environment
 import android.util.Log
+import android.widget.Toast
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -41,6 +42,18 @@ class MyApplication : SharedApplicationData() {
             }
         }
         try {
+            appCacheDir = getCacheDir()
+            logger log {
+                title = "Cache Storage Path"
+                appCacheDir.absolutePath
+            }
+        } catch ( e : Exception ) {
+            logger log {
+                title = "Cannot Access App Cache Storage Path"
+                e.stackTraceToString()
+            }
+        }
+        try {
             publicDir = Environment.getExternalStorageDirectory()
             logger log {
                 title = "Internal Storage Path"
@@ -54,9 +67,13 @@ class MyApplication : SharedApplicationData() {
         }
         extensionManager.apply {
             dir = File( privateDir , "extensions" )
+            cacheDir = this@MyApplication.appCacheDir
+            classLoader = this@MyApplication.classLoader
         }
         manageStorage = checkForStoragePermission()
-
+        showToastLambda = { message , timeout ->
+            Toast.makeText( this@MyApplication , message , timeout ).show()
+        }
         disableZipValidator()
     }
     

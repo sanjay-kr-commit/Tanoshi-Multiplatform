@@ -20,4 +20,6 @@ expect class SharedApplicationData {
 
     var privateDir : File
 
+    var appCacheDir : File
+
 }

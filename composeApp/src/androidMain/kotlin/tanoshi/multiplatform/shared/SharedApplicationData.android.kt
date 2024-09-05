@@ -42,5 +42,8 @@ actual open class SharedApplicationData(
         extensionManager.extensionLoader.logger = logger
     }
 
+    actual var appCacheDir: File = File( "cache" )
+
+    lateinit var showToastLambda : ( String , Int ) -> Unit
 
 }
