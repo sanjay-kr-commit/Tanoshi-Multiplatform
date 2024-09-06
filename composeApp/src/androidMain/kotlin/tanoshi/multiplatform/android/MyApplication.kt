@@ -74,6 +74,15 @@ class MyApplication : SharedApplicationData() {
         showToastLambda = { message , timeout ->
             Toast.makeText( this@MyApplication , message , timeout ).show()
         }
+        try {
+            extensionManager.loadExtensions()
+        } catch ( e : Exception ) {
+            logger log  {
+                ERROR
+                title = "Failed To Load Extensions"
+                e.stackTraceToString()
+            }
+        }
         disableZipValidator()
     }
     

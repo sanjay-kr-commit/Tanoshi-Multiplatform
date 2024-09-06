@@ -36,7 +36,7 @@ val ExtensionManager.packageList : List<String>
 
 fun ExtensionManager.uninstall(extensionId: String) {
     val extensionDir = File( dir , extensionId )
-    extensionDir.setWritable( true )
+    extensionDir.walk().forEach { it.setWritable( true ) }
     if ( extensionDir.isDirectory ) extensionDir.deleteRecursively()
     if ( extensionDir.isFile ) extensionDir.delete()
 }
@@ -111,11 +111,14 @@ fun ExtensionManager.extractExtension( file: File , logger: Logger ) : File? {
 
     val extensionDir = File( dir , extensionId )
     extensionDir.setWritable( true )
-    if ( extensionDir.isDirectory ) extensionDir.deleteRecursively()
+    if ( extensionDir.isDirectory ) {
+        extensionDir.walk().forEach { it.setWritable( true ) }
+        extensionDir.deleteRecursively()
+    }
     if ( extensionDir.isFile ) extensionDir.delete()
     if ( !extensionDir.isDirectory ) extensionDir.mkdirs()
 
-    cacheExtensionDir.copyRecursively( extensionDir )
+    cacheExtensionDir.copyRecursively( extensionDir , overwrite = true )
 
     return extensionDir
 }
