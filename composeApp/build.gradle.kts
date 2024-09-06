@@ -42,9 +42,15 @@ kotlin {
             implementation( libs.okhttp )
             implementation( libs.jsoup )
             implementation(compose.materialIconsExtended)
+            // https://mvnrepository.com/artifact/com.google.code.gson/gson
+            implementation("com.google.code.gson:gson:2.11.0")
+
         }
         desktopMain.dependencies {
             implementation(compose.desktop.currentOs)
+            // https://mvnrepository.com/artifact/com.google.code.gson/gson
+            implementation("com.google.code.gson:gson:2.11.0")
+
         }
     }
 }

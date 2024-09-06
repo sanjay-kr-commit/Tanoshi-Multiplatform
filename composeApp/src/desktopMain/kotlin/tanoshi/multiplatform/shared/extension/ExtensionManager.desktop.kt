@@ -1,158 +1,149 @@
 package tanoshi.multiplatform.shared.extension
 
+import androidx.compose.material.Icon
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
-import tanoshi.multiplatform.common.exception.extensionManager.IllegalDependenciesFoundException
+import com.google.gson.Gson
+import tanoshi.multiplatform.common.extension.annotations.IconName
 import tanoshi.multiplatform.common.extension.core.Extension
+import tanoshi.multiplatform.common.util.child
 import tanoshi.multiplatform.common.util.logger.Logger
-import tanoshi.multiplatform.common.util.restrictedClasses
 import java.io.File
-import java.io.FileInputStream
-import java.util.zip.ZipFile
+import java.lang.ClassCastException
+import java.net.URL
+import java.net.URLClassLoader
 
 actual class ExtensionManager {
 
     lateinit var logger: Logger
 
     actual var dir : File = File( System.getProperty( "user.dir" ) , ".tanoshi/extensions" )
-    
+
+    actual var cacheDir : File = File( System.getProperty( "user.dir" ) , ".tanoshi/cache" )
+
     actual val extensionLoader: ExtensionLoader = ExtensionLoader()
 
-    var mappedRestrictedDependencies = HashMap<String,HashSet<String>>()
+    private val gson = Gson()
 
-    private val String.isRestricted : Boolean
-        get() = restrictedClasses.contains( this )
+    actual fun install(file: File) {
+        extractExtension(file, logger)?.let { extensionDir ->
 
+            extensionDir.child( "source.tanoshi" ).copyTo( extensionDir.child( "source.jar" ) )
 
-    private fun checkExtensionForRestrictedDepencies(
-        extension : String
-    ) = ZipFile( extension ).use { zip ->
-        zip.entries().asSequence().forEach { zipEntry ->
-            if ( zipEntry.name.endsWith( ".class" ) ) {
-                val classBuffer = zip.getInputStream( zipEntry ).bufferedReader().use{ it.readText() }
-                checkRestrictedDependencies( zipEntry.name.replace( "/" , "." ) , classBuffer )
-            }
-        }
-    }
+            val classDependencies = ArrayList<Pair<String,List<String>>>()
+            val extensionClasses = ArrayList<String>()
+            val extensionIcon = ArrayList<Pair<String,String>>()
 
-    private fun checkRestrictedDependencies( parentClass : String , classBuffer : String ) = Regex( "L[0-9a-zA-Z/]*;" ).findAll( classBuffer )
-        .map { it.value.replace( "/" , "." ).replace( ";" , "" ).substring( 1 ) }
-        .let { dependencyClasses ->
-            dependencyClasses.forEach { dependencyName ->
-                if ( dependencyName.isRestricted ) {
-                    mappedRestrictedDependencies[parentClass]?.add( dependencyName ) ?: run {
-                        mappedRestrictedDependencies[parentClass] = hashSetOf( dependencyName )
+            val classPath = extensionDir.walk().filter {
+                it.absolutePath.endsWith( ".class" )
+            }.map {
+                it.absolutePath.removePrefix( extensionDir.absolutePath )
+                    .removeSuffix( ".class" )
+                    .removePrefix( "/" )
+                    .replace( "/" , "." )
+            }.toList()
+
+            val classLoader = URLClassLoader(
+                arrayOf( extensionDir.child( "source.jar" ).absolutePath.url ) ,
+                this.javaClass.classLoader
+            )
+
+            classPath.forEach { className ->
+                try {
+                    val loadedClass: Class<*> = classLoader.loadClass(className)
+                    val obj: Any = loadedClass.getDeclaredConstructor().newInstance()
+                    if (obj !is Extension) throw ClassCastException( "$className is not an extension" )
+                    extensionClasses.add( className )
+                    obj::class.java.annotations.filterIsInstance<IconName>().firstOrNull()?.let { iconName ->
+                        if ( extensionDir.child( iconName.icon ).isFile ) {
+                            extensionIcon += className to iconName.icon
+                        }
+                    }
+                    addDependencyTree( className , classPath , extensionDir , classDependencies )
+                } catch ( e : Exception ) {
+                    logger log {
+                        ERROR
+                        title = "checking $className"
+                        e.stackTraceToString()
                     }
                 }
             }
+
+            extensionDir.child( "extensionClasses.json" )
+                .writeText(
+                    gson.toJson( extensionClasses )
+                )
+
+            extensionDir.child( "extensionIcon.json" )
+                .writeText(
+                    gson.toJson( extensionIcon )
+                )
+
+            extensionDir.child( "extensionClassDependencyTree.json" )
+                .writeText(
+                    gson.toJson( classDependencies )
+                )
+
         }
-    
-    actual fun install(extensionId: String, file: File) {
-        install( extensionId, file.inputStream() ) ;
     }
 
-    actual fun install(extensionId: String, fileInputStream: FileInputStream) {
-        logger log {
-            DEBUG
-            title = "Installing $extensionId"
-            title
+    private fun addDependencyTree(
+        className : String,
+        classList : List<String>,
+        extensionDir : File,
+        classDependencies :ArrayList<Pair<String,List<String>>> ,
+        visited : HashSet<String> = hashSetOf()
+    ) {
+        if ( visited.contains( className ) ) return
+        visited.add( className )
+        val dependencies = extensionDir.child( className.replace( "." , "/" ) + ".class" ).readText()
+            .let { buffer ->
+                Regex( "L[a-zA-Z0-9/]*;" ).findAll( buffer )
+            }.map { compClassName ->
+                compClassName.value
+                    .replace( "/" , "." )
+                    .let { name ->
+                        name.substring( 1 , name.length-1 )
+                    }
+            }.filter { dependencyClassName ->
+                classList.contains( dependencyClassName )
+            }.toList()
+        classDependencies += className to dependencies
+        dependencies.forEach { dependencyClassName ->
+            addDependencyTree( dependencyClassName , classList , extensionDir , classDependencies , visited )
         }
-        mappedRestrictedDependencies = HashMap()
-        // clean up
-        File( dir , "temp" ).deleteRecursively()
-        // write to temporary directory
-        val extensionFile = File( dir , "temp/$extensionId/extension.jar" )
-        extensionFile.absoluteFile.parentFile.let {
-            if ( !it.isDirectory ) it.mkdirs()
-        }
-        val extensionResource = File( dir , "temp/$extensionId/" )
-        extensionFile.outputStream().use { extension ->
-            val buffer : ByteArray = ByteArray( 1024 )
-            var len : Int
-            while ( fileInputStream.read( buffer ).also { len = it } > 0 ) {
-                extension.write( buffer , 0 , len )
-            }
-        }
+    }
 
-        // unpack resources
-        ZipFile( extensionFile ).use { loadedExtension ->
-            for ( zipPath in loadedExtension.entries().asSequence() ) {
-                if ( zipPath.isDirectory ) continue
-                val zipPathString = zipPath.toString()
-                if ( zipPathString.endsWith( ".class" ) || zipPathString.endsWith( ".dex" ) || zipPathString.endsWith( ".kotlin_module" ) ) continue
-                var i = 0
-                while ( i < zipPathString.length && zipPathString[i] == '\\' ) i++
-                while ( i < zipPathString.length && zipPathString[i] == '/' ) i++
-                val exportedFile = File( dir , "temp/$extensionId/${zipPathString.substring( i )}" )
-                if ( exportedFile.isFile ) exportedFile.delete()
-                if ( !exportedFile.parentFile.isDirectory ) exportedFile.parentFile.mkdirs()
-                exportedFile.outputStream().buffered().use { exportAddress ->
-                    loadedExtension.getInputStream( zipPath ).copyTo(
-                        exportAddress , 1024
-                    )
+    @Suppress("UNCHECKED_CAST")
+    actual fun loadExtensions() {
+        dir.listFiles()?.forEach { extensionDir ->
+            try {
+                val extensionClasses: ArrayList<String> = gson.fromJson(
+                    extensionDir.child("extensionClasses.json").readText(),
+                    ArrayList::class.java
+                ) as ArrayList<String>
+                extensionLoader.loadTanoshiExtension(
+                    extensionDir.child( "source.jar" ) ,
+                    extensionClasses
+                )
+            } catch ( e : Exception ) {
+                logger log {
+                    title = "loading extension ${extensionDir.name}"
+                    e.stackTraceToString()
                 }
             }
         }
-
-        // inspect file for certain dependency
-        checkExtensionForRestrictedDepencies( extensionFile.absolutePath )
-        if ( mappedRestrictedDependencies.isNotEmpty() ) {
-            val buffer = StringBuilder()
-            for ( ( className , dependencies ) in mappedRestrictedDependencies ) buffer.append(
-                """
-                    |class : $className
-                    |Restricted Dependencies : $dependencies
-                    |
-                """.trimMargin()
-            )
-            throw IllegalDependenciesFoundException( buffer.toString() )
-        }
-
-        extensionFile.absoluteFile.parentFile.renameTo(
-            File( dir , extensionId )
-        )
-        File( dir , "temp" ).deleteRecursively()
-        loadExtensions()
-    }
-
-    actual fun uninstall(extensionId: String) {
-        logger log {
-            DEBUG
-            title = "Uninstalling $extensionId"
-            title
-        }
-        File( dir , extensionId ).deleteRecursively()
-        extensionLoader.loadedExtensionClasses.clear()
-        loadExtensions()
-    }
-
-    init {
-        if ( !dir.isDirectory ) dir.mkdirs()
     }
 
     actual fun unloadExtensions() {
-        extensionLoader.loadedExtensionClasses.clear()
-        extensionLoader.classList.clear()
     }
 
-    actual fun loadExtensions() {
-        logger log {
-            DEBUG
-            title = "Loading Extension"
-            title
+    actual val Extension.icon: @Composable () -> Unit
+        get() = {
+            Text( "Nope" )
         }
-        dir.listFiles()?.forEach { extensionId ->
-            extensionId.listFiles()?.forEach { jar ->
-                extensionLoader.loadTanoshiExtension( jar )
-            }
-        }
-    }
 
-        actual val Extension.icon : @Composable () -> Unit
-            get() {
-                return {
-                    Text( "TODO" )
-                }
-            }
+    private val String.url : URL
+        get() = File( this ).toURI().toURL()
 
 }

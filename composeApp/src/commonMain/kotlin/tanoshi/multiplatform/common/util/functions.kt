@@ -15,6 +15,8 @@ val currentDateTime : String
 val String.toFile : File
     get() = File( this )
 
+fun File.child( childFile : String ) : File = File( this , childFile )
+
 fun logger() : Logger = Logger()
 
 fun <T> selectableMenu(

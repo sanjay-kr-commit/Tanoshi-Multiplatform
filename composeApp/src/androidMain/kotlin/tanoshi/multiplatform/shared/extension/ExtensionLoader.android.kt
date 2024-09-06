@@ -1,136 +1,24 @@
 package tanoshi.multiplatform.shared.extension
 
-import android.content.Context
 import tanoshi.multiplatform.common.extension.core.Extension
-import java.io.File
-import java.lang.Exception
-import dalvik.system.PathClassLoader
-import tanoshi.multiplatform.common.extension.PlayableExtension
-import tanoshi.multiplatform.common.extension.ReadableExtension
-import tanoshi.multiplatform.common.extension.ViewableExtension
-import tanoshi.multiplatform.common.extension.core.insertSharedDependencies
 import tanoshi.multiplatform.common.util.logger.Logger
+import java.io.File
 
 actual class ExtensionLoader {
 
-    lateinit var logger : Logger
+    lateinit var logger: Logger
 
-    lateinit var applicationContext : Context
-
-    val classList : HashSet<String> = hashSetOf()
+    lateinit var classLoader : ClassLoader
 
     // pair( pair(package name , archive name) , extension )
-    actual val loadedExtensionClasses : ArrayList< Pair<Pair<String,String> , Extension> > = ArrayList()
+    actual val loadedExtensionClasses : ArrayList< Pair< Pair<String,String> , Extension> > = arrayListOf()
 
-    actual fun loadTanoshiExtension( vararg tanoshiExtensionFile : File ) {
-        if ( !::applicationContext.isInitialized ) throw UninitializedPropertyAccessException( "application context not initialised" )
-        tanoshiExtensionFile.forEach { tanoshiFile ->
-            loadTanoshiFile( tanoshiFile )
-        }
-    }
-    
-    private fun loadTanoshiFile( tanoshiExtensionFile: File ) = applicationContext.run {
-        val dexFiles : List<String> = tanoshiExtensionFile.listFiles().run {
-            val listOfDexFile = ArrayList<String>()
-            forEach { file ->
-                val fileString = file.toString()
-                if ( fileString.endsWith( ".dex" ) ) listOfDexFile.add(
-                    if ( fileString.contains( "/" ) ) fileString.substring( fileString.lastIndexOf( "/" )+1 )
-                    else fileString
-                )
-            }
-            listOfDexFile
-        }
-        dexFiles.forEach { dexName ->
-            try {
-                loadDexFile( tanoshiExtensionFile , dexName )
-            } catch ( _ : Exception ) {
-            } catch ( _ : Error ) { }
-        }
-    }
-    
-    private fun loadDexFile( tanoshiExtensionFile: File , dexFileName : String ) = applicationContext.run {
-        val file = File( tanoshiExtensionFile , dexFileName )
-        val classLoader = PathClassLoader( file.absolutePath , classLoader )
-        val classNameList : List<String> = Regex( "L[a-zA-Z0-9/]*;" ).findAll( file.readText() ).run {
-            val nameList = ArrayList<String>( count() )
-            forEach {  lClassPath ->
-                nameList.add(
-                    lClassPath.value.substring( 1 , lClassPath.value.length-1 ).replace( "/" , "." )
-                )
-            }
-            nameList
-        }
-        classNameList.forEach { name ->
-            try {
-                val loadedClass : Class<*> = classLoader.loadClass( name )
-                val obj : Any = loadedClass.getDeclaredConstructor().newInstance()
-                if (obj is Extension) {
-                    try {
-                        if ( classList.contains( name ) ) throw Exception( "Duplicate Class Found" )
-                        loadedExtensionClasses.add( Pair( Pair( name , tanoshiExtensionFile.absolutePath) , obj ) )
-                        classList.add( name )
-                        logger log {
-                            DEBUG
-                            title = "Loaded Extension $name"
-                            """
-                               |Name          : ${obj.name}
-                               |Type          : ${
-                                when ( obj ) {
-                                    is PlayableExtension -> "Playable Extension"
-                                    is ReadableExtension -> "Readable Extension"
-                                    is ViewableExtension -> "Viewable Extension"
-                                    else -> "Unknown Extended Extension"
-                                }
-                            }
-                               |Language      : ${obj.language}
-                               |Package       : $name
-                               |Domain List   : ${obj.domainsList.entries().toList()}
-                            """.trimMargin("|")
-                        }
-                        obj.injectDefaultSharedDependencies
-                    } catch ( e : Exception ) {
-                        logger log {
-                            ERROR
-                            title = "Failed to load Extension : $name"
-                            e.stackTraceToString()
-                        }
-                    } catch ( e : Error ) {
-                        logger log {
-                            ERROR
-                            title = "Failed to load Extension : $name"
-                            e.stackTraceToString()
-                        }
-                    }
-                }
-            } catch ( e : Exception ) {
-                logger log {
-                    ERROR
-                    title = "Failed to load class : $name"
-                    e.stackTraceToString()
-                }
-            } catch ( e : Error ) {
-                logger log {
-                    ERROR
-                    title = "Failed to load class : $name"
-                    e.stackTraceToString()
-                }
-            }
-        }
+    actual fun loadTanoshiExtension(
+        jarOrDexFile: File,
+        classNameList: List<String>
+    ) {
+        TODO()
     }
 
-    val Extension.injectDefaultSharedDependencies : Unit
-        get() {
-            insertSharedDependencies {
-                logger = this@ExtensionLoader.logger
-                logger log {
-                    DEBUG
-                    title = "$name injected SharedDependencies"
-                    """
-                        |Injected Logger
-                    """.trimMargin()
-                }
-            }
-        }
 
 }

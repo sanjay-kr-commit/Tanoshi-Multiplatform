@@ -20,7 +20,10 @@ import tanoshi.multiplatform.common.util.toFile
 import tanoshi.multiplatform.shared.SharedApplicationData
 import tanoshi.multiplatform.shared.util.PLATFORM
 import tanoshi.multiplatform.common.util.Platform
+import tanoshi.multiplatform.common.util.toast.ToastTimeout
 import tanoshi.multiplatform.shared.extension.packageList
+import tanoshi.multiplatform.shared.extension.uninstall
+import tanoshi.multiplatform.shared.util.toast.showToast
 import java.io.BufferedInputStream
 import java.io.File
 import java.io.FileInputStream
@@ -81,7 +84,8 @@ fun DeveloperOptionsScreen(
     AnimatedVisibility( isPopUpVisible , modifier = Modifier.fillMaxSize() , enter = fadeIn() , exit = fadeOut() ) {
 
         Box( modifier = Modifier.fillMaxSize() , contentAlignment = Alignment.Center ) {
-            ImportPath( extensionId , installExtensionPath , {
+
+            ImportPath( installExtensionPath , {
                 isPopUpVisible = false
             } , "Install Extension File" )
         }
@@ -99,11 +103,15 @@ fun DeveloperOptionsScreen(
                         PLATFORM == Platform.Android -> File( sharedAppData.publicDir , installExtensionPath.value )
                         else -> null
                     }
-                    if ( extensionPath != null && !isPopUpVisible && extensionPath.isFile ) CoroutineScope(Dispatchers.IO).launch {
-                        sharedAppData.extensionManager
-                            .install(
-                                extensionId.value , extensionPath
-                            )
+                    if ( !isPopUpVisible ) {
+                        if (extensionPath != null && extensionPath.isFile) CoroutineScope(
+                            Dispatchers.IO
+                        ).launch {
+                            sharedAppData.extensionManager
+                                .install(
+                                    extensionPath
+                                )
+                        } else sharedAppData.showToast("Invalid Path", ToastTimeout.SHORT)
                     }
                 } catch ( e : Exception ) {
                     sharedAppData.logger log  {
@@ -140,25 +148,11 @@ private fun UninstallExtension(
                 }
             }
         }
-        item {
-            TextField( id.value , onValueChange = {
-                id.value = it
-            } )
-
-            Spacer(modifier = Modifier.height(10.dp))
-
-            Button( {
-                exitScreen()
-            } ) {
-                Text( exitButtonMessage )
-            }
-        }
     }
 }
 
 @Composable
 private fun ImportPath(
-    id : MutableState<String> ,
     path : MutableState<String> ,
     exitScreen : () -> Unit ,
     exitButtonMessage : String
@@ -169,13 +163,6 @@ private fun ImportPath(
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-
-        TextField( id.value , onValueChange = {
-            id.value = it
-        } )
-
-        Spacer(modifier = Modifier.height(10.dp))
-
 
         TextField( path.value , onValueChange = {
             path.value = it
