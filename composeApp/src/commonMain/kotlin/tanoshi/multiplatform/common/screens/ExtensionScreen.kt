@@ -12,7 +12,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import tanoshi.multiplatform.shared.extension.ExtensionManager
-import tanoshi.multiplatform.shared.extension.extensionIcon
+import tanoshi.multiplatform.common.extension.extensionIcon
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable

@@ -21,8 +21,8 @@ import tanoshi.multiplatform.shared.SharedApplicationData
 import tanoshi.multiplatform.shared.util.PLATFORM
 import tanoshi.multiplatform.common.util.Platform
 import tanoshi.multiplatform.common.util.toast.ToastTimeout
-import tanoshi.multiplatform.shared.extension.packageList
-import tanoshi.multiplatform.shared.extension.uninstall
+import tanoshi.multiplatform.common.extension.packageList
+import tanoshi.multiplatform.common.extension.uninstall
 import tanoshi.multiplatform.shared.util.toast.showToast
 import java.io.BufferedInputStream
 import java.io.File

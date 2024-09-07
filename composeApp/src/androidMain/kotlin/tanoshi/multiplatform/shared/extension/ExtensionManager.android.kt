@@ -5,6 +5,7 @@ import com.google.gson.Gson
 import dalvik.system.DexClassLoader
 import tanoshi.multiplatform.common.extension.annotations.IconName
 import tanoshi.multiplatform.common.extension.core.Extension
+import tanoshi.multiplatform.common.extension.extractExtension
 import tanoshi.multiplatform.common.util.child
 import tanoshi.multiplatform.common.util.logger.Logger
 import tanoshi.multiplatform.common.util.toFile
