@@ -3,9 +3,9 @@ package tanoshi.multiplatform.common.screens
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.onClick
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
@@ -18,7 +18,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import tanoshi.multiplatform.common.util.logger.Logger
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun LogScreen(
     logger : Logger
@@ -47,7 +46,9 @@ fun LogScreen(
                             if ( isExpanded ) 5.dp else 0.dp
                         )
                         .animateContentSize()
-                        .onClick { isExpanded = !isExpanded }
+                        .clickable {
+                            isExpanded = !isExpanded
+                        }
                 ) {
                     Column ( modifier = Modifier.fillMaxWidth().clip( RoundedCornerShape( 10.dp ) ).background( heading.first.color ) ) {
                         Spacer( Modifier.height( 10.dp ) )

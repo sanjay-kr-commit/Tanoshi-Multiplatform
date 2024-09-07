@@ -1,9 +1,9 @@
 package tanoshi.multiplatform.common.screens
 
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.onClick
 import androidx.compose.material.Button
 import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
@@ -30,7 +30,7 @@ fun ExtensionScreen(
                 item {
                     Row (
                         modifier = Modifier.fillMaxWidth().wrapContentHeight()
-                            .onClick {
+                            .clickable {
                                 throw Exception( "EXTENSION BROWSE VIEW NOT IMPLEMENTED" )
                             }
                         ,

@@ -1,25 +1,25 @@
-import org.jetbrains.compose.ExperimentalComposeLibrary
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
+import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 val packagePrefix by properties
-val okHttp by properties
-val jsoup by properties
+val appName by properties
 val sharedVersionName by properties
 val sharedVersionCode by properties
-val appName by properties
 
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.jetbrainsCompose)
+    alias(libs.plugins.compose.compiler)
 }
 
 kotlin {
+
     androidTarget {
-        compilations.all {
-            kotlinOptions {
-                jvmTarget = "1.8"
-            }
+        @OptIn(ExperimentalKotlinGradlePluginApi::class)
+        compilerOptions {
+            jvmTarget.set(JvmTarget.JVM_11)
         }
     }
     
@@ -29,7 +29,7 @@ kotlin {
         val desktopMain by getting
         
         androidMain.dependencies {
-            implementation(libs.compose.ui.tooling.preview)
+            implementation(compose.preview)
             implementation(libs.androidx.activity.compose)
             implementation(libs.gson)
         }
@@ -38,23 +38,25 @@ kotlin {
             implementation(compose.foundation)
             implementation(compose.material)
             implementation(compose.ui)
-            @OptIn(ExperimentalComposeLibrary::class)
             implementation(compose.components.resources)
-            implementation( libs.okhttp )
-            implementation( libs.jsoup )
+            implementation(compose.components.uiToolingPreview)
+            implementation(libs.androidx.lifecycle.viewmodel)
+            implementation(libs.androidx.lifecycle.runtime.compose)
+            implementation(libs.okhttp)
+            implementation(libs.jsoup)
             implementation(compose.materialIconsExtended)
             implementation(libs.gson)
-
         }
         desktopMain.dependencies {
             implementation(compose.desktop.currentOs)
+            implementation(libs.kotlinx.coroutines.swing)
             implementation(libs.gson)
         }
     }
 }
 
 android {
-    namespace = "$packagePrefix.android"
+    namespace = "tanoshi.multiplatform"
     compileSdk = libs.versions.android.compileSdk.get().toInt()
 
     sourceSets["main"].manifest.srcFile("src/androidMain/AndroidManifest.xml")
@@ -62,7 +64,7 @@ android {
     sourceSets["main"].resources.srcDirs("src/commonMain/resources")
 
     defaultConfig {
-        applicationId = "$packagePrefix.android"
+        applicationId = "tanoshi.multiplatform"
         minSdk = libs.versions.android.minSdk.get().toInt()
         targetSdk = libs.versions.android.targetSdk.get().toInt()
         versionCode = sharedVersionCode.toString().toInt()
@@ -71,6 +73,15 @@ android {
     packaging {
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
+        }
+    }
+    signingConfigs {
+        create( "release" ) {
+            val passwords = File( File("$rootDir").parentFile , "password" ).readLines()
+            storeFile = File( File("$rootDir").parentFile , "androidSigningKey.jks" )
+            storePassword = passwords.first()
+            keyAlias = "release"
+            keyPassword = passwords[1]
         }
     }
     buildTypes {
@@ -82,35 +93,30 @@ android {
         }
         getByName("release") {
             resValue( "string" , "app_name" , "$appName" )
+            signingConfig = signingConfigs.getByName( "release" )
             isMinifyEnabled = false
         }
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
-    }
-    dependencies {
-        debugImplementation(libs.compose.ui.tooling)
+        sourceCompatibility = JavaVersion.VERSION_11
+        targetCompatibility = JavaVersion.VERSION_11
     }
     buildFeatures {
         buildConfig = true
+        compose = true
+    }
+    dependencies {
+        debugImplementation(compose.uiTooling)
     }
 }
 
 compose.desktop {
     application {
         mainClass = "$packagePrefix.desktop.MyApplication"
-
         nativeDistributions {
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
             packageName = "${packagePrefix}.desktop"
             packageVersion = sharedVersionName.toString()
         }
-    }
-}
-
-tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
-    kotlinOptions {
-        freeCompilerArgs = listOf( "-Xexpect-actual-classes" )
     }
 }

@@ -12,7 +12,9 @@ plugins {
 }
 
 kotlin {
+
     jvm()
+    
     sourceSets {
         commonMain.dependencies {
             implementation( project( ":composeApp" ) )
@@ -22,15 +24,10 @@ kotlin {
     }
 }
 
-
 tasks.withType( Jar::class.java ) {
     manifest {
         attributes["extension-namespace"] = "hello.world"
     }
-}
-
-tasks.register<Zip>("sourcesJar") {
-    println( "Hello world" )
 }
 
 tasks.register<Zip>("buildExtension") {
@@ -48,16 +45,16 @@ tasks.register<Zip>("buildExtension") {
         return@register
     }
     val dexCompilerPath =
-        sdkPath.toFile.child("build-tools").listFiles()?.toList()?.sorted().let { it?.get(it.size - 1) }
-            ?.child("d8")?.absolutePath.toString()
+    sdkPath.toFile.child("build-tools").listFiles()?.toList()?.sorted().let { it?.get(it.size - 1) }
+    ?.child("d8")?.absolutePath.toString()
     val libPath = projectDir.child("build").child("libs").absoluteFile.toString()
-    val jarFile = libPath.toFile.child("extensions-jvm.jar").absoluteFile.toString()
+    val jarFile = libPath.toFile.child("extension-jvm.jar").absoluteFile.toString()
     println(dexCompilerPath)
     println(libPath)
     println(jarFile)
     val process =
-        ProcessBuilder("/bin/bash" , "-c" , "$dexCompilerPath $jarFile --output $libPath".also { println(it) }).inheritIO()
-            .start()
+    ProcessBuilder("/bin/bash" , "-c" , "$dexCompilerPath $jarFile --output $libPath".also { println(it) }).inheritIO()
+    .start()
     process.waitFor()
 
     Thread.sleep( 100 )
@@ -70,29 +67,29 @@ tasks.register<Zip>("buildExtension") {
 
     if( "$jarFile.zip".toFile.isFile ) "$jarFile.zip".toFile.delete()
 
-    ZipOutputStream( BufferedOutputStream( FileOutputStream( "$jarFile.zip" ) ) ).use { out ->
-        ZipFile( jarFile ).use { jar ->
-            jar.entries().asSequence().forEach { entry ->
-                out.putNextEntry(entry)
-                jar.getInputStream(entry).buffered().use { origin ->
-                    origin.copyTo(out,  1024)
+        ZipOutputStream( BufferedOutputStream( FileOutputStream( "$jarFile.zip" ) ) ).use { out ->
+            ZipFile( jarFile ).use { jar ->
+                jar.entries().asSequence().forEach { entry ->
+                    out.putNextEntry(entry)
+                    jar.getInputStream(entry).buffered().use { origin ->
+                        origin.copyTo(out,  1024)
+                    }
+                }
+            }
+            dexFiles?.forEach { dexFile ->
+                BufferedInputStream( FileInputStream( dexFile ) ).use { origin ->
+                    val entry = ZipEntry(dexFile.toString().substring(dexFile.toString().lastIndexOf("/")))
+                    out.putNextEntry(entry)
+                    origin.copyTo(out, 1024)
                 }
             }
         }
-        dexFiles?.forEach { dexFile ->
-            BufferedInputStream( FileInputStream( dexFile ) ).use { origin ->
-                val entry = ZipEntry(dexFile.toString().substring(dexFile.toString().lastIndexOf("/")))
-                out.putNextEntry(entry)
-                origin.copyTo(out, 1024)
-            }
-        }
-    }
 
-    if ( "$jarFile.tanoshi".toFile.isFile ) "$jarFile.tanoshi".toFile.delete()
-    "$jarFile.zip".toFile.renameTo( "$jarFile.tanoshi".toFile )
+        if ( "$jarFile.tanoshi".toFile.isFile ) "$jarFile.tanoshi".toFile.delete()
+            "$jarFile.zip".toFile.renameTo( "$jarFile.tanoshi".toFile )
 
 }
 
 fun File.child( name : String ) : File = File( this , name )
 val String.toFile : File
-    get() = File( this )
+get() = File( this )
