@@ -17,6 +17,8 @@ actual class ExtensionManager {
 
     lateinit var logger: Logger
 
+    actual val extensionIconPath : HashMap<String,String> = hashMapOf()
+
     actual var dir : File = File( System.getProperty( "user.dir" ) , ".tanoshi/extensions" )
 
     actual var cacheDir : File = File( System.getProperty( "user.dir" ) , ".tanoshi/cache" )
@@ -32,7 +34,7 @@ actual class ExtensionManager {
 
             val classDependencies = ArrayList<Pair<String,List<String>>>()
             val extensionClasses = ArrayList<String>()
-            val extensionIcon = ArrayList<Pair<String,String>>()
+            val extensionIcon = HashMap<String,String>()
 
             val classPath = extensionDir.walk().filter {
                 it.absolutePath.endsWith( ".class" )
@@ -117,6 +119,7 @@ actual class ExtensionManager {
     @Suppress("UNCHECKED_CAST")
     actual fun loadExtensions() {
         dir.listFiles()?.forEach { extensionDir ->
+            val path = extensionDir.absolutePath
             try {
                 val extensionClasses: ArrayList<String> = gson.fromJson(
                     extensionDir.child("extensionClasses.json").readText(),
@@ -132,16 +135,27 @@ actual class ExtensionManager {
                     e.stackTraceToString()
                 }
             }
+
+            try {
+
+                val extensionIcon : HashMap<String,String> = gson.fromJson(
+                    extensionDir.child( "extensionIcon.json" ).readText() ,
+                    HashMap::class.java
+                ) as HashMap<String,String>
+
+                for ( (name,icon) in extensionIcon ) {
+                    extensionIconPath += name to extensionDir.child( icon ).absolutePath
+                }
+
+            } catch ( e : Exception ){
+                println( e.stackTraceToString() )
+            }
+
         }
     }
 
     actual fun unloadExtensions() {
     }
-
-    actual val Extension.icon: @Composable () -> Unit
-        get() = {
-            Text( "Nope" )
-        }
 
     private val String.url : URL
         get() = File( this ).toURI().toURL()

@@ -8,9 +8,11 @@ import androidx.compose.material.Button
 import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import tanoshi.multiplatform.shared.extension.ExtensionManager
+import tanoshi.multiplatform.shared.extension.extensionIcon
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -34,17 +36,14 @@ fun ExtensionScreen(
                         ,
                         horizontalArrangement = Arrangement.SpaceBetween
                     ){
-                        with( extensionManager ) {
-                            extension.icon()
+                        Box( modifier = Modifier.size( 20.dp ) , contentAlignment = Alignment.Center ) {
+                            extensionManager.extensionIcon(packageNameAndArchive.first)
                         }
                         Text( text = extension.name )
                     }
                 }
             }
         }
-
-
-
 
     }
 }

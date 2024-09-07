@@ -15,6 +15,8 @@ actual class ExtensionManager {
 
     lateinit var logger: Logger
 
+    actual val extensionIconPath : HashMap<String,String> = hashMapOf()
+
     private lateinit var _classLoader_ : ClassLoader
     var classLoader : ClassLoader
         set(value) {
@@ -47,7 +49,7 @@ actual class ExtensionManager {
                 }.toList()
 
             val extensionClassesDex : HashMap<String,List<String>> = hashMapOf()
-            val extensionIcon = ArrayList<Pair<String,String>>()
+            val extensionIcon = HashMap<String,String>()
             val classDependencies = ArrayList<Pair<String,List<String>>>()
 
             dexList.forEach { dexFile ->
@@ -134,6 +136,7 @@ actual class ExtensionManager {
 
     actual fun loadExtensions() {
         dir.listFiles()?.forEach { extensionDir ->
+            val path = extensionDir.absolutePath
             try {
                 val extensionClasses: HashMap<String,List<String>> = gson.fromJson(
                     extensionDir.child("extensionClassesDex.json").readText(),
@@ -151,15 +154,29 @@ actual class ExtensionManager {
                     e.stackTraceToString()
                 }
             }
+
+            try {
+                val extensionIcon : HashMap<String,String> = gson.fromJson(
+                    extensionDir.child( "extensionIcon.json" ).readText() ,
+                    HashMap::class.java
+                ) as HashMap<String,String>
+
+                for ( (name,icon) in extensionIcon ) {
+                    extensionIconPath += name to extensionDir.child( icon ).absolutePath
+                }
+
+            } catch ( e : Exception ){
+                logger log {
+                    ERROR
+                    title = "Loading Icon Path"
+                    e.stackTraceToString()
+                }
+            }
+
         }
     }
 
     actual fun unloadExtensions() {
     }
-
-    actual val Extension.icon: @Composable () -> Unit
-        get() = {
-
-        }
 
 }
