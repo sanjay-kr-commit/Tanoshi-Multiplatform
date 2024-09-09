@@ -1,11 +1,7 @@
 package tanoshi.multiplatform.shared.util
 
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
+import androidx.compose.runtime.CompositionContext
 import tanoshi.multiplatform.desktop.util.WindowStack
 import tanoshi.multiplatform.shared.SharedApplicationData
 
@@ -13,17 +9,13 @@ actual open class ApplicationActivity {
     
     lateinit var applicationData : SharedApplicationData
     lateinit var windowStack : WindowStack
+    lateinit var composableActivityView : @Composable () -> Unit
+    val isComposableViewSet : Boolean
+        get() = this::composableActivityView.isInitialized
 
-    @Composable
-    open fun onCreate() {
-        Box( Modifier.fillMaxSize() , contentAlignment = Alignment.Center ) {
-            Text( "Extend This Class For Creating Activities" )
-        }
-    }
+    open fun onCreate() {}
 
-    open fun onPause() {
-
-    }
+    open fun onPause() {}
 
     open fun onResume() {}
 
@@ -31,5 +23,12 @@ actual open class ApplicationActivity {
         applicationActivityName : Class<applicationActivity> ,
         vararg objects : Any
     ) = windowStack.add( applicationActivityName.getDeclaredConstructor().newInstance() )
+
+    actual fun setComposableContent(
+        parent: CompositionContext?,
+        content: @Composable () -> Unit
+    ) {
+        composableActivityView = content
+    }
 
 }

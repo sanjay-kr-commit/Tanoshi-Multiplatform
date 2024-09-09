@@ -7,7 +7,6 @@ import android.os.Build
 import android.os.Build.VERSION.SDK_INT
 import android.os.Bundle
 import android.provider.Settings
-import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -27,13 +26,13 @@ import java.util.Stack
 
 class MainActivity : ApplicationActivity() {
 
-    val onResumeTask : Stack<()->Unit> = Stack()
+    private val onResumeTask : Stack<()->Unit> = Stack()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setCrashActivity = CrashHandlingActivity::class.java
         val mainScreenViewModel by viewModels<MainScreenViewModel>()
-        setContent {
+        setComposableContent {
             when {
                 !sharedApplicationData.manageStorage -> RequestStoragePermission()
                 else -> Column(

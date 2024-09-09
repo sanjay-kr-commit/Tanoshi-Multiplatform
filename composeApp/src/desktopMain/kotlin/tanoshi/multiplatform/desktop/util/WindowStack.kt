@@ -1,8 +1,13 @@
 package tanoshi.multiplatform.desktop.util
 
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import tanoshi.multiplatform.shared.SharedApplicationData
 import tanoshi.multiplatform.shared.util.ApplicationActivity
 
@@ -16,6 +21,7 @@ class WindowStack(
         get() = _activeWindow.value
     
     init {
+        startActivity.onCreate()
         startActivity.windowStack = this
         startActivity.applicationData = sharedApplicationData
     }
@@ -27,6 +33,7 @@ class WindowStack(
     fun add( activity : ApplicationActivity ) {
         activity.windowStack = this
         activity.applicationData = sharedApplicationData
+        activity.onCreate()
         stack.add( activity )
         _activeWindow.value = activity
     }
@@ -51,7 +58,10 @@ class WindowStack(
 
     @Composable
     fun render() {
-        _activeWindow.value.onCreate()
+        if ( _activeWindow.value.isComposableViewSet ) _activeWindow.value.composableActivityView()
+        else Box( Modifier.fillMaxSize() , contentAlignment = Alignment.Center ) {
+            Text( "Set Composable To using setComposableContent function inside onCreate" )
+        }
     }
 
 }

@@ -4,6 +4,9 @@ import android.content.Intent
 import android.content.res.Configuration
 import android.os.Bundle
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.setContent
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionContext
 import tanoshi.multiplatform.android.MyApplication
 
 actual open class ApplicationActivity : ComponentActivity() {
@@ -35,7 +38,12 @@ actual open class ApplicationActivity : ComponentActivity() {
         val intent = Intent( this@ApplicationActivity , applicationActivityName )
         startActivity( intent )
     }
-    
+
+    actual fun setComposableContent(
+        parent: CompositionContext?,
+        content: @Composable () -> Unit
+    ) : Unit = setContent( parent , content )
+
 }
 
 var ApplicationActivity.setCrashActivity : Class<*>
