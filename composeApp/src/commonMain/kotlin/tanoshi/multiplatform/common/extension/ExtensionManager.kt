@@ -7,6 +7,7 @@ import androidx.compose.material.icons.filled.BrokenImage
 import androidx.compose.material.icons.filled.Error
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
+import tanoshi.multiplatform.common.util.Manifest.Companion.toManifest
 import tanoshi.multiplatform.common.util.logger.Logger
 import tanoshi.multiplatform.common.util.toFile
 import tanoshi.multiplatform.shared.extension.ExtensionManager
@@ -74,17 +75,7 @@ fun ExtensionManager.extractExtension(file: File, logger: Logger) : File? {
             cacheExtensionDir.deleteRecursively()
             return null
         }
-        for ( line in manifest.readLines() ) {
-            if ( line.startsWith( "extension-namespace" ) ) {
-                extensionId = line
-                    .trim()
-                    .removePrefix( "extension-namespace" )
-                    .trim()
-                    .removePrefix( ":" )
-                    .trim()
-                break
-            }
-        }
+        extensionId = manifest.toManifest.extensionNamespace?: ""
         if (extensionId.isEmpty()) {
             logger log {
                 ERROR

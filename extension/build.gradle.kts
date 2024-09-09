@@ -27,6 +27,8 @@ kotlin {
 tasks.withType( Jar::class.java ) {
     manifest {
         attributes["extension-namespace"] = "hello.world"
+        attributes["extension-version"] = "0.0.1"
+        attributes["extension-version-code"] = 1
     }
 }
 
@@ -48,7 +50,7 @@ tasks.register<Zip>("buildExtension") {
     sdkPath.toFile.child("build-tools").listFiles()?.toList()?.sorted().let { it?.get(it.size - 1) }
     ?.child("d8")?.absolutePath.toString()
     val libPath = projectDir.child("build").child("libs").absoluteFile.toString()
-    val jarFile = libPath.toFile.child("extension-jvm.jar").absoluteFile.toString()
+    val jarFile = libPath.toFile.child("${project.name}-jvm.jar").absoluteFile.toString()
     println(dexCompilerPath)
     println(libPath)
     println(jarFile)
