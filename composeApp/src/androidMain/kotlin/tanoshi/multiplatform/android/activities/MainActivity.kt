@@ -2,11 +2,14 @@ package tanoshi.multiplatform.android.activities
 
 import android.Manifest.permission.WRITE_EXTERNAL_STORAGE
 import android.content.Intent
+import android.content.res.Configuration
 import android.net.Uri
 import android.os.Build
 import android.os.Build.VERSION.SDK_INT
 import android.os.Bundle
 import android.provider.Settings
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -18,21 +21,21 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.core.app.ActivityCompat
+import tanoshi.multiplatform.android.MyApplication
 import tanoshi.multiplatform.common.model.MainScreenViewModel
 import tanoshi.multiplatform.common.screens.MainScreen
-import tanoshi.multiplatform.shared.util.ApplicationActivity
-import tanoshi.multiplatform.shared.util.setCrashActivity
-import java.util.Stack
+import java.util.*
 
-class MainActivity : ApplicationActivity() {
+class MainActivity : ComponentActivity() {
 
     private val onResumeTask : Stack<()->Unit> = Stack()
+    private lateinit var sharedApplicationData : MyApplication
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setCrashActivity = CrashHandlingActivity::class.java
+        sharedApplicationData = extendOncreateBehaviour(savedInstanceState)
         val mainScreenViewModel by viewModels<MainScreenViewModel>()
-        setComposableContent {
+        setContent {
             when {
                 !sharedApplicationData.manageStorage -> RequestStoragePermission()
                 else -> Column(
@@ -50,7 +53,13 @@ class MainActivity : ApplicationActivity() {
 
     override fun onResume() {
         super.onResume()
+        extendOnResumeBehaviour()
         while ( onResumeTask.isNotEmpty() ) onResumeTask.pop().invoke()
+    }
+
+    override fun onConfigurationChanged(newConfig: Configuration) {
+        super.onConfigurationChanged(newConfig)
+        extendOnConfigurationChangeBehaviour(newConfig)
     }
 
     @Composable

@@ -8,8 +8,10 @@ import tanoshi.multiplatform.common.util.currentDateTime
 import tanoshi.multiplatform.common.util.logger
 import tanoshi.multiplatform.common.util.logger.Logger
 import tanoshi.multiplatform.shared.extension.ExtensionManager
+import tanoshi.multiplatform.common.util.ApplicationActivityName
 import java.io.File
 
+@Suppress("EXPECT_ACTUAL_CLASSIFIERS_ARE_IN_BETA_WARNING")
 actual open class SharedApplicationData(
 
     actual val appStartUpTime : String = currentDateTime,
@@ -19,8 +21,6 @@ actual open class SharedApplicationData(
     actual val extensionManager : ExtensionManager = ExtensionManager(),
 
     actual val logger : Logger = logger() ,
-
-    var startCrashActivity : () -> Unit = {} ,
 
     actual var publicDir: File = File( "" ) ,
 
@@ -46,4 +46,6 @@ actual open class SharedApplicationData(
 
     lateinit var showToastLambda : ( String , Int ) -> Unit
 
+    actual var activityMap : Map<ApplicationActivityName,()->Unit>? = null
+    
 }

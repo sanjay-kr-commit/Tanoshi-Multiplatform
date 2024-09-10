@@ -6,13 +6,13 @@ import tanoshi.multiplatform.common.model.MainScreenViewModel
 import tanoshi.multiplatform.common.screens.MainScreen
 import tanoshi.multiplatform.shared.util.ApplicationActivity
 
-class App : ApplicationActivity() {
+class MainActivity : ApplicationActivity() {
 
     override fun onCreate() {
-        val mainScreenViewModel by mutableStateOf( MainScreenViewModel() )
-        setComposableContent {
+        val mainScreenViewModel by mutableStateOf(MainScreenViewModel())
+        setContent {
             MainScreen(
-                applicationData ,
+                applicationData,
                 mainScreenViewModel
             )
         }

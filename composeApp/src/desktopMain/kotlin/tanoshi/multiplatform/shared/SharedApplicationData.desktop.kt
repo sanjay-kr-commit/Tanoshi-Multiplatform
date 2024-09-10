@@ -6,6 +6,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.window.ApplicationScope
 import androidx.compose.ui.window.WindowState
 import kotlinx.coroutines.Job
+import tanoshi.multiplatform.common.util.ApplicationActivityName
 import tanoshi.multiplatform.common.util.currentDateTime
 import tanoshi.multiplatform.common.util.logger
 import tanoshi.multiplatform.common.util.logger.Logger
@@ -13,6 +14,7 @@ import tanoshi.multiplatform.shared.extension.ExtensionManager
 import java.io.File
 import java.util.ArrayDeque
 
+@Suppress("EXPECT_ACTUAL_CLASSIFIERS_ARE_IN_BETA_WARNING")
 actual open class SharedApplicationData(
 
     actual val appStartUpTime : String = currentDateTime,
@@ -59,5 +61,7 @@ actual open class SharedApplicationData(
     var isToastWindowVisible : Boolean by mutableStateOf( false )
     var toastJob : Job? = null
     var toastMessage : String by mutableStateOf( "" )
+
+    actual var activityMap : Map<ApplicationActivityName,()->Unit>? = null
 
 }

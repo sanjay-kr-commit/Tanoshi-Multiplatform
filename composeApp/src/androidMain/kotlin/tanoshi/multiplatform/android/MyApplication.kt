@@ -2,6 +2,7 @@ package tanoshi.multiplatform.android
 
 import android.Manifest.permission.READ_EXTERNAL_STORAGE
 import android.Manifest.permission.WRITE_EXTERNAL_STORAGE
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Build.VERSION.SDK_INT
@@ -13,9 +14,12 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.core.content.ContextCompat
 import dalvik.system.ZipPathValidator
+import tanoshi.multiplatform.android.activities.BrowseActivity
+import tanoshi.multiplatform.android.activities.CrashHandlingActivity
+import tanoshi.multiplatform.android.activities.MainActivity
 import tanoshi.multiplatform.shared.SharedApplicationData
+import tanoshi.multiplatform.common.util.ApplicationActivityName
 import java.io.File
-
 
 class MyApplication : SharedApplicationData() {
 
@@ -23,11 +27,32 @@ class MyApplication : SharedApplicationData() {
 
     override fun onCreate() {
         super.onCreate()
+        
+        activityMap = mapOf(
+            ApplicationActivityName.Main to {
+                startActivity( Intent( this , MainActivity::class.java ).apply {
+                    flags = Intent.FLAG_FROM_BACKGROUND
+                    flags = Intent.FLAG_ACTIVITY_BROUGHT_TO_FRONT
+                    flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
+                    flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                })
+            } ,
+            ApplicationActivityName.Browse to {
+                startActivity( Intent( this , BrowseActivity::class.java ).apply {
+                    flags = Intent.FLAG_FROM_BACKGROUND
+                    flags = Intent.FLAG_ACTIVITY_BROUGHT_TO_FRONT
+                    flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
+                    flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                })
+            }
+        )
 
         // set uncaught exception thread
         Thread.setDefaultUncaughtExceptionHandler { thread, throwable ->
             handleUncaughtException( thread , throwable )
         }
+
+
 
         try {
             privateDir = getDir( "tanoshi" , MODE_PRIVATE )
@@ -93,7 +118,13 @@ class MyApplication : SharedApplicationData() {
             throwable.stackTraceToString()
         }
         Log.e( "err" , throwable.stackTraceToString() )
-        startCrashActivity()
+        Toast.makeText( this , "error" , Toast.LENGTH_SHORT ).show()
+        startActivity( Intent( this , CrashHandlingActivity::class.java ).apply {
+            flags = Intent.FLAG_FROM_BACKGROUND
+            flags = Intent.FLAG_ACTIVITY_BROUGHT_TO_FRONT
+            flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK
+        })
     }
 
     fun checkForStoragePermission() : Boolean = when {

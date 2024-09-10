@@ -32,6 +32,11 @@
             android:name="tanoshi.multiplatform.android.activities.CrashHandlingActivity">
         </activity>
 
+        <activity
+            android:configChanges="orientation|screenSize|screenLayout|keyboardHidden|mnc|colorMode|density|fontScale|fontWeightAdjustment|keyboard|layoutDirection|locale|mcc|navigation|smallestScreenSize|touchscreen|uiMode"
+            android:name="tanoshi.multiplatform.android.activities.BrowseActivity"
+        />
+
     </application>
 
 </manifest>

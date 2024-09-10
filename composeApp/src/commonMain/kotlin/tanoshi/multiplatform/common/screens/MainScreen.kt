@@ -17,7 +17,9 @@ import androidx.compose.ui.unit.dp
 import tanoshi.multiplatform.common.model.MainScreenViewModel
 import tanoshi.multiplatform.common.navigation.CreateScreenCatalog
 import tanoshi.multiplatform.common.navigation.Screen
+import tanoshi.multiplatform.common.util.ApplicationActivityName
 import tanoshi.multiplatform.shared.SharedApplicationData
+import tanoshi.multiplatform.shared.changeActivity
 
 @Composable
 fun MainScreen(
@@ -152,7 +154,9 @@ private fun SharedApplicationData.MainScreenCatalog(
             HomeScreen( this@MainScreenCatalog )
         }
         Screen( MainScreen.ExtensionScreen.name ) {
-            ExtensionScreen( extensionManager )
+            ExtensionScreen( extensionManager , {
+                changeActivity = ApplicationActivityName.Browse
+            } )
         }
         Screen( MainScreen.HistoryScreen.name ) {
             HistoryScreen()
