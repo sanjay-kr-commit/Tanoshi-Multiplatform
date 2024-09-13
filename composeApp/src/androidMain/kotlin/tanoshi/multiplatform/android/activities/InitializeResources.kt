@@ -7,60 +7,26 @@ import android.os.Environment
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.systemBarsPadding
-import androidx.compose.material.LinearProgressIndicator
-import androidx.compose.material.Scaffold
-import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
 import androidx.lifecycle.lifecycleScope
 import dalvik.system.ZipPathValidator
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import tanoshi.multiplatform.android.MyApplication
+import tanoshi.multiplatform.common.screens.SplashScreen
 import tanoshi.multiplatform.common.util.ApplicationActivityName
 import tanoshi.multiplatform.shared.changeActivity
 import java.io.File
 
 class InitializeResources : ComponentActivity() {
 
-    private var message by mutableStateOf( "Loading" )
+    private var message = mutableStateOf( "Loading" )
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            Scaffold(
-                topBar = {
-                    LinearProgressIndicator(
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                },
-                bottomBar = {
-                    LinearProgressIndicator(
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                }
-            ) { it ->
-                Column ( modifier = Modifier
-                    .systemBarsPadding()
-                    .padding( it )
-                    .fillMaxSize(),
-                    verticalArrangement = Arrangement.Center ,
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    Text( message )
-                }
-            }
-
+            SplashScreen( message )
         }
         initializeData()
     }
@@ -70,11 +36,11 @@ class InitializeResources : ComponentActivity() {
 
             delay( 500 )
 
-            message = "Disable Zip Validator"
+            message.value = "Disable Zip Validator"
             disableZipValidator()
             delay( 10 )
 
-            message = "Mapping Activity"
+            message.value = "Mapping Activity"
             activityMap = mapOf(
                 ApplicationActivityName.Main to {
                     startActivity( Intent( this , MainActivity::class.java ).apply {
@@ -103,14 +69,14 @@ class InitializeResources : ComponentActivity() {
             )
             delay( 10 )
 
-            message = "Attach Dynamic Activity To Extension Loader"
+            message.value = "Attach Dynamic Activity To Extension Loader"
             extensionManager.extensionLoader.startDynamicActivity = {
                 extensionComposableView = this as (@Composable () -> Unit )
                 changeActivity = ApplicationActivityName.Dynamic
             }
             delay( 10 )
 
-            message = "Attach Private Storage"
+            message.value = "Attach Private Storage"
             try {
                 privateDir = getDir( "tanoshi" , MODE_PRIVATE )
                 logger log {
@@ -125,7 +91,7 @@ class InitializeResources : ComponentActivity() {
             }
             delay( 10 )
 
-            message = "Attach Cache Storage"
+            message.value = "Attach Cache Storage"
             try {
                 appCacheDir = getCacheDir()
                 logger log {
@@ -140,7 +106,7 @@ class InitializeResources : ComponentActivity() {
             }
             delay( 10 )
 
-            message = "Attach Internal Storage"
+            message.value = "Attach Internal Storage"
             try {
                 publicDir = Environment.getExternalStorageDirectory()
                 logger log {
@@ -155,7 +121,7 @@ class InitializeResources : ComponentActivity() {
             }
             delay( 10 )
 
-            message = "Attach Private Storage To Extension Manager"
+            message.value = "Attach Private Storage To Extension Manager"
             extensionManager.apply {
                 dir = File( privateDir , "extensions" )
                 cacheDir = this@with.appCacheDir
@@ -163,17 +129,17 @@ class InitializeResources : ComponentActivity() {
             }
             delay( 10 )
 
-            message = "Check For Storage"
+            message.value = "Check For Storage"
             manageStorage = checkForStoragePermission()
             delay( 10 )
 
-            message = "Attach Toast Lambda"
-            showToastLambda = { message , timeout ->
+            message.value = "Attach Toast Lambda"
+            showToastLambda = { message, timeout ->
                 Toast.makeText( this@with , message , timeout ).show()
             }
             delay( 10 )
 
-            message = "Load Extensions"
+            message.value = "Load Extensions"
             try {
                 extensionManager.loadExtensions()
             } catch ( e : Exception ) {
@@ -187,7 +153,7 @@ class InitializeResources : ComponentActivity() {
 
         }
 
-        message = "Done"
+        message.value = "Done"
         delay( 10 )
 
         startActivity( Intent( this@InitializeResources , MainActivity::class.java ) )
