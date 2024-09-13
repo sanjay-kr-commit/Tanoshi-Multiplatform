@@ -19,7 +19,7 @@ class WindowStack(
     private var _activeWindow : MutableState<ApplicationActivity> = mutableStateOf( startActivity )
     val activeWindow : ApplicationActivity
         get() = _activeWindow.value
-    
+
     init {
         startActivity.onCreate()
         startActivity.windowStack = this
@@ -35,24 +35,14 @@ class WindowStack(
         activity.applicationData = sharedApplicationData
         activity.onCreate()
         stack.add( activity )
+        _activeWindow.value.onPause()
         _activeWindow.value = activity
-    }
-    
-
-    fun addAll( vararg activities : ApplicationActivity ) {
-        activities.forEach { activity ->
-            add( activity )
-        }
-        _activeWindow.value = stack.last()
     }
 
     fun remove( activity: ApplicationActivity ) {
+        activity.onDestroy()
         stack.remove( activity )
-        _activeWindow.value = stack.last()
-    }
-
-    fun removeAll( vararg activities : ApplicationActivity ) {
-        stack.removeAll(activities.toSet())
+        _activeWindow.value.onResume()
         _activeWindow.value = stack.last()
     }
 

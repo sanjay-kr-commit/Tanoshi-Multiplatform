@@ -45,21 +45,6 @@ actual open class SharedApplicationData(
     actual val portrait : Boolean
         get() = windowState.size.height > windowState.size.width
 
-    init {
-        logger log {
-            title = "App Start Up Time"
-            "App Started At $appStartUpTime"
-        }
-        logger log {
-            title = "App Directory"
-            publicDir.absolutePath
-        }
-        extensionManager.dir = File( privateDir , "extensions" )
-        extensionManager.logger = logger
-        extensionManager.extensionLoader.logger = logger
-        extensionManager.loadExtensions()
-    }
-
     val toastDeque : ArrayDeque<Pair<String,Long>> = ArrayDeque()
     var isToastWindowVisible : Boolean by mutableStateOf( false )
     var toastJob : Job? = null

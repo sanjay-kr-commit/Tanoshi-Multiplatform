@@ -18,6 +18,8 @@ open class ApplicationActivity {
 
     open fun onResume() {}
 
+    open fun onDestroy() {}
+
     fun <applicationActivity:ApplicationActivity> changeActivity(
         applicationActivityName : Class<applicationActivity> ,
         vararg objects : Any
