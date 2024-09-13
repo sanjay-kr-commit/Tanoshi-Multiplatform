@@ -1,6 +1,7 @@
 package tanoshi.multiplatform.shared
 
 import android.app.Application
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -48,4 +49,6 @@ actual open class SharedApplicationData(
 
     actual var activityMap : Map<ApplicationActivityName,()->Unit>? = null
     
+    actual var extensionComposableView : @Composable () -> Unit = {}
+
 }

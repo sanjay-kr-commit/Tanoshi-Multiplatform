@@ -1,5 +1,6 @@
 package tanoshi.multiplatform.shared
 
+import androidx.compose.runtime.Composable
 import tanoshi.multiplatform.common.util.ApplicationActivityName
 import tanoshi.multiplatform.common.util.logger.Logger
 import tanoshi.multiplatform.shared.extension.ExtensionManager
@@ -25,6 +26,8 @@ expect class SharedApplicationData {
     var appCacheDir : File
 
     var activityMap : Map<ApplicationActivityName,()->Unit>?
+
+    var extensionComposableView : @Composable () -> Unit
 
 }
 

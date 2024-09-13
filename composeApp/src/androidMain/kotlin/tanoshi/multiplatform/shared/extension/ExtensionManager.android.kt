@@ -1,6 +1,5 @@
 package tanoshi.multiplatform.shared.extension
 
-import androidx.compose.runtime.Composable
 import com.google.gson.Gson
 import dalvik.system.DexClassLoader
 import tanoshi.multiplatform.common.extension.annotations.IconName
@@ -10,8 +9,8 @@ import tanoshi.multiplatform.common.util.child
 import tanoshi.multiplatform.common.util.logger.Logger
 import tanoshi.multiplatform.common.util.toFile
 import java.io.File
-import java.lang.ClassCastException
 
+@Suppress("EXPECT_ACTUAL_CLASSIFIERS_ARE_IN_BETA_WARNING")
 actual class ExtensionManager {
 
     lateinit var logger: Logger

@@ -1,5 +1,6 @@
 package tanoshi.multiplatform.shared
 
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -31,7 +32,9 @@ actual open class SharedApplicationData(
 
     actual var privateDir : File = File( System.getProperty( "user.dir" ) , ".tanoshi" ) ,
 
-    actual var appCacheDir: File = File( System.getProperty( "user.dir" )  , ".tanoshi/cache" )
+    actual var appCacheDir: File = File( System.getProperty( "user.dir" )  , ".tanoshi/cache" ) ,
+
+    actual var extensionComposableView : @Composable () -> Unit = {}
 
 ) {
 

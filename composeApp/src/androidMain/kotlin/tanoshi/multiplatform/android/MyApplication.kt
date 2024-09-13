@@ -9,6 +9,7 @@ import android.os.Build.VERSION.SDK_INT
 import android.os.Environment
 import android.util.Log
 import android.widget.Toast
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -16,9 +17,11 @@ import androidx.core.content.ContextCompat
 import dalvik.system.ZipPathValidator
 import tanoshi.multiplatform.android.activities.BrowseActivity
 import tanoshi.multiplatform.android.activities.CrashHandlingActivity
+import tanoshi.multiplatform.android.activities.DynamicActivity
 import tanoshi.multiplatform.android.activities.MainActivity
 import tanoshi.multiplatform.shared.SharedApplicationData
 import tanoshi.multiplatform.common.util.ApplicationActivityName
+import tanoshi.multiplatform.shared.changeActivity
 import java.io.File
 
 class MyApplication : SharedApplicationData() {
@@ -27,7 +30,7 @@ class MyApplication : SharedApplicationData() {
 
     override fun onCreate() {
         super.onCreate()
-        
+
         activityMap = mapOf(
             ApplicationActivityName.Main to {
                 startActivity( Intent( this , MainActivity::class.java ).apply {
@@ -44,8 +47,21 @@ class MyApplication : SharedApplicationData() {
                     flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
                     flags = Intent.FLAG_ACTIVITY_NEW_TASK
                 })
+            } ,
+            ApplicationActivityName.Dynamic to {
+                startActivity( Intent( this , DynamicActivity::class.java ).apply {
+                    flags = Intent.FLAG_FROM_BACKGROUND
+                    flags = Intent.FLAG_ACTIVITY_BROUGHT_TO_FRONT
+                    flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
+                    flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                })
             }
         )
+
+        extensionManager.extensionLoader.startDynamicActivity = {
+            extensionComposableView = this as (@Composable () -> Unit )
+            changeActivity = ApplicationActivityName.Dynamic
+        }
 
         // set uncaught exception thread
         Thread.setDefaultUncaughtExceptionHandler { thread, throwable ->

@@ -1,5 +1,11 @@
 package tanoshi.extensions.anime
 
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import com.squareup.okhttp.OkHttpClient
 import com.squareup.okhttp.Request
 import org.jsoup.Jsoup
@@ -54,6 +60,16 @@ class Gogoanime : PlayableExtension , SharedDependencies() {
 
     override fun fetchPlayableMedia(entry: PlayableContent): List<PlayableMedia> {
         TODO("Not yet implemented")
+    }
+
+    fun startExtensionComposeView() {
+        startComposableView?.let { composableStart : ( @Composable () -> Unit ).() -> Unit ->
+            (@Composable {
+                Box( modifier = Modifier.fillMaxSize() , contentAlignment = Alignment.Center ) {
+                    Text( "Hello World From $name" )
+                }
+            }).composableStart()
+        }
     }
 
 }

@@ -1,14 +1,17 @@
 package tanoshi.multiplatform.shared.extension
 
+import androidx.compose.runtime.Composable
 import tanoshi.multiplatform.common.extension.core.Extension
-import tanoshi.multiplatform.common.extension.core.SharedDependencies
 import tanoshi.multiplatform.common.extension.core.insertSharedDependencies
 import tanoshi.multiplatform.common.util.logger.Logger
 import java.io.File
 import java.net.URL
 import java.net.URLClassLoader
 
+@Suppress("EXPECT_ACTUAL_CLASSIFIERS_ARE_IN_BETA_WARNING")
 actual class ExtensionLoader {
+
+    actual var startDynamicActivity : ((@Composable ()->Unit).() -> Unit)? = null
 
     lateinit var logger : Logger
 
@@ -44,6 +47,9 @@ actual class ExtensionLoader {
         get() {
             insertSharedDependencies {
                 logger = this@ExtensionLoader.logger
+                startComposableView = {
+                    startDynamicActivity?.let { (this as (@Composable () -> Unit ) ).it() }
+                }
                 logger log {
                     DEBUG
                     title = "$name injected SharedDependencies"

@@ -37,6 +37,11 @@
             android:name="tanoshi.multiplatform.android.activities.BrowseActivity"
         />
 
+        <activity
+            android:configChanges="orientation|screenSize|screenLayout|keyboardHidden|mnc|colorMode|density|fontScale|fontWeightAdjustment|keyboard|layoutDirection|locale|mcc|navigation|smallestScreenSize|touchscreen|uiMode"
+            android:name="tanoshi.multiplatform.android.activities.DynamicActivity"
+        />
+
     </application>
 
 </manifest>
