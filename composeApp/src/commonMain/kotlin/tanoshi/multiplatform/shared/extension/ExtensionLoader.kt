@@ -1,7 +1,7 @@
 package tanoshi.multiplatform.shared.extension
 
 import androidx.compose.runtime.Composable
-import tanoshi.multiplatform.common.extension.core.Extension
+import tanoshi.multiplatform.common.extension.ExtensionPackage
 import tanoshi.multiplatform.common.util.logger.Logger
 import tanoshi.multiplatform.common.util.toast.ToastTimeout
 import java.io.File
@@ -16,8 +16,11 @@ expect class ExtensionLoader {
     var setToastLambda : (String.(ToastTimeout)->Unit)?
 
     // pair( pair(package name , archive name) , extension )
-    val loadedExtensionClasses : ArrayList< Pair< Pair<String,String> , Extension> >
+    //val loadedExtensionClasses : ArrayList< Pair< Pair<String,String> , Extension> >
+    val loadedExtensionPackage : ArrayList<ExtensionPackage>
     
-    fun loadTanoshiExtension(jarOrDexFile : File, classNameList : List<String> )
+    fun loadTanoshiExtension( extensionPackage: ExtensionPackage, classNameList : List<String> )
+
+    fun reloadClass( className : String , extensionPackage: ExtensionPackage )
 
 }

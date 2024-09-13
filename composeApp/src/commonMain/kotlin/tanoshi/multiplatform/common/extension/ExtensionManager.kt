@@ -1,7 +1,6 @@
 package tanoshi.multiplatform.common.extension
 
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Icon
 import androidx.compose.material.icons.Icons
@@ -136,7 +135,7 @@ fun createExtensionPermissionFile(extension: Extension, file: File) {
     if ( extension is SharedDependencies ) {
         file.bufferedWriter().use { permission ->
             SharedDependencyFields.entries.forEach { entry ->
-                permission.write( "${entry.name}:${false}\n" )
+                permission.write( "${entry.name}:${entry.defaultValue}\n" )
             }
         }
     }

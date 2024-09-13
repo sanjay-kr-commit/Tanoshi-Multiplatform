@@ -1,10 +1,12 @@
 package tanoshi.multiplatform.shared.extension
 
 import com.google.gson.Gson
+import tanoshi.multiplatform.common.extension.ExtensionPackage
 import tanoshi.multiplatform.common.extension.annotations.IconName
 import tanoshi.multiplatform.common.extension.core.Extension
 import tanoshi.multiplatform.common.extension.createExtensionPermissionFile
 import tanoshi.multiplatform.common.extension.extractExtension
+import tanoshi.multiplatform.common.util.Manifest.Companion.toManifest
 import tanoshi.multiplatform.common.util.child
 import tanoshi.multiplatform.common.util.logger.Logger
 import java.io.File
@@ -12,6 +14,7 @@ import java.lang.ClassCastException
 import java.net.URL
 import java.net.URLClassLoader
 
+@Suppress("EXPECT_ACTUAL_CLASSIFIERS_ARE_IN_BETA_WARNING")
 actual class ExtensionManager {
 
     lateinit var logger: Logger
@@ -126,7 +129,11 @@ actual class ExtensionManager {
                     ArrayList::class.java
                 ) as ArrayList<String>
                 extensionLoader.loadTanoshiExtension(
-                    extensionDir.child( "source.jar" ) ,
+                    ExtensionPackage(
+                        extensionDir.child( "source.jar" ) ,
+                        extensionDir ,
+                        extensionDir.child( "META-INF/MANIFEST.MF" ).toManifest
+                    ) ,
                     extensionClasses
                 )
             } catch ( e : Exception ) {
@@ -137,12 +144,10 @@ actual class ExtensionManager {
             }
 
             try {
-
                 val extensionIcon : HashMap<String,String> = gson.fromJson(
                     extensionDir.child( "extensionIcon.json" ).readText() ,
                     HashMap::class.java
                 ) as HashMap<String,String>
-
                 for ( (name,icon) in extensionIcon ) {
                     extensionIconPath += name to extensionDir.child( icon ).absolutePath
                 }

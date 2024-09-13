@@ -1,6 +1,7 @@
 package tanoshi.multiplatform.shared.extension
 
 import androidx.compose.runtime.Composable
+import tanoshi.multiplatform.common.extension.ExtensionPackage
 import tanoshi.multiplatform.common.extension.core.Extension
 import tanoshi.multiplatform.common.extension.loadExtensionPermission
 import tanoshi.multiplatform.common.util.child
@@ -21,21 +22,21 @@ actual class ExtensionLoader {
 
     val classList : HashSet<String> = hashSetOf()
 
-    // pair( pair(package name , archive name) , extension )
-    actual val loadedExtensionClasses : ArrayList<Pair< Pair<String,String> , Extension >> = ArrayList()
+    actual val loadedExtensionPackage : ArrayList<ExtensionPackage> = arrayListOf()
 
-    actual fun loadTanoshiExtension(jarOrDexFile : File, classNameList : List<String> ) {
+    actual fun loadTanoshiExtension( extensionPackage: ExtensionPackage, classNameList : List<String> ) {
         val classLoader = URLClassLoader(
-            arrayOf( jarOrDexFile.absolutePath.url ) ,
+            arrayOf( extensionPackage.jarOrDexPath.absolutePath.url ) ,
             this.javaClass.classLoader
         )
+        loadedExtensionPackage += extensionPackage
         classNameList.forEach { className ->
             try {
                 val loadedClass: Class<*> = classLoader.loadClass(className)
                 val obj: Any = loadedClass.getDeclaredConstructor().newInstance()
                 if ( classList.contains( className ) ) throw Exception( "Duplicate Class Found" )
-                loadedExtensionClasses += ( className to jarOrDexFile.absolutePath ) to obj as Extension
-                jarOrDexFile.parentFile?.let { loadExtensionPermission( className , obj as Extension , it.child( "$className.config" ) ) }
+                extensionPackage.loadedExtensionClasses += className to obj as Extension
+                loadExtensionPermission( className , obj as Extension , extensionPackage.extensionDir.child( "$className.config" ) )
                 classList.add(className )
             } catch ( e : Exception ) {
                 logger?. log {
@@ -49,6 +50,28 @@ actual class ExtensionLoader {
 
     private val String.url : URL
         get() = File( this ).toURI().toURL()
-    
-    
+
+    actual fun reloadClass( className : String , extensionPackage: ExtensionPackage ) {
+        try {
+            val classLoader = URLClassLoader(
+                arrayOf(extensionPackage.jarOrDexPath.absolutePath.url),
+                this.javaClass.classLoader
+            )
+            val loadedClass: Class<*> = classLoader.loadClass(className)
+            val obj: Any = loadedClass.getDeclaredConstructor().newInstance()
+            loadExtensionPermission(
+                className,
+                obj as Extension,
+                extensionPackage.extensionDir.child("$className.config")
+            )
+            extensionPackage.loadedExtensionClasses[className] = obj
+        } catch ( e : Exception ) {
+            logger?. log {
+                ERROR
+                title = "Failed To Reload Class : $className"
+                e.stackTraceToString()
+            }
+        }
+    }
+
 }

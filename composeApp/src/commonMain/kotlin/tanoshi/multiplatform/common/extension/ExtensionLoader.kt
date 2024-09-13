@@ -1,13 +1,30 @@
 package tanoshi.multiplatform.common.extension
 
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.LinearProgressIndicator
+import androidx.compose.material.Text
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.runtime.*
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
 import tanoshi.multiplatform.common.extension.core.Extension
 import tanoshi.multiplatform.common.extension.core.SharedDependencies
 import tanoshi.multiplatform.common.extension.enum.SharedDependencyFields
 import tanoshi.multiplatform.shared.extension.ExtensionLoader
 import java.io.File
-import java.util.LinkedList
 
 fun ExtensionLoader.loadExtensionPermission(
     className : String ,
@@ -35,8 +52,6 @@ fun ExtensionLoader.loadExtensionPermission(
                 }
             } else buffer.append( " : False\n" )
         }
-
-
     }
     logger?. log {
         DEBUG
@@ -45,11 +60,63 @@ fun ExtensionLoader.loadExtensionPermission(
     }
 }
 
-fun loadExtensionPermissionSettingPage(
+@Composable
+fun ExtensionLoader.loadExtensionPermissionSettingPage(
     className : String ,
-    extension: Extension , file : File
+    extension: Extension ,
+    file : File ,
+    extensionPackage: ExtensionPackage
 ) {
-    val entries : ArrayList<Pair<SharedDependencyFields,MutableState<Boolean>>> = arrayListOf()
+    val entries : ArrayList<Pair<Pair<MutableState<String>,SharedDependencyFields>,MutableState<Boolean>>> = remember { arrayListOf() }
+    var job : Job? by remember { mutableStateOf( null ) }
+    var updateJob : Job? = remember { null }
+    if ( job != null ) {
+        Text( "Loading" )
+        LinearProgressIndicator( modifier = Modifier.fillMaxWidth() )
+    } else entries.forEach {
+        Row( modifier = Modifier.fillMaxWidth().padding( 10.dp ) , horizontalArrangement = Arrangement.SpaceBetween ) {
+            Text( it.first.second.name )
+            Image(
+                if ( it.second.value ) Icons.Filled.Check else Icons.Filled.Close , "" ,
+                modifier = Modifier
+                    .clip( CircleShape )
+                    .clickable {
+                        if ( updateJob == null ) updateJob = CoroutineScope( Dispatchers.IO ).launch {
+                            file.writeText(
+                                file.readText()
+                                    .replace(
+                                        it.first.first.value , "${it.first.second}:${!it.second.value}".also { newLine ->
+                                            it.first.first.value = newLine
+                                        }
+                                    )
+                            )
+                            it.second.value = !it.second.value
+                            reloadClass( className , extensionPackage )
+                            updateJob = null
+                        }
+                    }
+            )
+        }
+    }
 
+    LaunchedEffect( Unit ) {
+        job = launch {
+            file.bufferedReader().use { bufferedReader ->
+                // read shared dependency permission
+                repeat( SharedDependencyFields.entries.size ) {
+                    val line = bufferedReader.readLine()
+                    val pair = line.split( ":" )
+                    entries += mutableStateOf( line ) to SharedDependencyFields.valueOf( pair.first() ) to mutableStateOf( pair[1].toBoolean() )
+                }
+            }
+            job = null
+        }
+    }
 
+    DisposableEffect( Unit ) {
+        onDispose {
+            job?.cancel()
+            updateJob?.cancel()
+        }
+    }
 }

@@ -2,10 +2,12 @@ package tanoshi.multiplatform.shared.extension
 
 import com.google.gson.Gson
 import dalvik.system.DexClassLoader
+import tanoshi.multiplatform.common.extension.ExtensionPackage
 import tanoshi.multiplatform.common.extension.annotations.IconName
 import tanoshi.multiplatform.common.extension.core.Extension
 import tanoshi.multiplatform.common.extension.createExtensionPermissionFile
 import tanoshi.multiplatform.common.extension.extractExtension
+import tanoshi.multiplatform.common.util.Manifest.Companion.toManifest
 import tanoshi.multiplatform.common.util.child
 import tanoshi.multiplatform.common.util.logger.Logger
 import tanoshi.multiplatform.common.util.toFile
@@ -146,7 +148,11 @@ actual class ExtensionManager {
                 ) as HashMap<String,List<String>>
                 extensionClasses.forEach {
                     extensionLoader.loadTanoshiExtension(
-                        it.key.toFile ,
+                        ExtensionPackage(
+                            it.key.toFile ,
+                            extensionDir ,
+                            extensionDir.child( "META-INF/MANIFEST.MF" ).toManifest
+                        ) ,
                         it.value
                     )
                 }

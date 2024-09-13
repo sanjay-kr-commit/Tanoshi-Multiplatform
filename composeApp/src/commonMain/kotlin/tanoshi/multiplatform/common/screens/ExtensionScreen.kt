@@ -17,6 +17,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import tanoshi.multiplatform.common.extension.extensionIcon
+import tanoshi.multiplatform.common.extension.loadExtensionPermissionSettingPage
+import tanoshi.multiplatform.common.util.child
 import tanoshi.multiplatform.shared.extension.ExtensionManager
 
 @Composable
@@ -31,59 +33,70 @@ fun ExtensionScreen(
             modifier = Modifier.fillMaxSize().padding( 10.dp ),
             //contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
         ) {
-            extensionManager.extensionLoader.loadedExtensionClasses.forEach { ( packageNameAndArchive , extension ) ->
-                item {
+            extensionManager.extensionLoader.loadedExtensionPackage
+                .forEach { extensionPackage ->
+                    extensionPackage.loadedExtensionClasses.forEach { (className , extension) ->
 
-                    var isSettingScreenVisible by remember { mutableStateOf( false ) }
+                        item {
 
-                    Column(
-                        modifier = Modifier.fillMaxWidth()
-                            .wrapContentHeight()
-                            .animateContentSize()
-                    ) {
+                            val isSettingPageAvailable = remember { extensionPackage.extensionDir.child( "$className.config" ).isFile }
+                            var isSettingScreenVisible by remember { mutableStateOf( false ) }
 
-                        // extension entry start here
-                        Row (
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .wrapContentHeight()
-                                .clip( RoundedCornerShape( 10.dp ) )
-                                .clickable {
-                                    navigateToBrowseScreen()
+                            Column(
+                                modifier = Modifier.fillMaxWidth()
+                                    .wrapContentHeight()
+                                    .animateContentSize()
+                            ) {
+
+                                // extension entry start here
+                                Row (
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .wrapContentHeight()
+                                        .clip( RoundedCornerShape( 10.dp ) )
+                                        .clickable {
+                                            navigateToBrowseScreen()
+                                        }
+                                        .padding( 2.dp )
+                                        .clip( RoundedCornerShape( 10.dp ) )
+                                    ,
+                                    horizontalArrangement = Arrangement.SpaceBetween ,
+                                    verticalAlignment = Alignment.CenterVertically
+                                ){
+                                    Box( modifier = Modifier.size( 60.dp ) , contentAlignment = Alignment.Center ) {
+                                        extensionManager.extensionIcon(className)
+                                    }
+                                    Row( modifier = Modifier.wrapContentSize() , verticalAlignment = Alignment.CenterVertically , horizontalArrangement = Arrangement.Center ) {
+                                        Text( text = extension.name )
+                                        Spacer( modifier = Modifier.width( 5.dp ) )
+                                        if ( isSettingPageAvailable ) Image( Icons.Default.Settings , "" , modifier = Modifier
+                                            .clip( CircleShape )
+                                            .clickable {
+                                                isSettingScreenVisible = !isSettingScreenVisible
+                                        } )
+                                    }
                                 }
-                                .padding( 2.dp )
-                                .clip( RoundedCornerShape( 10.dp ) )
-                            ,
-                            horizontalArrangement = Arrangement.SpaceBetween ,
-                            verticalAlignment = Alignment.CenterVertically
-                        ){
-                            Box( modifier = Modifier.size( 60.dp ) , contentAlignment = Alignment.Center ) {
-                                extensionManager.extensionIcon(packageNameAndArchive.first)
-                            }
-                            Row( modifier = Modifier.wrapContentSize() , verticalAlignment = Alignment.CenterVertically , horizontalArrangement = Arrangement.Center ) {
-                                Text( text = extension.name )
-                                Spacer( modifier = Modifier.width( 5.dp ) )
-                                Image( Icons.Default.Settings , "" , modifier = Modifier
-                                    .clip( CircleShape )
-                                    .clickable {
-                                        println( isSettingScreenVisible )
-                                        isSettingScreenVisible = !isSettingScreenVisible
-                                } )
-                            }
-                        }
-                        // extension entry end here
+                                // extension entry end here
 
-                        // extesion setting page start here
-                        if ( isSettingScreenVisible ) Column( modifier = Modifier.fillMaxWidth().padding( 10.dp ).clip( RoundedCornerShape( 10.dp ) ) ) {
-                            TODO()
+                                // extesion setting page start here
+                                if ( isSettingScreenVisible ) Column( modifier = Modifier.fillMaxWidth().padding( 10.dp ).clip( RoundedCornerShape( 10.dp ) ) ) {
+
+                                    extensionManager.extensionLoader.loadExtensionPermissionSettingPage(
+                                        className ,
+                                        extension ,
+                                        extensionPackage.extensionDir.child( "$className.config" ) ,
+                                        extensionPackage
+                                    )
+
+                                }
+                                // extension setting page end here
+
+                            }
+
                         }
-                        // extension setting page end here
 
                     }
-
                 }
-            }
         }
-
     }
 }
