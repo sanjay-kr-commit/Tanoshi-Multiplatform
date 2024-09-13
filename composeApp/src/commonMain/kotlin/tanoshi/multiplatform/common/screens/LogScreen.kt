@@ -1,7 +1,6 @@
 package tanoshi.multiplatform.common.screens
 
 import androidx.compose.animation.animateContentSize
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -31,7 +30,7 @@ fun LogScreen(
             .clip( RoundedCornerShape( 10.dp ) )
             .background( Color.LightGray )
             .padding( 10.dp )
-            .clip( RoundedCornerShape( 5.dp ) )
+            .clip( RoundedCornerShape( 10.dp ) )
     ){
 
         logger.list.forEach { ( heading , stackTrace ) ->
@@ -46,6 +45,7 @@ fun LogScreen(
                             if ( isExpanded ) 5.dp else 0.dp
                         )
                         .animateContentSize()
+                        .clip( RoundedCornerShape( 10.dp ) )
                         .clickable {
                             isExpanded = !isExpanded
                         }
