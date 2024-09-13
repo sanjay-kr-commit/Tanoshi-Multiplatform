@@ -4,6 +4,7 @@ import com.google.gson.Gson
 import dalvik.system.DexClassLoader
 import tanoshi.multiplatform.common.extension.annotations.IconName
 import tanoshi.multiplatform.common.extension.core.Extension
+import tanoshi.multiplatform.common.extension.createExtensionPermissionFile
 import tanoshi.multiplatform.common.extension.extractExtension
 import tanoshi.multiplatform.common.util.child
 import tanoshi.multiplatform.common.util.logger.Logger
@@ -81,6 +82,7 @@ actual class ExtensionManager {
                                 }
                             }
                         addDependencyTree( className , classList , classDependencies , classLoader )
+                        createExtensionPermissionFile(obj, extensionDir.child( "$className.config" ))
                     } catch ( _ : Exception ) {}
                 }
 

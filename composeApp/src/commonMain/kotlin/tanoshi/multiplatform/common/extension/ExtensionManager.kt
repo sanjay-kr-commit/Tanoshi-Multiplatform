@@ -1,12 +1,21 @@
 package tanoshi.multiplatform.common.extension
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Icon
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.BrokenImage
 import androidx.compose.material.icons.filled.Error
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.unit.dp
+import tanoshi.multiplatform.common.extension.core.Extension
+import tanoshi.multiplatform.common.extension.core.SharedDependencies
+import tanoshi.multiplatform.common.extension.enum.SharedDependencyFields
 import tanoshi.multiplatform.common.util.Manifest.Companion.toManifest
 import tanoshi.multiplatform.common.util.logger.Logger
 import tanoshi.multiplatform.common.util.toFile
@@ -114,11 +123,21 @@ fun ExtensionManager.extensionIcon( packageName :String ) {
     extensionIconPath[packageName]?.let {
         val image = remember { loadImageBitmap( it.toFile ) }
         image?.let { imageBitmap ->
-            Image( imageBitmap , "" )
+            Image( imageBitmap , "", contentScale = ContentScale.Crop , modifier = Modifier.clip( RoundedCornerShape( 10.dp ) ) )
         } ?: run {
             Icon( Icons.Default.Error , "" )
         }
     } ?: run {
         Icon( Icons.Default.BrokenImage , "" )
+    }
+}
+
+fun createExtensionPermissionFile(extension: Extension, file: File) {
+    if ( extension is SharedDependencies ) {
+        file.bufferedWriter().use { permission ->
+            SharedDependencyFields.entries.forEach { entry ->
+                permission.write( "${entry.name}:${false}\n" )
+            }
+        }
     }
 }

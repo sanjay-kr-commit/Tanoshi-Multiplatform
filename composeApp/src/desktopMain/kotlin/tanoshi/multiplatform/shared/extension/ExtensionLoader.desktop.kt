@@ -2,8 +2,10 @@ package tanoshi.multiplatform.shared.extension
 
 import androidx.compose.runtime.Composable
 import tanoshi.multiplatform.common.extension.core.Extension
-import tanoshi.multiplatform.common.extension.core.insertSharedDependencies
+import tanoshi.multiplatform.common.extension.loadExtensionPermission
+import tanoshi.multiplatform.common.util.child
 import tanoshi.multiplatform.common.util.logger.Logger
+import tanoshi.multiplatform.common.util.toast.ToastTimeout
 import java.io.File
 import java.net.URL
 import java.net.URLClassLoader
@@ -13,7 +15,9 @@ actual class ExtensionLoader {
 
     actual var startDynamicActivity : ((@Composable ()->Unit).() -> Unit)? = null
 
-    lateinit var logger : Logger
+    actual var logger : Logger? = null
+
+    actual var setToastLambda : (String.(ToastTimeout)->Unit)? = null
 
     val classList : HashSet<String> = hashSetOf()
 
@@ -31,10 +35,10 @@ actual class ExtensionLoader {
                 val obj: Any = loadedClass.getDeclaredConstructor().newInstance()
                 if ( classList.contains( className ) ) throw Exception( "Duplicate Class Found" )
                 loadedExtensionClasses += ( className to jarOrDexFile.absolutePath ) to obj as Extension
-                ( obj  as Extension ).injectDefaultSharedDependencies
+                jarOrDexFile.parentFile?.let { loadExtensionPermission( className , obj as Extension , it.child( "$className.config" ) ) }
                 classList.add(className )
             } catch ( e : Exception ) {
-                logger log {
+                logger?. log {
                     ERROR
                     title = "Failed To Load $className"
                     e.stackTraceToString()
@@ -42,23 +46,6 @@ actual class ExtensionLoader {
             }
         }
     }
-
-    private val Extension.injectDefaultSharedDependencies : Unit
-        get() {
-            insertSharedDependencies {
-                logger = this@ExtensionLoader.logger
-                startComposableView = {
-                    startDynamicActivity?.let { (this as (@Composable () -> Unit ) ).it() }
-                }
-                logger log {
-                    DEBUG
-                    title = "$name injected SharedDependencies"
-                    """
-                        |Injected Logger
-                    """.trimMargin()
-                }
-            }
-        }
 
     private val String.url : URL
         get() = File( this ).toURI().toURL()

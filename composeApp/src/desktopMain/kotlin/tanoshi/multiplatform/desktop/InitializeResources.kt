@@ -11,6 +11,7 @@ import tanoshi.multiplatform.common.util.ApplicationActivityName
 import tanoshi.multiplatform.shared.SharedApplicationData
 import tanoshi.multiplatform.shared.changeActivity
 import tanoshi.multiplatform.shared.util.ApplicationActivity
+import tanoshi.multiplatform.shared.util.toast.showToast
 import java.io.File
 
 class InitializeResources : ApplicationActivity() {
@@ -55,6 +56,12 @@ class InitializeResources : ApplicationActivity() {
 
             mapActivities()
             attachDynamicActivityLoading()
+
+            message.value = "attach show toast to extension loader"
+            extensionManager.extensionLoader.setToastLambda = {
+                showToast( this , it )
+            }
+            delay( 10 )
 
             message.value = "Loading Extension"
             extensionManager.loadExtensions()

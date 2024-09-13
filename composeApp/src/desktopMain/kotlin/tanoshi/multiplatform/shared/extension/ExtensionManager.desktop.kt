@@ -1,11 +1,9 @@
 package tanoshi.multiplatform.shared.extension
 
-import androidx.compose.material.Icon
-import androidx.compose.material.Text
-import androidx.compose.runtime.Composable
 import com.google.gson.Gson
 import tanoshi.multiplatform.common.extension.annotations.IconName
 import tanoshi.multiplatform.common.extension.core.Extension
+import tanoshi.multiplatform.common.extension.createExtensionPermissionFile
 import tanoshi.multiplatform.common.extension.extractExtension
 import tanoshi.multiplatform.common.util.child
 import tanoshi.multiplatform.common.util.logger.Logger
@@ -63,6 +61,7 @@ actual class ExtensionManager {
                         }
                     }
                     addDependencyTree( className , classPath , extensionDir , classDependencies )
+                    createExtensionPermissionFile(obj, extensionDir.child( "$className.config" ))
                 } catch ( e : Exception ) {
                     logger log {
                         ERROR

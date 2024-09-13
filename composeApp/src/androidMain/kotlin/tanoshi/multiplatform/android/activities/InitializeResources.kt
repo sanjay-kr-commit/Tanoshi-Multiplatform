@@ -17,6 +17,7 @@ import tanoshi.multiplatform.android.MyApplication
 import tanoshi.multiplatform.common.screens.SplashScreen
 import tanoshi.multiplatform.common.util.ApplicationActivityName
 import tanoshi.multiplatform.shared.changeActivity
+import tanoshi.multiplatform.shared.util.toast.showToast
 import java.io.File
 
 class InitializeResources : ComponentActivity() {
@@ -136,6 +137,12 @@ class InitializeResources : ComponentActivity() {
             message.value = "Attach Toast Lambda"
             showToastLambda = { message, timeout ->
                 Toast.makeText( this@with , message , timeout ).show()
+            }
+            delay( 10 )
+
+            message.value = "attach show toast to extension loader"
+            extensionManager.extensionLoader.setToastLambda = {
+                showToast( this , it )
             }
             delay( 10 )
 
