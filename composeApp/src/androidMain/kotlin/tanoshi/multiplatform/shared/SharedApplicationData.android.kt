@@ -53,6 +53,8 @@ actual open class SharedApplicationData(
 
     var exitActivity : () -> Unit = {}
 
+    actual var exportedObjects : HashMap<String,Any>? = null
+
 }
 
 actual val SharedApplicationData.finish: Unit

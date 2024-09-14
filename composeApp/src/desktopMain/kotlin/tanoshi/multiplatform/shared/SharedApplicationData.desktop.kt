@@ -35,7 +35,9 @@ actual open class SharedApplicationData(
 
     actual var appCacheDir: File = File( System.getProperty( "user.dir" )  , ".tanoshi/cache" ) ,
 
-    actual var extensionComposableView : @Composable () -> Unit = {}
+    actual var extensionComposableView : @Composable () -> Unit = {} ,
+    
+    actual var exportedObjects : HashMap<String,Any>? = null
 
 ) {
 

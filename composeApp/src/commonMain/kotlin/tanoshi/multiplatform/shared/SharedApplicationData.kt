@@ -29,6 +29,14 @@ expect class SharedApplicationData {
 
     var extensionComposableView : @Composable () -> Unit
 
+    var exportedObjects : HashMap<String,Any>?
+
+}
+
+fun SharedApplicationData.changeActivity( newActivityName: ApplicationActivityName , exportObject : HashMap<String,Any>.() -> Unit = {} ) {
+    exportedObjects = HashMap<String,Any>()
+        .also(exportObject)
+    changeActivity = newActivityName
 }
 
 var SharedApplicationData.changeActivity : ApplicationActivityName
