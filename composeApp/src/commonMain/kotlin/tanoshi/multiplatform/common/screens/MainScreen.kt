@@ -154,8 +154,12 @@ private fun SharedApplicationData.MainScreenCatalog(
             HomeScreen( this@MainScreenCatalog )
         }
         Screen( MainScreen.ExtensionScreen.name ) {
-            ExtensionScreen( extensionManager , {
-                changeActivity = ApplicationActivityName.Browse
+            ExtensionScreen( extensionManager , { extensionPackage , className , extension ->
+                changeActivity( ApplicationActivityName.Browse ) {
+                    put( "extensionPackage" , extensionPackage )
+                    put( "className" , className )
+                    put( "extension" , extension )
+                }
             } )
         }
         Screen( MainScreen.HistoryScreen.name ) {

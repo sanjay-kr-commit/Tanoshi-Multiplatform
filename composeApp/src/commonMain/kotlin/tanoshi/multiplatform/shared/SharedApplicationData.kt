@@ -37,6 +37,7 @@ fun SharedApplicationData.changeActivity( newActivityName: ApplicationActivityNa
     exportedObjects = HashMap<String,Any>()
         .also(exportObject)
     changeActivity = newActivityName
+    println( "hello" )
 }
 
 var SharedApplicationData.changeActivity : ApplicationActivityName
@@ -51,6 +52,7 @@ var SharedApplicationData.changeActivity : ApplicationActivityName
                 }
             }
         } catch ( e : Exception ) {
+            println( e.stackTraceToString() )
             logger log {
                 ERROR
                 title = "Activity Navigation Failed"

@@ -16,6 +16,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
+import tanoshi.multiplatform.common.extension.ExtensionPackage
+import tanoshi.multiplatform.common.extension.core.Extension
 import tanoshi.multiplatform.common.extension.extensionIcon
 import tanoshi.multiplatform.common.extension.loadExtensionPermissionSettingPage
 import tanoshi.multiplatform.common.util.child
@@ -24,7 +26,7 @@ import tanoshi.multiplatform.shared.extension.ExtensionManager
 @Composable
 fun ExtensionScreen(
     extensionManager : ExtensionManager ,
-    navigateToBrowseScreen : () -> Unit ,
+    navigateToBrowseScreen : ( ExtensionPackage , String , Extension ) -> Unit ,
 ) {
     Scaffold(
     ) {
@@ -55,7 +57,7 @@ fun ExtensionScreen(
                                         .wrapContentHeight()
                                         .clip( RoundedCornerShape( 10.dp ) )
                                         .clickable {
-                                            navigateToBrowseScreen()
+                                            navigateToBrowseScreen( extensionPackage , className , extension )
                                         }
                                         .padding( 2.dp )
                                         .clip( RoundedCornerShape( 10.dp ) )
