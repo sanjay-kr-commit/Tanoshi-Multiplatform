@@ -11,6 +11,7 @@ import tanoshi.multiplatform.common.util.ApplicationActivityName
 import tanoshi.multiplatform.common.util.currentDateTime
 import tanoshi.multiplatform.common.util.logger
 import tanoshi.multiplatform.common.util.logger.Logger
+import tanoshi.multiplatform.desktop.util.WindowStack
 import tanoshi.multiplatform.shared.extension.ExtensionManager
 import java.io.File
 import java.util.ArrayDeque
@@ -52,4 +53,9 @@ actual open class SharedApplicationData(
 
     actual var activityMap : Map<ApplicationActivityName,()->Unit>? = null
 
+    lateinit var windowStack : WindowStack
+
 }
+
+actual val SharedApplicationData.finish: Unit
+    get() = windowStack.pop()

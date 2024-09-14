@@ -13,7 +13,7 @@ import tanoshi.multiplatform.shared.SharedApplicationData
 
 fun main() : Unit = SharedApplicationData().run {
 
-    val windowStack = WindowStack( InitializeResources() , this )
+    windowStack = WindowStack( InitializeResources() , this )
 
     customApplication( this ) {
 

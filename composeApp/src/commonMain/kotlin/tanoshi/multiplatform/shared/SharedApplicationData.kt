@@ -50,3 +50,5 @@ var SharedApplicationData.changeActivity : ApplicationActivityName
             }
         }
     }
+
+expect val SharedApplicationData.finish : Unit

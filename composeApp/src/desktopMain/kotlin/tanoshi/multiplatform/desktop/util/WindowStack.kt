@@ -46,6 +46,10 @@ class WindowStack(
         _activeWindow.value = stack.last()
     }
 
+    fun pop() {
+        remove( stack.last() )
+    }
+
     @Composable
     fun render() {
         if ( _activeWindow.value.isComposableViewSet ) _activeWindow.value.composableActivityView()
