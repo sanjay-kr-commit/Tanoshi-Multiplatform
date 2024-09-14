@@ -1,5 +1,6 @@
 package tanoshi.multiplatform.android.activities
 
+import android.content.res.Configuration
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.BackHandler
@@ -10,6 +11,9 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import tanoshi.multiplatform.android.extendOnConfigurationChangeBehaviour
+import tanoshi.multiplatform.android.extendOnResumeBehaviour
+import tanoshi.multiplatform.android.extendOncreateBehaviour
 import tanoshi.multiplatform.common.screens.LogScreen
 import tanoshi.multiplatform.shared.SharedApplicationData
 
@@ -19,7 +23,7 @@ class CrashHandlingActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        sharedApplicaData = application as SharedApplicationData
+        sharedApplicaData = extendOncreateBehaviour(savedInstanceState)
         setContent {
             Column( Modifier.fillMaxSize() ) {
                 Spacer( Modifier.height( 20.dp ) )
@@ -31,6 +35,16 @@ class CrashHandlingActivity : ComponentActivity() {
                 }
             }
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        extendOnResumeBehaviour()
+    }
+
+    override fun onConfigurationChanged(newConfig: Configuration) {
+        super.onConfigurationChanged(newConfig)
+        extendOnConfigurationChangeBehaviour(newConfig)
     }
 
 }

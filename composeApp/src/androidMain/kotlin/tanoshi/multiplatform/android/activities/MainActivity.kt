@@ -22,6 +22,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.core.app.ActivityCompat
 import tanoshi.multiplatform.android.MyApplication
+import tanoshi.multiplatform.android.extendOnConfigurationChangeBehaviour
+import tanoshi.multiplatform.android.extendOnResumeBehaviour
+import tanoshi.multiplatform.android.extendOncreateBehaviour
 import tanoshi.multiplatform.common.model.MainScreenViewModel
 import tanoshi.multiplatform.common.screens.MainScreen
 import java.util.*

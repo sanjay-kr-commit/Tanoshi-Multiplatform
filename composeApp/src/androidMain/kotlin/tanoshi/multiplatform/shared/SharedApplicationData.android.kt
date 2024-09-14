@@ -51,7 +51,9 @@ actual open class SharedApplicationData(
     
     actual var extensionComposableView : @Composable () -> Unit = {}
 
+    var exitActivity : () -> Unit = {}
+
 }
 
 actual val SharedApplicationData.finish: Unit
-    get() {}
+    get() = exitActivity()

@@ -5,6 +5,9 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import tanoshi.multiplatform.android.MyApplication
+import tanoshi.multiplatform.android.extendOnConfigurationChangeBehaviour
+import tanoshi.multiplatform.android.extendOnResumeBehaviour
+import tanoshi.multiplatform.android.extendOncreateBehaviour
 import tanoshi.multiplatform.common.screens.BrowseScreen
 
 class BrowseActivity : ComponentActivity() {
