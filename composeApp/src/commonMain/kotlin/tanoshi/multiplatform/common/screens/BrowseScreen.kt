@@ -4,10 +4,17 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import tanoshi.multiplatform.common.screens.component.DesktopOnlyBackHandler
 import tanoshi.multiplatform.common.util.Platform
 import tanoshi.multiplatform.shared.SharedApplicationData
 import tanoshi.multiplatform.shared.finish
@@ -20,12 +27,7 @@ fun BrowseScreen(
 ) {
     Scaffold(
         bottomBar = {
-            Row( modifier = Modifier.fillMaxWidth().wrapContentHeight() , horizontalArrangement = Arrangement.End ) {
-                BackHandler( PLATFORM == Platform.Desktop ) {
-                    sharedData.finish
-                }
-                Spacer( modifier = Modifier.width( 10.dp ) )
-            }
+            DesktopOnlyBackHandler( sharedData )
         }
     ) {
         Box( Modifier.padding(it).fillMaxSize() , contentAlignment = Alignment.Center ) {
