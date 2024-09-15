@@ -7,20 +7,16 @@ import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
 import tanoshi.multiplatform.common.screens.LogScreen
-import tanoshi.multiplatform.desktop.util.WindowStack
+import tanoshi.multiplatform.desktop.util.WindowStack.Companion.startWindowStack
 import tanoshi.multiplatform.desktop.util.customApplication
 import tanoshi.multiplatform.shared.SharedApplicationData
 
 fun main() : Unit = SharedApplicationData().run {
 
-    windowStack = WindowStack( InitializeResources() , this )
-
     customApplication( this ) {
-
         Window( onCloseRequest = ::exitApplication , state = windowState) {
-            windowStack.render()
+            startWindowStack( InitializeResources() )
         }
-
     }
 
     error?.let {

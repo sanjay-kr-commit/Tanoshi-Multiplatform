@@ -4,8 +4,10 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import tanoshi.multiplatform.shared.SharedApplicationData
@@ -55,6 +57,23 @@ class WindowStack(
         if ( _activeWindow.value.isComposableViewSet ) _activeWindow.value.composableActivityView()
         else Box( Modifier.fillMaxSize() , contentAlignment = Alignment.Center ) {
             Text( "Set Composable To using setComposableContent function inside onCreate" )
+        }
+    }
+
+    companion object {
+        @Composable
+        infix fun SharedApplicationData.startWindowStack( applicationActivity: ApplicationActivity ) {
+            remember {
+                windowStack = WindowStack( applicationActivity , this )
+                    .also {
+                        logger log {
+                            DEBUG
+                            title = "Initialised Window Stack"
+                            title
+                        }
+                    }
+            }
+            windowStack.render()
         }
     }
 
