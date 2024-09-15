@@ -20,6 +20,8 @@ class WindowStack(
     private val sharedApplicationData : SharedApplicationData
 ) {
 
+    lateinit var exitApplication : () -> Unit
+
     private var _activeWindow : MutableState<ApplicationActivity> = mutableStateOf( startActivity )
     val activeWindow : ApplicationActivity
         get() = _activeWindow.value
@@ -46,7 +48,8 @@ class WindowStack(
     fun remove( activity: ApplicationActivity ) {
         activity.onDestroy()
         stack.remove( activity )
-        if ( _activeWindow != stack.last() ) {
+        if ( stack.isEmpty() ) exitApplication()
+        else if ( _activeWindow != stack.last() ) {
             _activeWindow.value = stack.last()
             _activeWindow.value.onResume()
         }
@@ -70,9 +73,12 @@ class WindowStack(
 
     companion object {
         @Composable
-        infix fun SharedApplicationData.startWindowStack( applicationActivity: ApplicationActivity ) {
+        fun SharedApplicationData.startWindowStack( applicationActivity: ApplicationActivity , exitApplication : () -> Unit ) {
             remember {
                 windowStack = WindowStack( applicationActivity , this )
+                    .also {
+                        it.exitApplication = exitApplication
+                    }
                     .also {
                         logger log {
                             DEBUG

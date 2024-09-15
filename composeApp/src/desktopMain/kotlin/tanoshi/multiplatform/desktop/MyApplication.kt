@@ -15,7 +15,7 @@ fun main() : Unit = SharedApplicationData().run {
 
     customApplication( this ) {
         Window( onCloseRequest = ::exitApplication , state = windowState) {
-            startWindowStack( InitializeResources() )
+            startWindowStack( InitializeResources() , ::exitApplication )
         }
     }
 
