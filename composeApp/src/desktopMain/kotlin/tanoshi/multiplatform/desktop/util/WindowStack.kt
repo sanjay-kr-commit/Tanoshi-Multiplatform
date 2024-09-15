@@ -46,8 +46,10 @@ class WindowStack(
     fun remove( activity: ApplicationActivity ) {
         activity.onDestroy()
         stack.remove( activity )
-        _activeWindow.value.onResume()
-        _activeWindow.value = stack.last()
+        if ( _activeWindow != stack.last() ) {
+            _activeWindow.value = stack.last()
+            _activeWindow.value.onResume()
+        }
     }
 
     fun pop() {
