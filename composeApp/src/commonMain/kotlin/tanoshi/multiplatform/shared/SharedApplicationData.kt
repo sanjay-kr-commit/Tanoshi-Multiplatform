@@ -37,7 +37,6 @@ fun SharedApplicationData.changeActivity( newActivityName: ApplicationActivityNa
     exportedObjects = HashMap<String,Any>()
         .also(exportObject)
     changeActivity = newActivityName
-    println( "hello" )
 }
 
 var SharedApplicationData.changeActivity : ApplicationActivityName
