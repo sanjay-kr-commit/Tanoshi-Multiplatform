@@ -10,14 +10,18 @@ import com.squareup.okhttp.OkHttpClient
 import com.squareup.okhttp.Request
 import org.jsoup.Jsoup
 import tanoshi.multiplatform.common.extension.*
-import tanoshi.multiplatform.common.extension.annotations.IconName
-import tanoshi.multiplatform.common.extension.annotations.TAB
+import tanoshi.multiplatform.common.extension.annotations.*
 import tanoshi.multiplatform.common.extension.core.SharedDependencies
 import tanoshi.multiplatform.common.util.SelectableMenu
 
 @IconName( "icon.png" )
 class Gogoanime : PlayableExtension , SharedDependencies() {
+
+    @Variable( "Sub" , "enableSub" )
+    var isSubEnabled = false
     
+    val config = Config()
+
     override val name: String = "Gogoanime"
     override val domainsList: SelectableMenu<String>  = SelectableMenu( "https://ww2.gogoanimes.fi/" )
     override val language: String = "English"
@@ -39,8 +43,8 @@ class Gogoanime : PlayableExtension , SharedDependencies() {
                 try {
                     list.add(
                         PlayableEntry().apply {
-                            this.name = it.select( "div>a" ).attr( "title" ) ,
-                            url = domainsList.activeElementValue + it.select( "p.name>a" ).attr("href").substring(1) ,
+                            this.name = it.select( "div>a" ).attr( "title" )
+                            url = domainsList.activeElementValue + it.select( "p.name>a" ).attr("href").substring(1)
                             coverArt = it.select( "div.img > a > img" ).attr( "src" )
                         }
                     )
@@ -72,6 +76,7 @@ class Gogoanime : PlayableExtension , SharedDependencies() {
         }
     }
 
+    @VariableReciever( "enableDub" , "enableSub" )
     @TAB( "Popular" )
     fun popular( pageIndex : Int ) : List<PlayableContent> {
         return listOf(

@@ -1,9 +1,6 @@
 package tanoshi.multiplatform.common.model
 
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.*
 import kotlinx.coroutines.Job
 import tanoshi.multiplatform.common.exception.EndOfListException
 import tanoshi.multiplatform.common.extension.Entry
@@ -54,5 +51,9 @@ class BrowseScreenViewModel : ViewModel() {
         }
 
     lateinit var searchFunction : (Int) -> List<Entry<*>>
+
+    var tabBooleanVariable : MutableList<Pair<String,Pair<String,(Boolean?)->Boolean?>>> = mutableStateListOf()
+    var tabStringVariable : MutableList<Pair<String,Pair<String,(String?)->String?>>> = mutableStateListOf()
+    var tabIntVariable : MutableList<Pair<String,Pair<String,(Int?)->Int?>>> = mutableStateListOf()
 
 }
