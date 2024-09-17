@@ -7,6 +7,8 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.runtime.*
@@ -23,10 +25,13 @@ import kotlinx.coroutines.launch
 import tanoshi.multiplatform.common.extension.Entry
 import tanoshi.multiplatform.common.extension.annotations.TAB
 import tanoshi.multiplatform.common.extension.annotations.Variable
+import tanoshi.multiplatform.common.extension.annotations.VariableReciever
 import tanoshi.multiplatform.common.extension.core.Extension
 import tanoshi.multiplatform.common.model.BrowseScreenViewModel
+import tanoshi.multiplatform.common.util.VariableInstance
 import tanoshi.multiplatform.common.screens.component.DesktopOnlyBackHandler
 import tanoshi.multiplatform.common.screens.component.ProgressIndicator
+import tanoshi.multiplatform.common.util.FunctionTab
 import tanoshi.multiplatform.common.util.toast.ToastTimeout
 import tanoshi.multiplatform.shared.SharedApplicationData
 import tanoshi.multiplatform.shared.util.toast.showToast
@@ -44,20 +49,19 @@ fun BrowseScreen(
         modifier = Modifier.systemBarsPadding(),
         topBar = {
             AnimatedVisibility(  !preprosessingData && activeCallbackFunctionHash == searchFunction.hashCode() , enter = slideIn {
-                IntOffset( 0 , it.height * -1 )
-                                                                                                                                 } , exit = slideOut { IntOffset( 0 ,  it.height * -1 ) } ) {
+                IntOffset( 0 , it.height * -1 )} , exit = slideOut { IntOffset( 0 ,  it.height * -1 ) }
+            ) {
                 SearchBar( searchField ) {
                     sharedData.showToast(
                         searchField.value , ToastTimeout.SHORT
                     )
+                    }
                 }
-            }
-                 },
+            },
         bottomBar = {
             Column( modifier = Modifier.fillMaxWidth() ) {
-                DesktopOnlyBackHandler( sharedData )
                 LazyRow ( modifier = Modifier.fillMaxWidth().wrapContentHeight() ) {
-                    tabList.forEach { (tabName, tabFunction) ->
+                    tabList.forEach { ( _ , tabFunction , tabName , variableUniqueNameList ) ->
                         item {
                             Box( modifier = Modifier.padding( 5.dp )
                                 .clip( RoundedCornerShape( 5.dp ) )
@@ -65,8 +69,14 @@ fun BrowseScreen(
                                     if ( activeCallbackFunctionHash == tabFunction.hashCode() ) MaterialTheme.colors.primary else MaterialTheme.colors.secondary
                                 )
                                 .clickable {
-                                    activeCallbackFunction = if ( activeCallbackFunctionHash == tabFunction.hashCode() )   searchFunction
-                                    else tabFunction
+                                    variableInUse.clear()
+                                    activeCallbackFunction = if ( activeCallbackFunctionHash == tabFunction.hashCode() ) {
+                                        variableInUse += searchFunctionVariableList
+                                        searchFunction
+                                    } else {
+                                        variableInUse += variableUniqueNameList
+                                        tabFunction
+                                    }
                                 }
                                 .padding( 5.dp ) ,
                                  contentAlignment = Alignment.Center
@@ -81,39 +91,36 @@ fun BrowseScreen(
                     }
                 }
                 LazyRow ( modifier = Modifier.fillMaxWidth().wrapContentHeight() ) {
-                    tabBooleanVariable.forEach {
-                        val uniqueName = it.first
-                        val publicName = it.second.first
-                        val function = it.second.second
+                    booleanVariable.forEach { ( meta , function ) ->
                         item {
-                            Box( modifier = Modifier.padding( 5.dp )
-                                .clip( RoundedCornerShape( 5.dp ) )
-//                                .background(
-//                                    if ( activeCallbackFunctionHash == tabFunction.hashCode() ) MaterialTheme.colors.primary else MaterialTheme.colors.secondary
-//                                )
-                                .clickable {
-                                    try {
-                                        println( function(null) )
-                                        function( !function(null)!! )
-                                        println( function(null) )
-                                    } catch ( e : java.lang.Exception ) {
-                                        println( e.stackTraceToString() )
-                                    }
-                                }
-                                .padding( 5.dp ) ,
-                                 contentAlignment = Alignment.Center
-                            ) {
-                                Text(
-                                    publicName ,
-                                    //color = if ( activeCallbackFunctionHash == tabFunction.hashCode() ) MaterialTheme.colors.onPrimary else MaterialTheme.colors.onSecondary ,
-                             )
-                            }
+                            AnimatedVisibility( variableInUse.contains( meta.uniqueName ) ) {
+                                var state by remember { mutableStateOf( function.first.invoke() ) }
 
+                                Box( modifier = Modifier.padding( 5.dp )
+                                    .clip( RoundedCornerShape( 5.dp ) )
+                                    .background(
+                                        if ( state ) MaterialTheme.colors.primary else MaterialTheme.colors.secondary
+                                    )
+                                    .clickable {
+                                        try {
+                                            state = function.second.invoke( !state )
+                                        } catch ( _ : Exception ) {}
+                                    }
+                                    .padding( 5.dp ) ,
+                                     contentAlignment = Alignment.Center
+                                ) {
+                                    Text(
+                                        meta.publicName ,
+                                        color = if ( state ) MaterialTheme.colors.onPrimary else MaterialTheme.colors.onSecondary ,
+                                        )
+                                }
+                            }
                         }
                     }
                 }
 
             }
+            DesktopOnlyBackHandler( sharedData )
         }
 
     ) {
@@ -130,14 +137,37 @@ fun BrowseScreen(
             searchFunction = {  pageIndex ->
                 extension.search( searchField.value , pageIndex )
             }
+            try {
+                extension::class.java.getMethod( "search" , String::class.java , Int::class.java ).annotations?.filterIsInstance<VariableReciever>()?.firstOrNull()?.variableUniqueNameList?.forEach {
+                    searchFunctionVariableList.add( it )
+                }
+            } catch ( e : Exception ) {
+                sharedData.logger log {
+                    ERROR
+                    title = "Failed To Variable Reciever Name"
+                    e.stackTraceToString()
+                }
+            }
             message = "Extracting Tabs"
             extractVariables( extension , extension::class.java , viewModel )
             tabList += extractTabs( extension )
             activeCallbackFunction = searchFunction
+            variableInUse += searchFunctionVariableList
             preprosessingData = false
         }
     }
 
+}
+
+@Composable
+private fun ConfigTab(
+
+    viewModel: BrowseScreenViewModel
+) = viewModel.run {
+    var variableRecieverName by remember { mutableStateOf( "" ) }
+    LazyVerticalGrid( GridCells.Adaptive( 20.dp ) ) {
+
+    }
 }
 
 @Composable
@@ -180,7 +210,7 @@ private fun ResultGrid() {
 @Suppress("UNCHECKED_CAST")
 private fun extractTabs(
     extension : Extension<*>
-) : List<Pair<String,(Int)->List<Entry<*>>>> = extension::class.java.methods.filter { method ->
+) : List<FunctionTab> = extension::class.java.methods.filter { method ->
     method?.annotations?.filterIsInstance<TAB>()?.isNotEmpty() ?: false
 }.filter { method ->
     method?.parameterTypes?.let { argumentList ->
@@ -189,10 +219,13 @@ private fun extractTabs(
         returnType == List::class.java
     } ?: false
 }.map { tabFunction ->
-    @Suppress("RECEIVER_NULLABILITY_MISMATCH_BASED_ON_JAVA_ANNOTATIONS")
-    tabFunction.getAnnotation( TAB::class.java ).fieldName to { pageIndex ->
-        (tabFunction.invoke( extension , pageIndex ) as List<*>) as List<Entry<*>>
-    }
+   FunctionTab(
+       tabFunction , { pageIndex ->
+           (tabFunction.invoke( extension , pageIndex ) as List<*>) as List<Entry<*>>
+       } ,
+       tabFunction.getAnnotation( TAB::class.java ).fieldName ,
+       tabFunction.getAnnotation( VariableReciever::class.java )?.variableUniqueNameList?.toList() ?: listOf()
+   )
 }
 
 private fun extractVariables(
@@ -220,22 +253,49 @@ private fun extractVariables(
                 val annotation = variable.getAnnotation( Variable::class.java )!!
                 when ( variable.get( obj ) ) {
                     is Boolean -> {
-                        viewModel.tabBooleanVariable += annotation.uniqueName to (annotation.publicName to { newValue : Boolean? ->
-                            newValue?.let { variable.set( obj , newValue ) }
-                            variable.get( obj ) as Boolean?
-                        })
+                        viewModel.booleanVariable += VariableInstance(
+                            variable ,
+                            annotation.uniqueName ,
+                            annotation.publicName
+                        ) to (
+                             {
+                                 variable.get( obj ) as Boolean
+                             } to
+                             { newValue ->
+                                 variable.set( obj,newValue )
+                                 variable.get( obj ) as Boolean
+                             }
+                        )
                     }
                     is String -> {
-                        viewModel.tabStringVariable += annotation.uniqueName to (annotation.publicName to { newValue : String? ->
-                            newValue?.let { variable.set( obj , newValue ) }
-                            variable.get( obj ) as String?
-                        })
+                        viewModel.stringVariable += VariableInstance(
+                            variable ,
+                            annotation.uniqueName ,
+                            annotation.publicName
+                        ) to (
+                             {
+                                 variable.get( obj ) as String
+                             } to
+                             { newValue ->
+                                 variable.set( obj,newValue )
+                                 variable.get( obj ) as String
+                             }
+                        )
                     }
                     is Int -> {
-                        viewModel.tabIntVariable += annotation.uniqueName to (annotation.publicName to { newValue : Int? ->
-                            newValue?.let { variable.set( obj , newValue ) }
-                            variable.get( obj ) as Int?
-                        })
+                        viewModel.intVariable += VariableInstance(
+                            variable ,
+                            annotation.uniqueName ,
+                            annotation.publicName
+                        ) to (
+                             {
+                                 variable.get( obj ) as Int
+                             } to
+                             { newValue ->
+                                 variable.set( obj,newValue )
+                                 variable.get( obj ) as Int
+                             }
+                        )
                     }
                 }
             } catch ( _ : Exception ) {}
@@ -246,7 +306,10 @@ private fun extractVariables(
         try {
             field.isAccessible = true
             extractVariables(
-                field.get( obj ) , field.type , viewModel , depthAllowed-1
+                obj = field.get( obj ) ,
+                containerClass = field.type ,
+                viewModel = viewModel ,
+                depthAllowed = depthAllowed-1
             )
         } catch ( _ : Exception ) {}
     }

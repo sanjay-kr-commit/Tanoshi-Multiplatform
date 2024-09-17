@@ -1,13 +1,17 @@
 package tanoshi.multiplatform.common.model
 
-import androidx.compose.runtime.*
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import kotlinx.coroutines.Job
 import tanoshi.multiplatform.common.exception.EndOfListException
 import tanoshi.multiplatform.common.extension.Entry
 import tanoshi.multiplatform.common.extension.ExtensionPackage
 import tanoshi.multiplatform.common.extension.core.Extension
+import tanoshi.multiplatform.common.util.FunctionTab
+import tanoshi.multiplatform.common.util.VariableInstance
 import tanoshi.multiplatform.shared.ViewModel
-import java.lang.reflect.Method
 
 class BrowseScreenViewModel : ViewModel() {
 
@@ -15,7 +19,7 @@ class BrowseScreenViewModel : ViewModel() {
     lateinit var className : String
     lateinit var extension : Extension<*>
     var preprosessingData by mutableStateOf( true )
-    var tabList : MutableList<Pair<String,(Int)->List<Entry<*>>>> = mutableStateListOf()
+    var tabList : MutableList<FunctionTab> = mutableStateListOf()
     var searchField = mutableStateOf( "" )
 
 
@@ -52,8 +56,12 @@ class BrowseScreenViewModel : ViewModel() {
 
     lateinit var searchFunction : (Int) -> List<Entry<*>>
 
-    var tabBooleanVariable : MutableList<Pair<String,Pair<String,(Boolean?)->Boolean?>>> = mutableStateListOf()
-    var tabStringVariable : MutableList<Pair<String,Pair<String,(String?)->String?>>> = mutableStateListOf()
-    var tabIntVariable : MutableList<Pair<String,Pair<String,(Int?)->Int?>>> = mutableStateListOf()
+    var searchFunctionVariableList : ArrayList<String> = arrayListOf()
+
+    var booleanVariable : MutableList< Pair<VariableInstance,Pair<()->Boolean,(Boolean)->Boolean>>> = mutableStateListOf()
+    var stringVariable : MutableList< Pair<VariableInstance,Pair<()->String,(String)->String>>> = mutableStateListOf()
+    var intVariable : MutableList< Pair<VariableInstance,Pair<()->Int,(Int)->Int>>> = mutableStateListOf()
+
+    val variableInUse : MutableList<String> = mutableStateListOf()
 
 }
