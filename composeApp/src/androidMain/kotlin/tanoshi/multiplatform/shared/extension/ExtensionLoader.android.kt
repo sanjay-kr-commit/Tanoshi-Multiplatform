@@ -4,13 +4,10 @@ import androidx.compose.runtime.Composable
 import dalvik.system.DexClassLoader
 import tanoshi.multiplatform.common.extension.ExtensionPackage
 import tanoshi.multiplatform.common.extension.core.Extension
-import tanoshi.multiplatform.common.extension.core.insertSharedDependencies
 import tanoshi.multiplatform.common.extension.loadExtensionPermission
 import tanoshi.multiplatform.common.util.child
 import tanoshi.multiplatform.common.util.logger.Logger
 import tanoshi.multiplatform.common.util.toast.ToastTimeout
-import java.io.File
-import java.net.URLClassLoader
 
 @Suppress("EXPECT_ACTUAL_CLASSIFIERS_ARE_IN_BETA_WARNING")
 actual class ExtensionLoader {
@@ -38,8 +35,8 @@ actual class ExtensionLoader {
                 val loadedClass: Class<*> = classLoader.loadClass(className)
                 val obj: Any = loadedClass.getDeclaredConstructor().newInstance()
                 if ( classList.contains( className ) ) throw Exception( "Duplicate Class Found" )
-                extensionPackage.loadedExtensionClasses += className to obj as Extension
-                loadExtensionPermission(className, obj as Extension, extensionPackage.extensionDir.child("$className.config"))
+                extensionPackage.loadedExtensionClasses += className to obj as Extension<*>
+                loadExtensionPermission(className, obj as Extension<*>, extensionPackage.extensionDir.child("$className.config"))
                 classList.add(className )
             } catch ( e : Exception ) {
                 logger?. log {
@@ -58,7 +55,7 @@ actual class ExtensionLoader {
             val obj: Any = loadedClass.getDeclaredConstructor().newInstance()
             loadExtensionPermission(
                 className,
-                obj as Extension,
+                obj as Extension<*>,
                 extensionPackage.extensionDir.child("$className.config")
             )
             extensionPackage.loadedExtensionClasses[className] = obj

@@ -56,7 +56,7 @@ actual class ExtensionManager {
                 try {
                     val loadedClass: Class<*> = classLoader.loadClass(className)
                     val obj: Any = loadedClass.getDeclaredConstructor().newInstance()
-                    if (obj !is Extension) throw ClassCastException( "$className is not an extension" )
+                    if (obj !is Extension<*>) throw ClassCastException( "$className is not an extension" )
                     extensionClasses.add( className )
                     obj::class.java.annotations.filterIsInstance<IconName>().firstOrNull()?.let { iconName ->
                         if ( extensionDir.child( iconName.icon ).isFile ) {

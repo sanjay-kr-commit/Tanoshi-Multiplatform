@@ -11,6 +11,7 @@ import com.squareup.okhttp.Request
 import org.jsoup.Jsoup
 import tanoshi.multiplatform.common.extension.*
 import tanoshi.multiplatform.common.extension.annotations.IconName
+import tanoshi.multiplatform.common.extension.annotations.TAB
 import tanoshi.multiplatform.common.extension.core.SharedDependencies
 import tanoshi.multiplatform.common.util.SelectableMenu
 
@@ -20,7 +21,6 @@ class Gogoanime : PlayableExtension , SharedDependencies() {
     override val name: String = "Gogoanime"
     override val domainsList: SelectableMenu<String>  = SelectableMenu( "https://ww2.gogoanimes.fi/" )
     override val language: String = "English"
-
 
     override fun search(name: String, index: Int): List<PlayableEntry> {
         val list = ArrayList<PlayableEntry>()
@@ -38,11 +38,11 @@ class Gogoanime : PlayableExtension , SharedDependencies() {
             .forEach {
                 try {
                     list.add(
-                        PlayableEntry(
-                            name = it.select( "div>a" ).attr( "title" ) ,
+                        PlayableEntry().apply {
+                            this.name = it.select( "div>a" ).attr( "title" ) ,
                             url = domainsList.activeElementValue + it.select( "p.name>a" ).attr("href").substring(1) ,
                             coverArt = it.select( "div.img > a > img" ).attr( "src" )
-                        )
+                        }
                     )
                 } catch ( _ : Exception ) {}
             }
@@ -70,6 +70,13 @@ class Gogoanime : PlayableExtension , SharedDependencies() {
                 }
             }).composableStart()
         }
+    }
+
+    @TAB( "Popular" )
+    fun popular( pageIndex : Int ) : List<PlayableContent> {
+        return listOf(
+
+        )
     }
 
 }

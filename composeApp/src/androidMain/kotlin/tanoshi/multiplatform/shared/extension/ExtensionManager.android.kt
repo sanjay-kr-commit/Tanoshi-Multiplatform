@@ -74,7 +74,7 @@ actual class ExtensionManager {
                     try {
                         val loadedClass: Class<*> = classLoader.loadClass(className)
                         val obj: Any = loadedClass.getDeclaredConstructor().newInstance()
-                        if (obj !is Extension) throw ClassCastException( "$className is not an extension" )
+                        if (obj !is Extension<*>) throw ClassCastException( "$className is not an extension" )
                         if ( extensionClasses.contains( className ) ) throw Exception( "Duplicate Class" )
                         extensionClasses.add(className)
                         obj::class.java.annotations.filterIsInstance<IconName>().firstOrNull()

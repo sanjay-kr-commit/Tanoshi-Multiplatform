@@ -3,7 +3,7 @@ package tanoshi.multiplatform.common.extension
 import tanoshi.multiplatform.common.extension.core.Extension
 import tanoshi.multiplatform.common.util.SelectableMenu
 
-interface ReadableExtension : Extension {
+interface ReadableExtension : Extension<ReadableEntry> {
 
     override val name : String
 
@@ -11,7 +11,7 @@ interface ReadableExtension : Extension {
 
     override val language : String
 
-    fun search( name : String , index : Int ) : List<ReadableEntry>
+    override fun search( name : String , index : Int ) : List<ReadableEntry>
 
     fun fetchDetail( entry : ReadableEntry )
 

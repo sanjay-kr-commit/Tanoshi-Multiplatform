@@ -28,7 +28,7 @@ import java.io.File
 
 fun ExtensionLoader.loadExtensionPermission(
     className : String ,
-    extension: Extension , file : File
+    extension: Extension<*> , file : File
 ) {
     if ( extension !is SharedDependencies ) return
     if ( !file.isFile ) {
@@ -63,7 +63,7 @@ fun ExtensionLoader.loadExtensionPermission(
 @Composable
 fun ExtensionLoader.loadExtensionPermissionSettingPage(
     className : String ,
-    extension: Extension ,
+    extension: Extension<*> ,
     file : File ,
     extensionPackage: ExtensionPackage
 ) {

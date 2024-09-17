@@ -26,7 +26,7 @@ import tanoshi.multiplatform.shared.extension.ExtensionManager
 @Composable
 fun ExtensionScreen(
     extensionManager : ExtensionManager ,
-    navigateToBrowseScreen : ( ExtensionPackage , String , Extension ) -> Unit ,
+    navigateToBrowseScreen : ( ExtensionPackage , String , Extension<*> ) -> Unit ,
 ) {
     Scaffold(
     ) {

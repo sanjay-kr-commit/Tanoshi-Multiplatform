@@ -1,19 +1,15 @@
 package tanoshi.multiplatform.common.extension.core
 
+import tanoshi.multiplatform.common.extension.Entry
 import tanoshi.multiplatform.common.util.SelectableMenu
 
-interface Extension {
+interface Extension <E:Entry<*>> {
     val name : String
 
     val domainsList : SelectableMenu<String>
 
     val language : String
 
-}
+    fun search( name : String , index : Int ) : List<E>
 
-internal fun Extension.insertSharedDependencies(
-    injectionLambda : SharedDependencies.() -> Unit
-) {
-    if (this !is SharedDependencies) return
-    injectionLambda.invoke(this)
 }

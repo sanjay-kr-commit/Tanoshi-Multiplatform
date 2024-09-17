@@ -8,5 +8,5 @@ data class ExtensionPackage(
     val jarOrDexPath : File ,
     val extensionDir : File ,
     val manifest: Manifest ,
-    val loadedExtensionClasses : HashMap<String,Extension> = hashMapOf()
+    val loadedExtensionClasses : HashMap<String,Extension<*>> = hashMapOf()
 )

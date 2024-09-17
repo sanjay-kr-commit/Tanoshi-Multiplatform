@@ -3,7 +3,7 @@ package tanoshi.multiplatform.common.extension
 import tanoshi.multiplatform.common.extension.core.Extension
 import tanoshi.multiplatform.common.util.SelectableMenu
 
-interface PlayableExtension : Extension {
+interface PlayableExtension : Extension<PlayableEntry> {
 
     override val name : String
 
@@ -11,7 +11,7 @@ interface PlayableExtension : Extension {
 
     override val language : String
     
-    fun search( name : String , index : Int ) : List<PlayableEntry>
+    override fun search( name : String , index : Int ) : List<PlayableEntry>
     
     fun fetchDetail( entry : PlayableEntry )
     

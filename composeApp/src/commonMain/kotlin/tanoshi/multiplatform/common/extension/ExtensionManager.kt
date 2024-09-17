@@ -131,7 +131,7 @@ fun ExtensionManager.extensionIcon( packageName :String ) {
     }
 }
 
-fun createExtensionPermissionFile(extension: Extension, file: File) {
+fun createExtensionPermissionFile(extension: Extension<*>, file: File) {
     if ( extension is SharedDependencies ) {
         file.bufferedWriter().use { permission ->
             SharedDependencyFields.entries.forEach { entry ->
