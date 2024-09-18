@@ -18,18 +18,20 @@ class BrowseScreenViewModel : ViewModel() {
     lateinit var extensionPackage : ExtensionPackage
     lateinit var className : String
     lateinit var extension : Extension<*>
+
     var preprosessingData by mutableStateOf( true )
     var tabList : MutableList<FunctionTab> = mutableStateListOf()
     var searchField = mutableStateOf( "" )
 
 
     var isEnded by mutableStateOf( false )
-    val result : MutableList<Entry<*>> = mutableStateListOf()
+    val entries : MutableList<Entry<*>> = mutableStateListOf()
     var pageIndex = 1
 
     val reset : () -> Unit = {
-        result.clear()
-        pageIndex = 0
+        entries.clear()
+        pageIndex = 1
+        isEnded = false
     }
 
     var preprosessionJob : Job? = null
@@ -47,8 +49,15 @@ class BrowseScreenViewModel : ViewModel() {
 
     val fetchList : Unit
         get() = try {
-            result += activeCallbackFunction( pageIndex++ )
+            entries += if ( activeCallbackFunctionHash == searchFunction.hashCode() ) activeCallbackFunction( pageIndex++ ) else {
+                try {
+                    activeCallbackFunction( pageIndex++ )
+                } catch ( e : java.lang.reflect.InvocationTargetException ) {
+                    throw e.targetException
+                }
+            }
         } catch ( e : EndOfListException ) {
+            println( "END REACHED" )
             isEnded = true
         } catch ( e : Exception ) {
             println( e.stackTraceToString() )
@@ -63,5 +72,7 @@ class BrowseScreenViewModel : ViewModel() {
     var intVariable : MutableList< Pair<VariableInstance,Pair<()->Int,(Int)->Int>>> = mutableStateListOf()
 
     val variableInUse : MutableList<String> = mutableStateListOf()
+
+    var launchedSearch : Boolean by mutableStateOf( false )
 
 }
