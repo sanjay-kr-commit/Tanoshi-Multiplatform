@@ -6,6 +6,10 @@ class DynamicActivity : ApplicationActivity() {
 
     override fun onCreate() {
         super.onCreate()
-        setContent(applicationData.extensionComposableView)
+        setContent {
+            TanoshiTheme {
+                applicationData.extensionComposableView
+            }
+        }
     }
 }
