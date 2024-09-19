@@ -8,6 +8,7 @@ import tanoshi.multiplatform.android.MyApplication
 import tanoshi.multiplatform.android.extendOnConfigurationChangeBehaviour
 import tanoshi.multiplatform.android.extendOnResumeBehaviour
 import tanoshi.multiplatform.android.extendOncreateBehaviour
+import tanoshi.multiplatform.android.ui.theme.TanoshiTheme
 
 class DynamicActivity : ComponentActivity() {
 
@@ -16,7 +17,11 @@ class DynamicActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         sharedApplicationData = extendOncreateBehaviour(savedInstanceState)
-        setContent( content = sharedApplicationData.extensionComposableView )
+        setContent {
+            TanoshiTheme {
+                sharedApplicationData.extensionComposableView
+            }
+        }
     }
 
     override fun onResume() {

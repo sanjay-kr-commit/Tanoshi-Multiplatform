@@ -18,6 +18,7 @@ import tanoshi.multiplatform.android.MyApplication
 import tanoshi.multiplatform.android.extendOnConfigurationChangeBehaviour
 import tanoshi.multiplatform.android.extendOnResumeBehaviour
 import tanoshi.multiplatform.android.extendOncreateBehaviour
+import tanoshi.multiplatform.android.ui.theme.TanoshiTheme
 import tanoshi.multiplatform.common.screens.SplashScreen
 import tanoshi.multiplatform.common.util.ApplicationActivityName
 import tanoshi.multiplatform.shared.changeActivity
@@ -32,7 +33,9 @@ class InitializeResources : ComponentActivity() {
         super.onCreate(savedInstanceState)
         extendOncreateBehaviour(savedInstanceState)
         setContent {
-            SplashScreen( message )
+            TanoshiTheme {
+                SplashScreen( message )
+            }
         }
         initializeData()
     }

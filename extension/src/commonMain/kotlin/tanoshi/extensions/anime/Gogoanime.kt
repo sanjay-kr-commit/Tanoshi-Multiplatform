@@ -9,6 +9,7 @@ import androidx.compose.ui.Modifier
 import com.squareup.okhttp.OkHttpClient
 import com.squareup.okhttp.Request
 import org.jsoup.Jsoup
+import tanoshi.multiplatform.common.exception.EndOfListException
 import tanoshi.multiplatform.common.extension.*
 import tanoshi.multiplatform.common.extension.annotations.*
 import tanoshi.multiplatform.common.extension.core.SharedDependencies
@@ -26,6 +27,7 @@ class Gogoanime : PlayableExtension , SharedDependencies() {
     override val domainsList: SelectableMenu<String>  = SelectableMenu( "https://ww2.gogoanimes.fi/" )
     override val language: String = "English"
 
+    @VariableReciever( "searchEnabled" )
     override fun search(name: String, index: Int): List<PlayableEntry> {
         val list = ArrayList<PlayableEntry>()
         val searchQuery = "https://ww2.gogoanimes.fi/search.html?keyword=${
@@ -50,7 +52,7 @@ class Gogoanime : PlayableExtension , SharedDependencies() {
                     )
                 } catch ( _ : Exception ) {}
             }
-        
+        if ( list.isEmpty() ) throw EndOfListException()
         return list
     }
 
@@ -78,10 +80,8 @@ class Gogoanime : PlayableExtension , SharedDependencies() {
 
     @VariableReciever( "enableDub" , "enableSub" )
     @TAB( "Popular" )
-    fun popular( pageIndex : Int ) : List<PlayableContent> {
-        return listOf(
-
-        )
+    fun popular( pageIndex : Int ) : List<PlayableEntry> {
+        return search( "popular" , pageIndex ) ;
     }
 
 }

@@ -6,7 +6,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.window.ApplicationScope
 import androidx.compose.ui.window.WindowState
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.SupervisorJob
 import tanoshi.multiplatform.common.util.ApplicationActivityName
 import tanoshi.multiplatform.common.util.currentDateTime
 import tanoshi.multiplatform.common.util.logger
@@ -56,6 +59,9 @@ actual open class SharedApplicationData(
     actual var activityMap : Map<ApplicationActivityName,()->Unit>? = null
 
     lateinit var windowStack : WindowStack
+    actual val coroutineIoScope: CoroutineScope = CoroutineScope( Dispatchers.IO + SupervisorJob() )
+    actual val coroutineDefaultScope: CoroutineScope = CoroutineScope( Dispatchers.Default + SupervisorJob() )
+    actual val coroutineUnconfinedScope: CoroutineScope = CoroutineScope( Dispatchers.Unconfined + SupervisorJob() )
 
 }
 

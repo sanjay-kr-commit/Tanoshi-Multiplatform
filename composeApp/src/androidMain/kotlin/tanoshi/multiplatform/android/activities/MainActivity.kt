@@ -15,8 +15,8 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.systemBarsPadding
-import androidx.compose.material.Button
-import androidx.compose.material.Text
+import androidx.compose.material3.Button
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -25,6 +25,7 @@ import tanoshi.multiplatform.android.MyApplication
 import tanoshi.multiplatform.android.extendOnConfigurationChangeBehaviour
 import tanoshi.multiplatform.android.extendOnResumeBehaviour
 import tanoshi.multiplatform.android.extendOncreateBehaviour
+import tanoshi.multiplatform.android.ui.theme.TanoshiTheme
 import tanoshi.multiplatform.common.model.MainScreenViewModel
 import tanoshi.multiplatform.common.screens.MainScreen
 import java.util.*
@@ -39,16 +40,18 @@ class MainActivity : ComponentActivity() {
         sharedApplicationData = extendOncreateBehaviour(savedInstanceState)
         val mainScreenViewModel by viewModels<MainScreenViewModel>()
         setContent {
-            when {
-                !sharedApplicationData.manageStorage -> RequestStoragePermission()
-                else -> Column(
-                    modifier = Modifier.fillMaxSize()
-                        .systemBarsPadding()
-                ) {
-                    MainScreen(
-                        sharedApplicationData ,
-                        mainScreenViewModel
-                    )
+            TanoshiTheme {
+                when {
+                    !sharedApplicationData.manageStorage -> RequestStoragePermission()
+                    else -> Column(
+                        modifier = Modifier.fillMaxSize()
+                            .systemBarsPadding()
+                    ) {
+                        MainScreen(
+                            sharedApplicationData ,
+                            mainScreenViewModel
+                        )
+                    }
                 }
             }
         }

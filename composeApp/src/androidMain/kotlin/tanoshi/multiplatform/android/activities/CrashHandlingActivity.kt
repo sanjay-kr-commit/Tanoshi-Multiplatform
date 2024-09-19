@@ -14,6 +14,7 @@ import androidx.compose.ui.unit.dp
 import tanoshi.multiplatform.android.extendOnConfigurationChangeBehaviour
 import tanoshi.multiplatform.android.extendOnResumeBehaviour
 import tanoshi.multiplatform.android.extendOncreateBehaviour
+import tanoshi.multiplatform.android.ui.theme.TanoshiTheme
 import tanoshi.multiplatform.common.screens.LogScreen
 import tanoshi.multiplatform.shared.SharedApplicationData
 
@@ -25,13 +26,15 @@ class CrashHandlingActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         sharedApplicaData = extendOncreateBehaviour(savedInstanceState)
         setContent {
-            Column( Modifier.fillMaxSize() ) {
-                Spacer( Modifier.height( 20.dp ) )
-                LogScreen(
-                    sharedApplicaData.logger
-                )
-                BackHandler {
-                    finishAffinity()
+            TanoshiTheme {
+                Column( Modifier.fillMaxSize() ) {
+                    Spacer( Modifier.height( 20.dp ) )
+                    LogScreen(
+                        sharedApplicaData.logger
+                    )
+                    BackHandler {
+                        finishAffinity()
+                    }
                 }
             }
         }

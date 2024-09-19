@@ -9,6 +9,7 @@ import tanoshi.multiplatform.android.MyApplication
 import tanoshi.multiplatform.android.extendOnConfigurationChangeBehaviour
 import tanoshi.multiplatform.android.extendOnResumeBehaviour
 import tanoshi.multiplatform.android.extendOncreateBehaviour
+import tanoshi.multiplatform.android.ui.theme.TanoshiTheme
 import tanoshi.multiplatform.common.extension.ExtensionPackage
 import tanoshi.multiplatform.common.extension.core.Extension
 import tanoshi.multiplatform.common.model.BrowseScreenViewModel
@@ -29,9 +30,11 @@ class BrowseActivity : ComponentActivity() {
             sharedApplicationData.exportedObjects = null
         }
         setContent {
-            BrowseScreen(
-                viewModel , sharedApplicationData
-            )
+            TanoshiTheme {
+                BrowseScreen(
+                    viewModel , sharedApplicationData
+                )
+            }
         }
     }
 

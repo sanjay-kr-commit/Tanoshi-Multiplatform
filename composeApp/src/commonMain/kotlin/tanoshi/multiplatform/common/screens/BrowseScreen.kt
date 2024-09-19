@@ -10,7 +10,7 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.*
+import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -21,20 +21,18 @@ import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 import tanoshi.multiplatform.common.extension.Entry
 import tanoshi.multiplatform.common.extension.annotations.TAB
 import tanoshi.multiplatform.common.extension.annotations.Variable
 import tanoshi.multiplatform.common.extension.annotations.VariableReciever
 import tanoshi.multiplatform.common.extension.core.Extension
 import tanoshi.multiplatform.common.model.BrowseScreenViewModel
-import tanoshi.multiplatform.common.util.VariableInstance
 import tanoshi.multiplatform.common.screens.component.DesktopOnlyBackHandler
 import tanoshi.multiplatform.common.screens.component.ProgressIndicator
 import tanoshi.multiplatform.common.util.FunctionTab
-import tanoshi.multiplatform.common.util.toast.ToastTimeout
+import tanoshi.multiplatform.common.util.VariableInstance
 import tanoshi.multiplatform.shared.SharedApplicationData
-import tanoshi.multiplatform.shared.util.toast.showToast
 import java.lang.reflect.Field
 
 @Composable
@@ -51,13 +49,14 @@ fun BrowseScreen(
             AnimatedVisibility(  !preprosessingData && activeCallbackFunctionHash == searchFunction.hashCode() , enter = slideIn {
                 IntOffset( 0 , it.height * -1 )} , exit = slideOut { IntOffset( 0 ,  it.height * -1 ) }
             ) {
-                SearchBar( searchField ) {
-                    sharedData.showToast(
-                        searchField.value , ToastTimeout.SHORT
-                    )
-                    }
+                SearchBar( onEnter = {
+                    reset()
+                    searchField.value = this
+                    launchedSearch = true
+                } ) {
+                    launchedSearch = false
                 }
-            },
+            } },
         bottomBar = {
             Column( modifier = Modifier.fillMaxWidth() ) {
                 LazyRow ( modifier = Modifier.fillMaxWidth().wrapContentHeight() ) {
@@ -66,7 +65,7 @@ fun BrowseScreen(
                             Box( modifier = Modifier.padding( 5.dp )
                                 .clip( RoundedCornerShape( 5.dp ) )
                                 .background(
-                                    if ( activeCallbackFunctionHash == tabFunction.hashCode() ) MaterialTheme.colors.primary else MaterialTheme.colors.secondary
+                                    if ( activeCallbackFunctionHash == tabFunction.hashCode() ) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.secondary
                                 )
                                 .clickable {
                                     variableInUse.clear()
@@ -83,7 +82,7 @@ fun BrowseScreen(
                             ) {
                                 Text(
                                     tabName ,
-                                    color = if ( activeCallbackFunctionHash == tabFunction.hashCode() ) MaterialTheme.colors.onPrimary else MaterialTheme.colors.onSecondary ,
+                                    color = if ( activeCallbackFunctionHash == tabFunction.hashCode() ) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSecondary ,
                                     )
                             }
 
@@ -99,7 +98,7 @@ fun BrowseScreen(
                                 Box( modifier = Modifier.padding( 5.dp )
                                     .clip( RoundedCornerShape( 5.dp ) )
                                     .background(
-                                        if ( state ) MaterialTheme.colors.primary else MaterialTheme.colors.secondary
+                                        if ( state ) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.secondary
                                     )
                                     .clickable {
                                         try {
@@ -111,7 +110,7 @@ fun BrowseScreen(
                                 ) {
                                     Text(
                                         meta.publicName ,
-                                        color = if ( state ) MaterialTheme.colors.onPrimary else MaterialTheme.colors.onSecondary ,
+                                        color = if ( state ) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSecondary ,
                                         )
                                 }
                             }
@@ -128,7 +127,7 @@ fun BrowseScreen(
             if ( preprosessingData ) Column ( modifier = Modifier.fillMaxSize() , verticalArrangement = Arrangement.Center , horizontalAlignment = Alignment.CenterHorizontally ){
                 ProgressIndicator()
                 Text( message )
-            } else ResultGrid()
+            } else ResultGrid( viewModel )
         }
     }
 
@@ -161,7 +160,6 @@ fun BrowseScreen(
 
 @Composable
 private fun ConfigTab(
-
     viewModel: BrowseScreenViewModel
 ) = viewModel.run {
     var variableRecieverName by remember { mutableStateOf( "" ) }
@@ -172,9 +170,10 @@ private fun ConfigTab(
 
 @Composable
 private fun SearchBar(
-    searchField: MutableState<String>,
-    onClick: () -> Unit
+    onEnter: String.() -> Unit ,
+    onBackspace : () -> Unit
 ) {
+    val searchField = remember { mutableStateOf( "" ) }
     TextField( searchField.value , {
         searchField.value = it
     } , modifier = Modifier
@@ -184,13 +183,17 @@ private fun SearchBar(
         .onKeyEvent {
             when (it.key.keyCode) {
                 Key.Enter.keyCode -> {
-                    onClick()
+                    searchField.value.onEnter()
+                    true
+                }
+                Key.Backspace.keyCode -> {
+                    onBackspace()
                     true
                 }
                 else -> false
             }
         } ,
-         colors = TextFieldDefaults.textFieldColors(
+         colors = TextFieldDefaults.colors(
              disabledTextColor = Color.Transparent,
              focusedIndicatorColor = Color.Transparent,
              unfocusedIndicatorColor = Color.Transparent,
@@ -204,7 +207,46 @@ private fun SearchBar(
 }
 
 @Composable
-private fun ResultGrid() {
+private fun ResultGrid(
+    viewModel: BrowseScreenViewModel
+) = viewModel.run {
+    var loading : Job? by remember { mutableStateOf( null ) }
+    LazyVerticalGrid( GridCells.Adaptive( 60.dp ) ) {
+        entries.forEach { entry ->
+            item {
+                Box( modifier = Modifier.size( 60.dp ) , contentAlignment = Alignment.Center ) {
+                    Text( entry.name?:"None" )
+                }
+            }
+        }
+        item {
+            if ( !isEnded ) {
+                if ( activeCallbackFunctionHash != searchFunction.hashCode() || ( activeCallbackFunctionHash == searchFunction.hashCode() && launchedSearch ) ) {
+                    Box( modifier = Modifier.size( 60.dp ) , contentAlignment = Alignment.Center ) {
+                        ProgressIndicator()
+                    }
+                    if ( loading == null ) loading = CoroutineScope(Dispatchers.IO).launch {
+                        println( "Entered $pageIndex" )
+                        fetchList
+                        loading = null
+                        println( "Exited" )
+                    }
+
+                }
+            } else {
+                Box( modifier = Modifier.size( 60.dp ) , contentAlignment = Alignment.Center ) {
+                    Text( "End" )
+                }
+            }
+        }
+    }
+    DisposableEffect( Unit ) {
+        onDispose {
+            loading?.cancel()
+            loading = null
+            println( "Disposed" )
+        }
+    }
 }
 
 @Suppress("UNCHECKED_CAST")

@@ -1,8 +1,8 @@
 package tanoshi.multiplatform.common.screens.component
 
 import androidx.compose.foundation.layout.size
-import androidx.compose.material.CircularProgressIndicator
-import androidx.compose.material.MaterialTheme
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -12,7 +12,7 @@ import androidx.compose.ui.unit.dp
 
 @Composable
 fun ProgressIndicator(
-    color : Color = MaterialTheme.colors.primary,
+    color : Color = MaterialTheme.colorScheme.primary,
     size : Dp = 50.dp,
     modifier: Modifier = Modifier
 ) {
