@@ -1,14 +1,16 @@
 package tanoshi.multiplatform.common.screens
 
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Extension
+import androidx.compose.material.icons.filled.History
+import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -26,11 +28,12 @@ fun MainScreen(
     sharedAppData : SharedApplicationData ,
     viewModel : MainScreenViewModel
 ) = sharedAppData.run {
-    if ( portrait ) PortraitMainScreen( viewModel )
-    else LandscapeMainScreen( viewModel )
+    Scaffold {
+        if ( portrait ) PortraitMainScreen( viewModel )
+        else LandscapeMainScreen( viewModel )
+    }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun SharedApplicationData.PortraitMainScreen(
     viewModel : MainScreenViewModel
@@ -76,7 +79,6 @@ private fun SharedApplicationData.PortraitMainScreen(
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun SharedApplicationData.LandscapeMainScreen( viewModel: MainScreenViewModel ) {
     Row (
@@ -113,13 +115,12 @@ private fun SharedApplicationData.LandscapeMainScreen( viewModel: MainScreenView
 //                     }
                  }
             }
-            
+
         }
-        
-        
+
+
         MainScreenCatalog( viewModel )
-        
-        
+
     }
 }
 
