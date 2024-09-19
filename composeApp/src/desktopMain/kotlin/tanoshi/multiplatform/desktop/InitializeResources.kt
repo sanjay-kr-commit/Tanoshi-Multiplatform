@@ -21,9 +21,7 @@ class InitializeResources : ApplicationActivity() {
     override fun onCreate() {
         super.onCreate()
         setContent {
-            TanoshiTheme {
-                SplashScreen( message )
-            }
+            SplashScreen( message )
         }
         initializeData()
     }

@@ -11,12 +11,10 @@ class MainActivity : ApplicationActivity() {
     override fun onCreate() {
         val mainScreenViewModel by mutableStateOf(MainScreenViewModel())
         setContent {
-            TanoshiTheme {
-                MainScreen(
+            MainScreen(
                     applicationData,
                     mainScreenViewModel
-                )
-            }
+            )
         }
     }
 }

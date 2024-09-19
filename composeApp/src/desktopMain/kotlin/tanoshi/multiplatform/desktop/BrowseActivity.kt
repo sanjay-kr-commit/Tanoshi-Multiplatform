@@ -17,9 +17,7 @@ class BrowseActivity : ApplicationActivity() {
             applicationData.exportedObjects = null
         }
         setContent {
-            TanoshiTheme {
-                BrowseScreen( viewModel, applicationData )
-            }
+            BrowseScreen( viewModel, applicationData )
         }
     }
 
