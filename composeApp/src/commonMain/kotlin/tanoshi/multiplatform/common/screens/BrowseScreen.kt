@@ -3,6 +3,7 @@ package tanoshi.multiplatform.common.screens
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.slideIn
 import androidx.compose.animation.slideOut
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -16,9 +17,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.onKeyEvent
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.*
@@ -34,6 +37,9 @@ import tanoshi.multiplatform.common.util.FunctionTab
 import tanoshi.multiplatform.common.util.VariableInstance
 import tanoshi.multiplatform.shared.SharedApplicationData
 import java.lang.reflect.Field
+import tanoshi.multiplatform.common.util.ImageCaching.loadImage
+import tanoshi.multiplatform.shared.util.loadImageBitmap
+import java.io.File
 
 @Composable
 fun BrowseScreen(
@@ -127,7 +133,7 @@ fun BrowseScreen(
             if ( preprosessingData ) Column ( modifier = Modifier.fillMaxSize() , verticalArrangement = Arrangement.Center , horizontalAlignment = Alignment.CenterHorizontally ){
                 ProgressIndicator()
                 Text( message )
-            } else ResultGrid( viewModel )
+            } else ResultGrid( viewModel , sharedData.coroutineIoScope , sharedData.appCacheDir )
         }
     }
 
@@ -208,14 +214,35 @@ private fun SearchBar(
 
 @Composable
 private fun ResultGrid(
-    viewModel: BrowseScreenViewModel
+    viewModel: BrowseScreenViewModel ,
+    coroutineIoScope : CoroutineScope ,
+    cacheDir : File
 ) = viewModel.run {
     var loading : Job? by remember { mutableStateOf( null ) }
-    LazyVerticalGrid( GridCells.Adaptive( 60.dp ) ) {
+    LazyVerticalGrid( GridCells.Adaptive( 100.dp ) ) {
         entries.forEach { entry ->
             item {
-                Box( modifier = Modifier.size( 60.dp ) , contentAlignment = Alignment.Center ) {
-                    Text( entry.name?:"None" )
+                var cover : ImageBitmap? by remember { mutableStateOf( null ) }
+                var coverLoadJob : Job? = null
+                Box( modifier = Modifier , contentAlignment = Alignment.Center ) {
+                    cover?.let {
+                        Image( it , entry.name?:"None" , contentScale = ContentScale.Crop )
+                    } ?: run {
+                        Text( entry.name?:"None" )
+                    }
+                }
+                LaunchedEffect( Unit ) {
+                    if ( coverLoadJob == null ) coverLoadJob = coroutineIoScope.launch {
+                        try {
+                            entry.coverArt?.let {
+                                cover = loadImageBitmap( loadImage(
+                                    extension.domainsList.activeElementValue + it, cacheDir
+                                ))
+                            }
+                        } catch ( e : java.lang.Exception ) {
+                            println( e.stackTraceToString() )
+                        }
+                    }
                 }
             }
         }
