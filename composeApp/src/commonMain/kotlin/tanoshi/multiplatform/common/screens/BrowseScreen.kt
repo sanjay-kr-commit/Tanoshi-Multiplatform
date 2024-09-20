@@ -10,6 +10,8 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
+import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.material3.*
@@ -40,6 +42,8 @@ import tanoshi.multiplatform.common.screens.component.DesktopOnlyBackHandler
 import tanoshi.multiplatform.common.screens.component.ProgressIndicator
 import tanoshi.multiplatform.common.util.FunctionTab
 import tanoshi.multiplatform.common.util.ImageCaching.loadImage
+import tanoshi.multiplatform.common.util.Platform
+import tanoshi.multiplatform.shared.util.PLATFORM
 import tanoshi.multiplatform.common.util.VariableInstance
 import tanoshi.multiplatform.shared.SharedApplicationData
 import tanoshi.multiplatform.shared.util.loadImageBitmap
@@ -228,6 +232,8 @@ private fun SearchBar(
     )
 }
 
+val count = if ( Platform.Android == PLATFORM ) 3 else 10
+
 @Composable
 private fun ResultGrid(
     viewModel: BrowseScreenViewModel ,
@@ -235,18 +241,25 @@ private fun ResultGrid(
     cacheDir : File
 ) = viewModel.run {
     var loading : Job? by remember { mutableStateOf( null ) }
-    LazyVerticalGrid( GridCells.Adaptive( 100.dp ) ) {
+    LazyVerticalStaggeredGrid(
+        StaggeredGridCells.Adaptive( 150.dp )
+    ) {
         entries.forEach { entry ->
             item {
                 var cover : ImageBitmap? by remember { mutableStateOf( null ) }
                 var coverLoadJob : Job? = null
-                Box( modifier = Modifier , contentAlignment = Alignment.Center ) {
-                    cover?.let {
-                        Image( it , entry.name?:"None" , contentScale = ContentScale.Crop )
-                    } ?: run {
-                        Text( entry.name?:"None" )
+
+                Column ( modifier = Modifier.width( 150.dp ), horizontalAlignment = Alignment.CenterHorizontally , verticalArrangement = Arrangement.Center ) {
+                    AnimatedVisibility( cover != null ) {
+                        Image( cover!! , entry.name?:"None" , modifier = Modifier
+                            .fillMaxWidth()
+                            .padding( 5.dp )
+                            .clip(RoundedCornerShape( 10.dp )) )
+
                     }
+                    Text( entry.name?: "Null" )
                 }
+
                 LaunchedEffect( Unit ) {
                     if ( coverLoadJob == null ) coverLoadJob = coroutineIoScope.launch {
                         try {
@@ -260,6 +273,7 @@ private fun ResultGrid(
                         }
                     }
                 }
+
             }
         }
         item {
