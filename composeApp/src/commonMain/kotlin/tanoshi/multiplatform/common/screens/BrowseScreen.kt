@@ -183,7 +183,7 @@ private fun ConfigTab(
 private fun SearchBar(
     onEnter: String.() -> Unit ,
     onBackspace : () -> Unit
-) = Column {
+) {
     val keyboardController = LocalSoftwareKeyboardController.current
     val searchField = remember { mutableStateOf( "" ) }
     TextField( searchField.value , {
