@@ -14,6 +14,9 @@ import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.BrokenImage
+import androidx.compose.material.icons.filled.TransitEnterexit
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -45,8 +48,10 @@ import tanoshi.multiplatform.common.util.ImageCaching.loadImage
 import tanoshi.multiplatform.common.util.Platform
 import tanoshi.multiplatform.shared.util.PLATFORM
 import tanoshi.multiplatform.common.util.VariableInstance
+import tanoshi.multiplatform.common.util.toast.ToastTimeout
 import tanoshi.multiplatform.shared.SharedApplicationData
 import tanoshi.multiplatform.shared.util.loadImageBitmap
+import tanoshi.multiplatform.shared.util.toast.showToast
 import java.io.File
 import java.lang.reflect.Field
 
@@ -138,11 +143,13 @@ fun BrowseScreen(
         }
 
     ) {
-        Box( Modifier.fillMaxSize().padding( it ) ) {
+        Box( Modifier.fillMaxSize().padding( top = it.calculateTopPadding() ) ) {
             if ( preprosessingData ) Column ( modifier = Modifier.fillMaxSize() , verticalArrangement = Arrangement.Center , horizontalAlignment = Alignment.CenterHorizontally ){
                 ProgressIndicator()
                 Text( message )
-            } else ResultGrid( viewModel , sharedData.coroutineIoScope , sharedData.appCacheDir )
+            } else ResultGrid( viewModel , sharedData.coroutineIoScope , sharedData.appCacheDir ) {
+                sharedData.showToast( "TODO" , ToastTimeout.SHORT )
+            }
         }
     }
 
@@ -238,7 +245,8 @@ val count = if ( Platform.Android == PLATFORM ) 3 else 10
 private fun ResultGrid(
     viewModel: BrowseScreenViewModel ,
     coroutineIoScope : CoroutineScope ,
-    cacheDir : File
+    cacheDir : File ,
+    navigationTo : Entry<*>.() -> Unit
 ) = viewModel.run {
     var loading : Job? by remember { mutableStateOf( null ) }
     LazyVerticalStaggeredGrid(
@@ -249,13 +257,24 @@ private fun ResultGrid(
                 var cover : ImageBitmap? by remember { mutableStateOf( null ) }
                 var coverLoadJob : Job? = null
 
-                Column ( modifier = Modifier.width( 150.dp ), horizontalAlignment = Alignment.CenterHorizontally , verticalArrangement = Arrangement.Center ) {
+                Column ( modifier = Modifier.width( 150.dp ).clickable {
+                    entry.navigationTo()
+                }, horizontalAlignment = Alignment.CenterHorizontally , verticalArrangement = Arrangement.Center ) {
                     AnimatedVisibility( cover != null ) {
-                        Image( cover!! , entry.name?:"None" , modifier = Modifier
+                        Image( cover!! , entry.name?:"None" , contentScale = ContentScale.FillWidth , modifier = Modifier
                             .fillMaxWidth()
                             .padding( 5.dp )
                             .clip(RoundedCornerShape( 10.dp )) )
 
+                    }
+                    AnimatedVisibility( cover == null ) {
+                        Image( Icons.Filled.BrokenImage , "" , modifier = Modifier
+                            .fillMaxWidth()
+                            .height( 100.dp )
+                            .padding( 5.dp )
+                            .clip(RoundedCornerShape( 10.dp ))
+                            .background( MaterialTheme.colorScheme.inversePrimary )
+                        )
                     }
                     Text( entry.name?: "Null" )
                 }
@@ -277,22 +296,13 @@ private fun ResultGrid(
             }
         }
         item {
-            if ( !isEnded ) {
-                if ( activeCallbackFunctionHash != searchFunction.hashCode() || ( activeCallbackFunctionHash == searchFunction.hashCode() && launchedSearch ) ) {
-                    Box( modifier = Modifier.size( 60.dp ) , contentAlignment = Alignment.Center ) {
-                        ProgressIndicator()
-                    }
-                    if ( loading == null ) loading = CoroutineScope(Dispatchers.IO).launch {
-                        println( "Entered $pageIndex" )
-                        fetchList
-                        loading = null
-                        println( "Exited" )
-                    }
-
+            if ( !isEnded && (activeCallbackFunctionHash != searchFunction.hashCode() || ( activeCallbackFunctionHash == searchFunction.hashCode() && launchedSearch )) ) {
+                Box( modifier = Modifier.fillMaxWidth().height( 150.dp ) , contentAlignment = Alignment.Center ) {
+                    ProgressIndicator()
                 }
-            } else {
-                Box( modifier = Modifier.size( 60.dp ) , contentAlignment = Alignment.Center ) {
-                    Text( "End" )
+                if ( loading == null ) loading = CoroutineScope(Dispatchers.IO).launch {
+                    fetchList
+                    loading = null
                 }
             }
         }
