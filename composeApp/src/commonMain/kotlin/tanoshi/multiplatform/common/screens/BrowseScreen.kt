@@ -11,6 +11,7 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -22,9 +23,13 @@ import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
 import tanoshi.multiplatform.common.extension.Entry
 import tanoshi.multiplatform.common.extension.annotations.TAB
 import tanoshi.multiplatform.common.extension.annotations.Variable
@@ -34,12 +39,12 @@ import tanoshi.multiplatform.common.model.BrowseScreenViewModel
 import tanoshi.multiplatform.common.screens.component.DesktopOnlyBackHandler
 import tanoshi.multiplatform.common.screens.component.ProgressIndicator
 import tanoshi.multiplatform.common.util.FunctionTab
+import tanoshi.multiplatform.common.util.ImageCaching.loadImage
 import tanoshi.multiplatform.common.util.VariableInstance
 import tanoshi.multiplatform.shared.SharedApplicationData
-import java.lang.reflect.Field
-import tanoshi.multiplatform.common.util.ImageCaching.loadImage
 import tanoshi.multiplatform.shared.util.loadImageBitmap
 import java.io.File
+import java.lang.reflect.Field
 
 @Composable
 fun BrowseScreen(
@@ -178,7 +183,8 @@ private fun ConfigTab(
 private fun SearchBar(
     onEnter: String.() -> Unit ,
     onBackspace : () -> Unit
-) {
+) = Column {
+    val keyboardController = LocalSoftwareKeyboardController.current
     val searchField = remember { mutableStateOf( "" ) }
     TextField( searchField.value , {
         searchField.value = it
@@ -208,7 +214,17 @@ private fun SearchBar(
         label = {
             Text( "Search" )
         } ,
-        singleLine = true
+        singleLine = true ,
+        keyboardActions = KeyboardActions(
+            onDone = {
+                keyboardController?.hide()
+                searchField.value.onEnter()
+            } ,
+            onSend = {
+                keyboardController?.hide()
+                searchField.value.onEnter()
+            }
+        )
     )
 }
 
