@@ -79,7 +79,7 @@ class Gogoanime : PlayableExtension , SharedDependencies() {
     }
 
     @VariableReciever( "enableDub" , "enableSub" )
-    @TAB( "Popular" )
+    @ExportTab( "Popular" )
     fun popular( pageIndex : Int ) : List<PlayableEntry> {
         return search( "popular" , pageIndex ) ;
     }

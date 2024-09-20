@@ -36,7 +36,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import tanoshi.multiplatform.common.extension.Entry
-import tanoshi.multiplatform.common.extension.annotations.TAB
+import tanoshi.multiplatform.common.extension.annotations.ExportTab
 import tanoshi.multiplatform.common.extension.annotations.Variable
 import tanoshi.multiplatform.common.extension.annotations.VariableReciever
 import tanoshi.multiplatform.common.extension.core.Extension
@@ -320,7 +320,7 @@ private fun ResultGrid(
 private fun extractTabs(
     extension : Extension<*>
 ) : List<FunctionTab> = extension::class.java.methods.filter { method ->
-    method?.annotations?.filterIsInstance<TAB>()?.isNotEmpty() ?: false
+    method?.annotations?.filterIsInstance<ExportTab>()?.isNotEmpty() ?: false
 }.filter { method ->
     method?.parameterTypes?.let { argumentList ->
         argumentList.size == 1 && argumentList.first() == Int::class.java
@@ -332,7 +332,7 @@ private fun extractTabs(
        tabFunction , { pageIndex ->
            (tabFunction.invoke( extension , pageIndex ) as List<*>) as List<Entry<*>>
        } ,
-       tabFunction.getAnnotation( TAB::class.java ).fieldName ,
+       tabFunction.getAnnotation( ExportTab::class.java ).tabName ,
        tabFunction.getAnnotation( VariableReciever::class.java )?.variableUniqueNameList?.toList() ?: listOf()
    )
 }
