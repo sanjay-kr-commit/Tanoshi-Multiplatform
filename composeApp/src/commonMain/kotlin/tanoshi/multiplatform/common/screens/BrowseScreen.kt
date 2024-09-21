@@ -16,7 +16,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.BrokenImage
-import androidx.compose.material.icons.filled.TransitEnterexit
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -36,6 +35,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import tanoshi.multiplatform.common.extension.Entry
+import tanoshi.multiplatform.common.extension.annotations.ExportComposable
 import tanoshi.multiplatform.common.extension.annotations.ExportTab
 import tanoshi.multiplatform.common.extension.annotations.Variable
 import tanoshi.multiplatform.common.extension.annotations.VariableReciever
@@ -46,10 +46,10 @@ import tanoshi.multiplatform.common.screens.component.ProgressIndicator
 import tanoshi.multiplatform.common.util.FunctionTab
 import tanoshi.multiplatform.common.util.ImageCaching.loadImage
 import tanoshi.multiplatform.common.util.Platform
-import tanoshi.multiplatform.shared.util.PLATFORM
 import tanoshi.multiplatform.common.util.VariableInstance
 import tanoshi.multiplatform.common.util.toast.ToastTimeout
 import tanoshi.multiplatform.shared.SharedApplicationData
+import tanoshi.multiplatform.shared.util.PLATFORM
 import tanoshi.multiplatform.shared.util.loadImageBitmap
 import tanoshi.multiplatform.shared.util.toast.showToast
 import java.io.File
@@ -80,7 +80,7 @@ fun BrowseScreen(
         bottomBar = {
             Column( modifier = Modifier.fillMaxWidth() ) {
                 LazyRow ( modifier = Modifier.fillMaxWidth().wrapContentHeight() ) {
-                    tabList.forEach { ( _ , tabFunction , tabName , variableUniqueNameList ) ->
+                    exportedTabs.forEach { ( _ , tabFunction , tabName , variableUniqueNameList ) ->
                         item {
                             Box( modifier = Modifier.padding( 5.dp )
                                 .clip( RoundedCornerShape( 5.dp ) )
@@ -106,6 +106,29 @@ fun BrowseScreen(
                                     )
                             }
 
+                        }
+                    }
+                    exportedComposable.forEach { ( exportedFunctionName , exportedComposeFunction ) ->
+                        item {
+                            Box( modifier = Modifier.padding( 5.dp )
+                                .clip( RoundedCornerShape( 5.dp ) )
+                                .clickable {
+                                    try {
+                                        exportedComposeFunction()
+                                    } catch ( e : java.lang.reflect.InvocationTargetException ) {
+                                        sharedData.showToast( "Failed to launch $exportedFunctionName From ${extension::class.java.packageName}" , ToastTimeout.SHORT )
+                                        sharedData.logger log {
+                                            ERROR
+                                            title = "Failed to launch $exportedFunctionName From ${extension::class.java.packageName}"
+                                            e.targetException.stackTraceToString()
+                                        }
+                                    }
+                                }
+                                .padding( 5.dp ) ,
+                                 contentAlignment = Alignment.Center
+                            ) {
+                                Text( exportedFunctionName )
+                            }
                         }
                     }
                 }
@@ -171,7 +194,7 @@ fun BrowseScreen(
             }
             message = "Extracting Tabs"
             extractVariables( extension , extension::class.java , viewModel )
-            tabList += extractTabs( extension )
+            extractExportedFunctions( extension, exportedTabs, exportedComposable )
             activeCallbackFunction = searchFunction
             variableInUse += searchFunctionVariableList
             preprosessingData = false
@@ -317,24 +340,48 @@ private fun ResultGrid(
 }
 
 @Suppress("UNCHECKED_CAST")
-private fun extractTabs(
-    extension : Extension<*>
-) : List<FunctionTab> = extension::class.java.methods.filter { method ->
-    method?.annotations?.filterIsInstance<ExportTab>()?.isNotEmpty() ?: false
-}.filter { method ->
-    method?.parameterTypes?.let { argumentList ->
-        argumentList.size == 1 && argumentList.first() == Int::class.java
-    } ?: false && method?.returnType?.let { returnType ->
-        returnType == List::class.java
-    } ?: false
-}.map { tabFunction ->
-   FunctionTab(
-       tabFunction , { pageIndex ->
-           (tabFunction.invoke( extension , pageIndex ) as List<*>) as List<Entry<*>>
-       } ,
-       tabFunction.getAnnotation( ExportTab::class.java ).tabName ,
-       tabFunction.getAnnotation( VariableReciever::class.java )?.variableUniqueNameList?.toList() ?: listOf()
-   )
+private fun extractExportedFunctions(
+    extension : Extension<*> ,
+    exportedTabs : MutableList<FunctionTab> ,
+    exportedComposable : MutableList<Pair<String,()->Unit>>
+){
+
+    extension::class.java.methods.forEach { method ->
+        val annotationList = method?.annotations ?: arrayOf()
+        when {
+            // Exported Tab
+            annotationList.filterIsInstance<ExportTab>().isNotEmpty() &&
+            method?.parameterTypes?.let { argumentList ->
+                argumentList.size == 1 && argumentList.first() == Int::class.java
+            } ?: false && method?.returnType?.let { returnType ->
+                returnType == List::class.java
+            } ?: false -> {
+                //
+                method.getAnnotation( ExportTab::class.java )?.let {
+                    exportedTabs += FunctionTab(
+                        method , { pageIndex ->
+                            (method.invoke( extension , pageIndex ) as List<*>) as List<Entry<*>>
+                        } ,
+                        it.tabName ,
+                        method.getAnnotation( VariableReciever::class.java )?.variableUniqueNameList?.toList() ?: listOf()
+                    )
+                }
+            }
+
+            // Exported Composable
+            annotationList.filterIsInstance<ExportComposable>().isNotEmpty() &&
+            method?.parameterCount == 0 -> {
+                method.getAnnotation( ExportComposable::class.java )?.let {
+                    exportedComposable += it.composableFunctionName to {
+                        method.invoke( extension )
+                    }
+                }
+            }
+
+        }
+
+    }
+
 }
 
 private fun extractVariables(

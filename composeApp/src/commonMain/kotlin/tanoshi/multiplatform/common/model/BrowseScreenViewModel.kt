@@ -20,7 +20,8 @@ class BrowseScreenViewModel : ViewModel() {
     lateinit var extension : Extension<*>
 
     var preprosessingData by mutableStateOf( true )
-    var tabList : MutableList<FunctionTab> = mutableStateListOf()
+    val exportedTabs : MutableList<FunctionTab> = mutableStateListOf()
+    val exportedComposable : MutableList<Pair<String,()->Unit>> = mutableStateListOf()
     var searchField = mutableStateOf( "" )
 
 

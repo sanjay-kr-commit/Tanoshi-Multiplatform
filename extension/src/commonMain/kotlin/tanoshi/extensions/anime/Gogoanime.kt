@@ -1,19 +1,18 @@
 package tanoshi.extensions.anime
 
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
 import com.squareup.okhttp.OkHttpClient
 import com.squareup.okhttp.Request
 import org.jsoup.Jsoup
 import tanoshi.multiplatform.common.exception.EndOfListException
-import tanoshi.multiplatform.common.extension.*
+import tanoshi.multiplatform.common.extension.PlayableContent
+import tanoshi.multiplatform.common.extension.PlayableEntry
+import tanoshi.multiplatform.common.extension.PlayableExtension
+import tanoshi.multiplatform.common.extension.PlayableMedia
 import tanoshi.multiplatform.common.extension.annotations.*
 import tanoshi.multiplatform.common.extension.core.SharedDependencies
 import tanoshi.multiplatform.common.util.SelectableMenu
+import tanoshi.multiplatform.common.util.toast.ToastTimeout
 
 @IconName( "icon.png" )
 class Gogoanime : PlayableExtension , SharedDependencies() {
@@ -68,20 +67,35 @@ class Gogoanime : PlayableExtension , SharedDependencies() {
         TODO("Not yet implemented")
     }
 
-    fun startExtensionComposeView() {
-        startComposableView?.let { composableStart : ( @Composable () -> Unit ).() -> Unit ->
-            (@Composable {
-                Box( modifier = Modifier.fillMaxSize() , contentAlignment = Alignment.Center ) {
-                    Text( "Hello World From $name" )
-                }
-            }).composableStart()
-        }
-    }
-
     @VariableReciever( "enableDub" , "enableSub" )
     @ExportTab( "Popular" )
     fun popular( pageIndex : Int ) : List<PlayableEntry> {
         return search( "popular" , pageIndex ) ;
+    }
+
+    @ExportComposable( "Hello World Composable" )
+    fun helloWorld(){
+        exportComposable?.let { startComposableView : (@Composable () -> Unit ).() -> Unit ->
+            (@Composable{
+                HelloWorld()
+            }).startComposableView()
+
+        } ?: run {
+            showToast?.let {
+                "Allow Composable Access".it( ToastTimeout.SHORT )
+            } ?: logger?.let {
+                it log {
+                    ERROR
+                    title = "Starting Composable Failed"
+                    """
+                        Failed to start composable
+                        Failed to invoke toast function
+                        Give permission to Extension to allow
+                        Invoking these functions
+                    """.trimIndent()
+                }
+            }
+        }
     }
 
 }

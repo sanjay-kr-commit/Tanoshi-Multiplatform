@@ -7,7 +7,8 @@ import tanoshi.multiplatform.common.util.toast.ToastTimeout
 // these objects are managed by and passed to dynamically loaded extension
 open class SharedDependencies {
     var logger: Logger? = null
-    var startComposableView : ((@Composable () -> Unit).()->Unit)? = null
+    var exportComposable
+    : ((@Composable () -> Unit).()->Unit)? = null
 
     var showToast : (String.( ToastTimeout )->Unit)? = null
 

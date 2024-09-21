@@ -44,7 +44,7 @@ fun ExtensionLoader.loadExtensionPermission(
             if ( pair.size > 1 && pair[1] == "${true}" ) {
                 buffer.append( " : True\n" )
                 when ( SharedDependencyFields.valueOf( pair.first() ) ) {
-                    SharedDependencyFields.StartComposableView -> extension.startComposableView = {
+                    SharedDependencyFields.StartComposableView -> extension.exportComposable = {
                         startDynamicActivity?.let { (this as (@Composable () -> Unit ) ).it() }
                     }
                     SharedDependencyFields.Logger -> extension.logger = logger
