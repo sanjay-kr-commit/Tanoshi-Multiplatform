@@ -3,32 +3,33 @@ package tanoshi.multiplatform.common.screens
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import tanoshi.multiplatform.common.util.toFile
-import tanoshi.multiplatform.shared.SharedApplicationData
-import tanoshi.multiplatform.shared.util.PLATFORM
-import tanoshi.multiplatform.common.util.Platform
-import tanoshi.multiplatform.common.util.toast.ToastTimeout
 import tanoshi.multiplatform.common.extension.packageList
 import tanoshi.multiplatform.common.extension.uninstall
+import tanoshi.multiplatform.common.util.Platform
+import tanoshi.multiplatform.common.util.toFile
+import tanoshi.multiplatform.common.util.toast.ToastTimeout
+import tanoshi.multiplatform.shared.SharedApplicationData
+import tanoshi.multiplatform.shared.util.BackHandler
+import tanoshi.multiplatform.shared.util.PLATFORM
 import tanoshi.multiplatform.shared.util.toast.showToast
-import java.io.BufferedInputStream
 import java.io.File
-import java.io.FileInputStream
-import java.util.zip.ZipEntry
-import java.util.zip.ZipInputStream
 
 @Composable
 fun DeveloperOptionsScreen(
@@ -40,32 +41,34 @@ fun DeveloperOptionsScreen(
     var uninstallExtension by remember { mutableStateOf(false ) }
     var isFilePickerVisible by remember { mutableStateOf( false ) }
 
-    Column( Modifier.fillMaxSize() ) {
-        Button( {
-            isPopUpVisible = true
-        } ) {
-            Text(  "Install Extension File" )
-        }
-        Spacer(modifier = Modifier.height(10.dp))
-        Button( {
-            uninstallExtension = true
-        } ) {
-            Text(  "Uninstall Extension File" )
-        }
-        Spacer(modifier = Modifier.height(10.dp))
-        Button( {
-            isFilePickerVisible = true
-        } ) {
-            Text(  "Show App Files" )
+    LazyColumn( Modifier.fillMaxSize().padding( 10.dp ) ) {
+        listOf(
+            "Install Extension File" to { isPopUpVisible = true } ,
+            "Uninstall Extension File" to { uninstallExtension = true } ,
+            "Show App Files" to { isFilePickerVisible = true }
+        ).forEach { (name , onClick) ->
+            item {
+                Row (
+                    Modifier.fillMaxWidth().wrapContentHeight().padding( 10.dp )
+                        .clip( RoundedCornerShape( 5.dp ) )
+                        .background( MaterialTheme.colorScheme.onPrimaryContainer.copy(0.2f) )
+                        .clickable( onClick = onClick ) ,
+                    horizontalArrangement = Arrangement.Start ,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Spacer( modifier = Modifier.width( 5.dp ) )
+                    Text( name , modifier = Modifier.padding( 5.dp ) )
+                }
+            }
         }
     }
 
     AnimatedVisibility( uninstallExtension , modifier = Modifier.fillMaxSize() , enter = fadeIn() , exit = fadeOut() ) {
 
         Box( modifier = Modifier.fillMaxSize() , contentAlignment = Alignment.Center ) {
-            UninstallExtension( extensionId , {
+            UninstallExtension(extensionId, {
                 uninstallExtension = false
-            } , "Uninstall Extension" , sharedAppData.extensionManager.packageList )
+            }, sharedAppData.extensionManager.packageList)
         }
 
         DisposableEffect( uninstallExtension ) {
@@ -92,7 +95,7 @@ fun DeveloperOptionsScreen(
 
         Box( modifier = Modifier.fillMaxSize() , contentAlignment = Alignment.Center ) {
 
-            ImportPath( installExtensionPath , {
+            ImportPath( sharedAppData.publicDir , installExtensionPath , {
                 isPopUpVisible = false
             } , "Install Extension File" )
         }
@@ -138,10 +141,9 @@ fun DeveloperOptionsScreen(
 
 @Composable
 private fun UninstallExtension(
-    id : MutableState<String> ,
-    exitScreen : () -> Unit ,
-    exitButtonMessage : String ,
-    listOfPackages : List<String>
+    id: MutableState<String>,
+    exitScreen: () -> Unit,
+    listOfPackages: List<String>
 ){
     LazyColumn (
         modifier = Modifier
@@ -159,16 +161,26 @@ private fun UninstallExtension(
                 }
             }
         }
+        item {
+            BackHandler(true , exitScreen )
+        }
     }
 }
 
 @Composable
 private fun ImportPath(
+    publicDir : File ,
     path : MutableState<String> ,
     exitScreen : () -> Unit ,
     exitButtonMessage : String
 ) {
-    Column (
+    val platform = remember { PLATFORM == Platform.Android }
+    if ( platform ) {
+        FilePicker( publicDir , exitScreen , true , {
+            path.value = it.absolutePath
+            exitScreen()
+        } )
+    } else Column (
         modifier = Modifier
             .padding( 10.dp ) ,
         verticalArrangement = Arrangement.Center,
@@ -186,6 +198,8 @@ private fun ImportPath(
         } ) {
             Text( exitButtonMessage )
         }
+
+        BackHandler( true , exitScreen )
 
     }
 }
