@@ -4,6 +4,7 @@ import android.content.res.Configuration
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.material3.Scaffold
 import tanoshi.multiplatform.android.MyApplication
 import tanoshi.multiplatform.android.extendOnConfigurationChangeBehaviour
 import tanoshi.multiplatform.android.extendOnResumeBehaviour
@@ -19,7 +20,9 @@ class DynamicActivity : ComponentActivity() {
         sharedApplicationData = extendOncreateBehaviour(savedInstanceState)
         setContent {
             TanoshiTheme {
-                sharedApplicationData.extensionComposableView
+                Scaffold {
+                    sharedApplicationData.extensionComposableView()
+                }
             }
         }
     }
