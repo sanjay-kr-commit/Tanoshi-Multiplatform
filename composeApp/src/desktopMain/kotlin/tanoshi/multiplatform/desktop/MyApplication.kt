@@ -3,7 +3,6 @@ package tanoshi.multiplatform.desktop
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material3.Scaffold
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
@@ -17,9 +16,7 @@ fun main() : Unit = SharedApplicationData().run {
     customApplication( this ) {
         Window( onCloseRequest = ::exitApplication , state = windowState) {
             TanoshiTheme {
-                Scaffold {
-                    startWindowStack( InitializeResources() , ::exitApplication )
-                }
+                startWindowStack( InitializeResources() , ::exitApplication )
             }
         }
     }
@@ -32,9 +29,7 @@ fun main() : Unit = SharedApplicationData().run {
                     )
             ) {
                 TanoshiTheme {
-                    Scaffold {
-                        LogScreen( logger )
-                    }
+                    LogScreen( logger )
                 }
             }
         }
