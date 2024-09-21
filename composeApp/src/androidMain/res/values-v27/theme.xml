@@ -1,8 +1,8 @@
 <resources>
-    <style name="theme.application" parent="Theme.AppCompat.DayNight.NoActionBar">
+    <style name="theme.application" parent="Theme.Material3.DynamicColors.DayNight.NoActionBar">
         <item name="android:windowLayoutInDisplayCutoutMode">shortEdges</item>
     </style>
-    <style name="theme.application.fullscreen"  parent="Theme.AppCompat.DayNight.NoActionBar">
+    <style name="theme.application.fullscreen" parent="Theme.Material3.DynamicColors.DayNight.NoActionBar">
         <item name="android:windowLayoutInDisplayCutoutMode">shortEdges</item>
         <item name="android:windowFullscreen">true</item>
     </style>

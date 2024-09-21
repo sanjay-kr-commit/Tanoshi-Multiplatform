@@ -32,8 +32,8 @@ kotlin {
             implementation(compose.preview)
             implementation(libs.androidx.activity.compose)
             implementation(libs.gson)
+            implementation(libs.androidx.material)
             implementation(libs.androidx.material3)
-            implementation(libs.androidx.appcompat)
         }
         commonMain.dependencies {
             implementation(compose.runtime)
