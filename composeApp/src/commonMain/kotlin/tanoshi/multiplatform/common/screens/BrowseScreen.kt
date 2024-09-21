@@ -182,7 +182,7 @@ fun BrowseScreen(
                 extension.search( searchField.value , pageIndex )
             }
             try {
-                extension::class.java.getMethod( "search" , String::class.java , Int::class.java ).annotations?.filterIsInstance<VariableReciever>()?.firstOrNull()?.variableUniqueNameList?.forEach {
+                extension::class.java.getMethod( "search" , String::class.java , Int::class.java ).annotations.filterIsInstance<VariableReciever>().firstOrNull()?.variableUniqueNameList?.forEach {
                     searchFunctionVariableList.add( it )
                 }
             } catch ( e : Exception ) {
@@ -261,8 +261,6 @@ private fun SearchBar(
         )
     )
 }
-
-val count = if ( Platform.Android == PLATFORM ) 3 else 10
 
 @Composable
 private fun ResultGrid(
@@ -462,7 +460,7 @@ private fun extractVariables(
         try {
             field.isAccessible = true
             extractVariables(
-                obj = field.get( obj ) ,
+                obj = field.get( obj ) ?: { throw Exception( "Recieved Null" ) },
                 containerClass = field.type ,
                 viewModel = viewModel ,
                 depthAllowed = depthAllowed-1

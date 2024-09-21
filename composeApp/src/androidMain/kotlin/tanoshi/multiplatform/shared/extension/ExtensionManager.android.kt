@@ -142,7 +142,7 @@ actual class ExtensionManager {
         dir.listFiles()?.forEach { extensionDir ->
             val path = extensionDir.absolutePath
             try {
-                val extensionClasses: HashMap<String,List<String>> = gson.fromJson(
+                @Suppress("UNCHECKED_CAST") val extensionClasses: HashMap<String,List<String>> = gson.fromJson(
                     extensionDir.child("extensionClassesDex.json").readText(),
                     HashMap::class.java
                 ) as HashMap<String,List<String>>
@@ -164,7 +164,7 @@ actual class ExtensionManager {
             }
 
             try {
-                val extensionIcon : HashMap<String,String> = gson.fromJson(
+                @Suppress("UNCHECKED_CAST") val extensionIcon : HashMap<String,String> = gson.fromJson(
                     extensionDir.child( "extensionIcon.json" ).readText() ,
                     HashMap::class.java
                 ) as HashMap<String,String>
