@@ -19,31 +19,6 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import java.util.*
 
-private object BackHandlerBackStack {
-    private var _unique_id_ = Int.MIN_VALUE
-
-    var activeValue by mutableStateOf( _unique_id_ )
-    val stack = Stack<Int>()
-    val attach : Int
-    get() {
-        activeValue = _unique_id_
-        stack.add( _unique_id_ )
-        return _unique_id_++
-    }
-    fun detach( uniqueId : Int ) {
-        stack.remove( uniqueId )
-        _unique_id_ = stack.peek()
-        activeValue = _unique_id_
-    }
-
-    init {
-        activeValue = _unique_id_
-        stack.add( _unique_id_ )
-        _unique_id_++
-    }
-
-}
-
 @Composable
 actual fun BackHandler(enabled: Boolean , onBack: () -> Unit) {
     AnimatedVisibility(
@@ -68,4 +43,29 @@ actual fun BackHandler(enabled: Boolean , onBack: () -> Unit) {
              }
          }
     }
+}
+
+private object BackHandlerBackStack {
+    private var _unique_id_ = Int.MIN_VALUE
+
+    var activeValue by mutableStateOf( _unique_id_ )
+    val stack = Stack<Int>()
+    val attach : Int
+    get() {
+        activeValue = _unique_id_
+        stack.add( _unique_id_ )
+        return _unique_id_++
+    }
+    fun detach( uniqueId : Int ) {
+        stack.remove( uniqueId )
+        _unique_id_ = stack.peek()
+        activeValue = _unique_id_
+    }
+
+    init {
+        activeValue = _unique_id_
+        stack.add( _unique_id_ )
+        _unique_id_++
+    }
+
 }
