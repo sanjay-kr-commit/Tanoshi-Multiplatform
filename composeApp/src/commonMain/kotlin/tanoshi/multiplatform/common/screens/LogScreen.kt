@@ -6,6 +6,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -25,10 +26,9 @@ fun LogScreen(
     LazyColumn (
         modifier = Modifier
             .fillMaxSize()
-            .background( Color.White )
             .padding( 10.dp )
             .clip( RoundedCornerShape( 10.dp ) )
-            .background( Color.LightGray )
+            .background( MaterialTheme.colorScheme.onPrimaryContainer.copy( 0.2f ) )
             .padding( 10.dp )
             .clip( RoundedCornerShape( 10.dp ) )
     ){
@@ -40,7 +40,7 @@ fun LogScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .clip( RoundedCornerShape( 10.dp ) )
-                        .background( Color.White )
+                        .background( MaterialTheme.colorScheme.onSecondary.copy( 0.5f ))
                         .padding(
                             if ( isExpanded ) 5.dp else 0.dp
                         )
@@ -50,15 +50,15 @@ fun LogScreen(
                             isExpanded = !isExpanded
                         }
                 ) {
-                    Column ( modifier = Modifier.fillMaxWidth().clip( RoundedCornerShape( 10.dp ) ).background( heading.first.color ) ) {
+                    Column ( modifier = Modifier.fillMaxWidth().clip( RoundedCornerShape( 10.dp ) ).background( heading.first.colorCode ) ) {
                         Spacer( Modifier.height( 10.dp ) )
-                        Text( heading.second , color = Color.White , modifier = Modifier.padding( start = 5.dp ) )
+                        Text( heading.second , modifier = Modifier.padding( start = 5.dp ) , color = Color.White )
                         Spacer( Modifier.height( 10.dp ) )
                     }
 
                     if ( isExpanded ) {
                         Spacer( Modifier.height( 2.dp ) )
-                        Text( stackTrace , color = Color.Black  )
+                        Text( stackTrace , color = MaterialTheme.colorScheme.onSecondaryContainer )
                     }
                 }
             }
@@ -68,7 +68,7 @@ fun LogScreen(
     
 }
 
-private val String.color : Color
+private val String.colorCode : Color
     get() = when ( this ) {
         "ERROR" -> Color( 139 , 0 , 0 )
         "WARNING" -> Color( 245 , 140 , 0)

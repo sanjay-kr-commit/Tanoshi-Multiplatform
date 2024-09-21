@@ -16,6 +16,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DeveloperMode
 import androidx.compose.material.icons.filled.Error
 import androidx.compose.material.icons.filled.Info
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -53,7 +54,6 @@ fun MoreScreen( sharedApplicationData : SharedApplicationData , moreScreenPersis
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun SelectionScreen( navController : NavigationController ) {
     LazyColumn( Modifier.fillMaxSize().padding( 10.dp ) ) {
@@ -62,7 +62,7 @@ private fun SelectionScreen( navController : NavigationController ) {
                 Row (
                     Modifier.fillMaxWidth().wrapContentHeight().padding( 10.dp )
                         .clip( RoundedCornerShape( 5.dp ) )
-                        .background( Color.LightGray )
+                        .background( MaterialTheme.colorScheme.onPrimaryContainer.copy(0.2f) )
                     .clickable {
                     navController navigateTo screen.name
                 } , horizontalArrangement = Arrangement.Start ,

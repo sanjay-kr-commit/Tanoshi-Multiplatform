@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -32,7 +33,14 @@ actual fun BackHandler(enabled: Boolean , onBack: () -> Unit) {
             enter = slideIn( initialOffset = {IntOffset(0,it.height+1 )} ) ,
             exit = slideOut( targetOffset = {IntOffset(0,it.height+1 )} )
         ) {
-            Box( Modifier.padding( 5.dp ).wrapContentSize().clip( RoundedCornerShape( 10.dp ) ).clickable( onClick = onBack ).background( Color.Gray ).padding( 5.dp ) , contentAlignment = Alignment.Center ) {
+            Box( modifier = Modifier
+                .padding( 5.dp )
+                .wrapContentSize()
+                .clip( RoundedCornerShape( 10.dp ) )
+                .clickable( onClick = onBack )
+                .background( MaterialTheme.colorScheme.onPrimaryContainer.copy(0.2f) )
+                .padding( 5.dp ) , contentAlignment = Alignment.Center
+            ) {
                 Text( "Go Back" , color = Color.White )
             }
         }
