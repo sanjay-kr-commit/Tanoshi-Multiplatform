@@ -3,9 +3,11 @@ package tanoshi.multiplatform.android
 import android.content.res.Configuration
 import android.os.Bundle
 import androidx.activity.ComponentActivity
+import androidx.activity.enableEdgeToEdge
 
 fun <Activity:ComponentActivity> Activity.extendOncreateBehaviour(savedInstanceState: Bundle?, extendedBehaviour : Activity.( MyApplication ) -> Unit = {} ) : MyApplication =
     (application as MyApplication).apply {
+        enableEdgeToEdge()
         _portrait = resources.configuration.orientation == 1
         exitActivity = {
             finish()
