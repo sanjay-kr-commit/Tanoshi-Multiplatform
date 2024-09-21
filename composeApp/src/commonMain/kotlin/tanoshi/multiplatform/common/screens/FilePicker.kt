@@ -16,6 +16,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
+import tanoshi.multiplatform.common.util.Platform
+import tanoshi.multiplatform.shared.util.PLATFORM
 import tanoshi.multiplatform.shared.util.BackHandler
 import java.io.File
 import java.util.*
@@ -80,7 +82,7 @@ fun FilePicker(
                             } else onPick?.let {
                                 onPick( entry )
                             } ?: run {
-                                ProcessBuilder().apply {
+                                if ( Platform.Desktop == PLATFORM ) ProcessBuilder().apply {
                                     command( "xdg-open" , entry.absolutePath )
                                     start()
                                 }
