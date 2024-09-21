@@ -38,6 +38,7 @@ fun DeveloperOptionsScreen(
     val installExtensionPath = remember { mutableStateOf("") }
     var isPopUpVisible by remember { mutableStateOf(false) }
     var uninstallExtension by remember { mutableStateOf(false ) }
+    var isFilePickerVisible by remember { mutableStateOf( false ) }
 
     Column( Modifier.fillMaxSize() ) {
         Button( {
@@ -50,6 +51,12 @@ fun DeveloperOptionsScreen(
             uninstallExtension = true
         } ) {
             Text(  "Uninstall Extension File" )
+        }
+        Spacer(modifier = Modifier.height(10.dp))
+        Button( {
+            isFilePickerVisible = true
+        } ) {
+            Text(  "Show App Files" )
         }
     }
 
@@ -121,6 +128,10 @@ fun DeveloperOptionsScreen(
                 }
             }
         }
+    }
+
+    AnimatedVisibility( isFilePickerVisible ) {
+        FilePicker( sharedAppData.privateDir , { isFilePickerVisible = false } , true )
     }
 
 }
