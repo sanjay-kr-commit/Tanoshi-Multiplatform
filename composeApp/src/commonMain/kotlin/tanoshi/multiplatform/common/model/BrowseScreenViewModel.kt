@@ -26,11 +26,12 @@ class BrowseScreenViewModel : ViewModel() {
 
 
     var isEnded by mutableStateOf( false )
-    val entries : MutableList<Entry<*>> = mutableStateListOf()
+    var entries : MutableList<Entry<*>> by mutableStateOf( mutableStateListOf() )
+
     var pageIndex = 1
 
     val reset : () -> Unit = {
-        entries.clear()
+        entries = mutableStateListOf()
         pageIndex = 1
         isEnded = false
     }
@@ -57,6 +58,7 @@ class BrowseScreenViewModel : ViewModel() {
                     throw e.targetException
                 }
             }
+            println( entries.size.toString() + "?" )
         } catch ( e : EndOfListException ) {
             println( "END REACHED" )
             isEnded = true

@@ -7,6 +7,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -16,6 +17,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.BrokenImage
+import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -41,15 +44,14 @@ import tanoshi.multiplatform.common.extension.annotations.Variable
 import tanoshi.multiplatform.common.extension.annotations.VariableReciever
 import tanoshi.multiplatform.common.extension.core.Extension
 import tanoshi.multiplatform.common.model.BrowseScreenViewModel
-import tanoshi.multiplatform.common.screens.component.DesktopOnlyBackHandler
 import tanoshi.multiplatform.common.screens.component.ProgressIndicator
 import tanoshi.multiplatform.common.util.FunctionTab
 import tanoshi.multiplatform.common.util.ImageCaching.loadImage
-import tanoshi.multiplatform.common.util.Platform
 import tanoshi.multiplatform.common.util.VariableInstance
 import tanoshi.multiplatform.common.util.toast.ToastTimeout
 import tanoshi.multiplatform.shared.SharedApplicationData
-import tanoshi.multiplatform.shared.util.PLATFORM
+import tanoshi.multiplatform.shared.finish
+import tanoshi.multiplatform.shared.util.BackHandler
 import tanoshi.multiplatform.shared.util.loadImageBitmap
 import tanoshi.multiplatform.shared.util.toast.showToast
 import java.io.File
@@ -62,14 +64,16 @@ fun BrowseScreen(
 ) = viewModel.run {
 
     var message by remember { mutableStateOf( "" ) }
+    var isComposableButtonVisible by remember { mutableStateOf( false ) }
+    var isConfigTabVisible by remember { mutableStateOf( false ) }
 
     Scaffold(
         modifier = Modifier.systemBarsPadding(),
         topBar = {
-            AnimatedVisibility(  !preprosessingData && activeCallbackFunctionHash == searchFunction.hashCode() , enter = slideIn {
+            AnimatedVisibility(  !isConfigTabVisible &&!isComposableButtonVisible &&!preprosessingData && activeCallbackFunctionHash == searchFunction.hashCode() , enter = slideIn {
                 IntOffset( 0 , it.height * -1 )} , exit = slideOut { IntOffset( 0 ,  it.height * -1 ) }
             ) {
-                SearchBar( onEnter = {
+                SearchBar( viewModel.searchField.value , onEnter = {
                     reset()
                     searchField.value = this
                     launchedSearch = true
@@ -78,102 +82,97 @@ fun BrowseScreen(
                 }
             } },
         bottomBar = {
-            Column( modifier = Modifier.fillMaxWidth() ) {
-                LazyRow ( modifier = Modifier.fillMaxWidth().wrapContentHeight() ) {
-                    exportedTabs.forEach { ( _ , tabFunction , tabName , variableUniqueNameList ) ->
-                        item {
-                            Box( modifier = Modifier.padding( 5.dp )
-                                .clip( RoundedCornerShape( 5.dp ) )
-                                .background(
-                                    if ( activeCallbackFunctionHash == tabFunction.hashCode() ) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.secondary
-                                )
-                                .clickable {
-                                    variableInUse.clear()
-                                    activeCallbackFunction = if ( activeCallbackFunctionHash == tabFunction.hashCode() ) {
-                                        variableInUse += searchFunctionVariableList
-                                        searchFunction
-                                    } else {
-                                        variableInUse += variableUniqueNameList
-                                        tabFunction
-                                    }
-                                }
-                                .padding( 5.dp ) ,
-                                 contentAlignment = Alignment.Center
-                            ) {
-                                Text(
-                                    tabName ,
-                                    color = if ( activeCallbackFunctionHash == tabFunction.hashCode() ) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSecondary ,
-                                    )
-                            }
 
-                        }
-                    }
-                    exportedComposable.forEach { ( exportedFunctionName , exportedComposeFunction ) ->
-                        item {
-                            Box( modifier = Modifier.padding( 5.dp )
-                                .clip( RoundedCornerShape( 5.dp ) )
-                                .clickable {
-                                    try {
-                                        exportedComposeFunction()
-                                    } catch ( e : java.lang.reflect.InvocationTargetException ) {
-                                        sharedData.showToast( "Failed to launch $exportedFunctionName From ${extension::class.java.packageName}" , ToastTimeout.SHORT )
-                                        sharedData.logger log {
-                                            ERROR
-                                            title = "Failed to launch $exportedFunctionName From ${extension::class.java.packageName}"
-                                            e.targetException.stackTraceToString()
-                                        }
-                                    }
+            if ( !isComposableButtonVisible && !isConfigTabVisible ) LazyRow ( modifier = Modifier.fillMaxWidth().wrapContentHeight() ) {
+                exportedTabs.forEach { ( _ , tabFunction , tabName , variableUniqueNameList ) ->
+                    item {
+                        Box( modifier = Modifier.padding( 5.dp )
+                            .clip( RoundedCornerShape( 5.dp ) )
+                            .background(
+                                if ( activeCallbackFunctionHash == tabFunction.hashCode() ) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.secondary
+                            )
+                            .clickable {
+                                variableInUse.clear()
+                                activeCallbackFunction = if ( activeCallbackFunctionHash == tabFunction.hashCode() ) {
+                                    variableInUse += searchFunctionVariableList
+                                    searchFunction
+                                } else {
+                                    variableInUse += variableUniqueNameList
+                                    tabFunction
                                 }
-                                .padding( 5.dp ) ,
-                                 contentAlignment = Alignment.Center
-                            ) {
-                                Text( exportedFunctionName )
+
                             }
+                            .padding( 5.dp ) ,
+                             contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                tabName ,
+                                color = if ( activeCallbackFunctionHash == tabFunction.hashCode() ) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSecondary ,
+                            )
                         }
                     }
+
                 }
-                LazyRow ( modifier = Modifier.fillMaxWidth().wrapContentHeight() ) {
-                    booleanVariable.forEach { ( meta , function ) ->
-                        item {
-                            AnimatedVisibility( variableInUse.contains( meta.uniqueName ) ) {
-                                var state by remember { mutableStateOf( function.first.invoke() ) }
-
-                                Box( modifier = Modifier.padding( 5.dp )
-                                    .clip( RoundedCornerShape( 5.dp ) )
-                                    .background(
-                                        if ( state ) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.secondary
-                                    )
-                                    .clickable {
-                                        try {
-                                            state = function.second.invoke( !state )
-                                        } catch ( _ : Exception ) {}
-                                    }
-                                    .padding( 5.dp ) ,
-                                     contentAlignment = Alignment.Center
-                                ) {
-                                    Text(
-                                        meta.publicName ,
-                                        color = if ( state ) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSecondary ,
-                                        )
-                                }
-                            }
-                        }
-                    }
-                }
-
             }
-            DesktopOnlyBackHandler( sharedData )
+            Column ( modifier = Modifier.fillMaxWidth() , horizontalAlignment = Alignment.End ) {
+                if ( !isComposableButtonVisible && !isConfigTabVisible ) Row {
+                    if ( exportedComposable.isNotEmpty() ) AnimatedVisibility( ! isComposableButtonVisible ) {
+                        Box( modifier = Modifier
+                            .padding( 5.dp )
+                            .wrapContentSize()
+                            .clip( RoundedCornerShape( 10.dp ) )
+                            .clickable {
+                                isComposableButtonVisible = true
+                            }
+                            .background( MaterialTheme.colorScheme.onPrimaryContainer.copy(0.2f) )
+                            .padding( 5.dp ) , contentAlignment = Alignment.Center
+                        ) {
+                            Image( Icons.Filled.Star , "" )
+                        }
+                    }
+                    if ( variableInUse.isNotEmpty() ) AnimatedVisibility( !isConfigTabVisible ) {
+                        Box( modifier = Modifier
+                            .padding( 5.dp )
+                            .wrapContentSize()
+                            .clip( RoundedCornerShape( 10.dp ) )
+                            .clickable {
+                                isConfigTabVisible = true
+                            }
+                            .background( MaterialTheme.colorScheme.onPrimaryContainer.copy(0.2f) )
+                            .padding( 5.dp ) , contentAlignment = Alignment.Center
+                        ) {
+                            Image( Icons.Filled.Settings , "" )
+                        }
+                    }
+                }
+                BackHandler( true ) {
+                    when {
+                        isConfigTabVisible -> isConfigTabVisible = false
+                        isComposableButtonVisible -> isComposableButtonVisible = false
+                        else -> sharedData.finish
+                    }
+                }
+            }
         }
 
     ) {
         Box( Modifier.fillMaxSize().padding( top = it.calculateTopPadding() ) ) {
-            if ( preprosessingData ) Column ( modifier = Modifier.fillMaxSize() , verticalArrangement = Arrangement.Center , horizontalAlignment = Alignment.CenterHorizontally ){
-                ProgressIndicator()
-                Text( message )
-            } else ResultGrid( viewModel , sharedData.coroutineIoScope , sharedData.appCacheDir ) {
-                sharedData.showToast( "TODO" , ToastTimeout.SHORT )
+            when {
+                preprosessingData -> Column ( modifier = Modifier.fillMaxSize() , verticalArrangement = Arrangement.Center , horizontalAlignment = Alignment.CenterHorizontally ){
+                    ProgressIndicator()
+                    Text( message )
+                }
+                isConfigTabVisible -> ExportedVariable( viewModel )
+                isComposableButtonVisible -> ExportedComposableButton(sharedData, viewModel)
+                else -> ResultGrid( viewModel , sharedData.coroutineIoScope , sharedData.appCacheDir ) {
+                    sharedData.showToast( "TODO" , ToastTimeout.SHORT )
+                }
             }
         }
+    }
+
+    LaunchedEffect( entries.size ) {
+        println( entries.size )
     }
 
     LaunchedEffect( preprosessingData ) {
@@ -204,22 +203,94 @@ fun BrowseScreen(
 }
 
 @Composable
-private fun ConfigTab(
+private fun ExportedComposableButton(
+    sharedData : SharedApplicationData ,
     viewModel: BrowseScreenViewModel
 ) = viewModel.run {
-    var variableRecieverName by remember { mutableStateOf( "" ) }
-    LazyVerticalGrid( GridCells.Adaptive( 20.dp ) ) {
+
+    LazyColumn ( modifier = Modifier.fillMaxSize() , verticalArrangement = Arrangement.Center , horizontalAlignment = Alignment.CenterHorizontally ) {
+
+        item {
+            Spacer( Modifier.height( 5.dp ) )
+            Text( "Start Dynamic Ui" )
+        }
+
+        exportedComposable.forEach { ( exportedFunctionName , exportedComposeFunction ) ->
+            item {
+
+                Box( modifier = Modifier
+                    .padding( 5.dp )
+                    .wrapContentSize()
+                    .clip( RoundedCornerShape( 10.dp ) )
+                    .clickable {
+                        try {
+                            exportedComposeFunction()
+                        } catch ( e : java.lang.reflect.InvocationTargetException ) {
+                            sharedData.showToast( "Failed to launch $exportedFunctionName From ${extension::class.java.packageName}" , ToastTimeout.SHORT )
+                            sharedData.logger log {
+                                ERROR
+                                title = "Failed to launch $exportedFunctionName From ${extension::class.java.packageName}"
+                                e.targetException.stackTraceToString()
+                            }
+                        }
+                    }
+                    .background( MaterialTheme.colorScheme.onPrimaryContainer.copy(0.2f) )
+                    .padding( 5.dp ) , contentAlignment = Alignment.Center
+                ) {
+                    Text( exportedFunctionName , color = Color.White )
+                }
+            }
+
+        }
+
+    }
+
+}
+
+
+@Composable
+private fun ExportedVariable(
+    viewModel: BrowseScreenViewModel
+) = viewModel.run {
+    LazyColumn ( modifier = Modifier.fillMaxSize() ) {
+
+        booleanVariable.forEach { ( meta , function ) ->
+              item {
+                  AnimatedVisibility( variableInUse.contains( meta.uniqueName ) ) {
+                      var state by remember { mutableStateOf( function.first.invoke() ) }
+                      Box( modifier = Modifier.padding( 5.dp )
+                          .clip( RoundedCornerShape( 5.dp ) )
+                          .background(
+                              if ( state ) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.secondary
+                          )
+                          .clickable {
+                              try {
+                                  state = function.second.invoke( !state )
+                              } catch ( _ : Exception ) {}
+                          }
+                          .padding( 5.dp ) ,
+                           contentAlignment = Alignment.Center
+                      ) {
+                          Text(
+                              meta.publicName ,
+                              color = if ( state ) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSecondary ,
+                              )
+                      }
+                  }
+              }
+        }
 
     }
 }
 
 @Composable
 private fun SearchBar(
+    initialSearchField : String,
     onEnter: String.() -> Unit ,
     onBackspace : () -> Unit
 ) {
     val keyboardController = LocalSoftwareKeyboardController.current
-    val searchField = remember { mutableStateOf( "" ) }
+    val searchField = remember { mutableStateOf( initialSearchField ) }
     TextField( searchField.value , {
         searchField.value = it
     } , modifier = Modifier
