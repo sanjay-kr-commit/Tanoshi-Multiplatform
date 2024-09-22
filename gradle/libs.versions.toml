@@ -20,6 +20,8 @@ gson = "2.11.0"
 okhttp="2.7.5"
 jsoup="1.17.1"
 exposedVersion="0.54.0"
+kotlinx-serialization-json="1.7.1"
+h2-version="2.2.224"
 
 [libraries]
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
@@ -50,6 +52,8 @@ exposed-spring-boot-starter = { module = "org.jetbrains.exposed:exposed-spring-b
 exposed-jodatime = { module = "org.jetbrains.exposed:exposed-jodatime" , version.ref = "exposedVersion" }
 exposed-java-time = { module = "org.jetbrains.exposed:exposed-java-time" , version.ref = "exposedVersion" }
 exposed-kotlin-datetime = { module = "org.jetbrains.exposed:exposed-kotlin-datetime" , version.ref = "exposedVersion" }
+kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json" , version.ref = "kotlinx-serialization-json" }
+h2-database = { module = "com.h2database:h2" , version.ref = "h2-version" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }
@@ -58,3 +62,4 @@ jetbrainsCompose = { id = "org.jetbrains.compose", version.ref = "compose-plugin
 compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 kotlinMultiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
+kotlinx-serialization = { id = "org.jetbrains.kotlin.plugin.serialization" , version.ref = "kotlin" }

@@ -12,6 +12,7 @@ plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.jetbrainsCompose)
     alias(libs.plugins.compose.compiler)
+    alias(libs.plugins.kotlinx.serialization)
 }
 
 kotlin {
@@ -48,6 +49,13 @@ kotlin {
             implementation(libs.jsoup)
             implementation(compose.materialIconsExtended)
             implementation(libs.gson)
+            implementation(libs.kotlinx.serialization.json)
+            implementation(libs.exposed.core)
+            implementation(libs.exposed.crypt)
+            implementation(libs.exposed.dao)
+            implementation(libs.exposed.jdbc)
+            implementation(libs.exposed.json)
+            implementation(libs.h2.database)
         }
         desktopMain.dependencies {
             implementation(compose.desktop.currentOs)
