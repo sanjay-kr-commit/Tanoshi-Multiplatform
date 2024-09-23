@@ -152,7 +152,7 @@ private fun SharedApplicationData.MainScreenCatalog(
 ) {
     CreateScreenCatalog( viewModel.navController ) {
         Screen( MainScreen.HomeScreen.name ) {
-            HomeScreen( this@MainScreenCatalog )
+            HomeScreen( this@MainScreenCatalog , viewModel )
         }
         Screen( MainScreen.ExtensionScreen.name ) {
             ExtensionScreen( extensionManager , { extensionPackage , className , extension ->

@@ -27,6 +27,7 @@ fun main() : Unit = SharedApplicationData().run {
     }
 
     error?.let {
+        println( it.stackTraceToString() )
         application( false ) {
             Window( onCloseRequest = ::exitApplication , title = "App Log" ,
                     icon = rememberVectorPainter(

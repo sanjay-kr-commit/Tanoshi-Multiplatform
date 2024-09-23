@@ -8,6 +8,7 @@ import androidx.compose.runtime.setValue
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import tanoshi.multiplatform.common.db.Library
 import tanoshi.multiplatform.common.util.currentDateTime
 import tanoshi.multiplatform.common.util.logger
 import tanoshi.multiplatform.common.util.logger.Logger
@@ -63,6 +64,10 @@ actual open class SharedApplicationData(
     actual val coroutineDefaultScope: CoroutineScope = CoroutineScope( Dispatchers.Default + SupervisorJob() )
 
     actual val coroutineUnconfinedScope: CoroutineScope = CoroutineScope( Dispatchers.Unconfined + SupervisorJob() )
+
+    lateinit var _library_ : Library
+    actual val library : Library
+        get() = _library_
 
 }
 

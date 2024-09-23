@@ -37,6 +37,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
+import tanoshi.multiplatform.common.db.Library
 import tanoshi.multiplatform.common.extension.Entry
 import tanoshi.multiplatform.common.extension.annotations.ExportComposable
 import tanoshi.multiplatform.common.extension.annotations.ExportTab
@@ -164,7 +165,7 @@ fun BrowseScreen(
                 }
                 isConfigTabVisible -> ExportedVariable( viewModel )
                 isComposableButtonVisible -> ExportedComposableButton(sharedData, viewModel)
-                else -> ResultGrid( viewModel , sharedData.coroutineIoScope , sharedData.appCacheDir ) {
+                else -> ResultGrid( viewModel , sharedData.coroutineIoScope , sharedData.appCacheDir , sharedData.library ) {
                     sharedData.showToast( "TODO" , ToastTimeout.SHORT )
                 }
             }
@@ -338,7 +339,8 @@ private fun ResultGrid(
     viewModel: BrowseScreenViewModel ,
     coroutineIoScope : CoroutineScope ,
     cacheDir : File ,
-    navigationTo : Entry<*>.() -> Unit
+    library: Library ,
+    navigationTo : Entry<*>.() -> Unit ,
 ) = viewModel.run {
     var loading : Job? by remember { mutableStateOf( null ) }
     LazyVerticalStaggeredGrid(
@@ -348,10 +350,20 @@ private fun ResultGrid(
             item {
                 var cover : ImageBitmap? by remember { mutableStateOf( null ) }
                 var coverLoadJob : Job? = null
+                var isAddedToLibrary by remember { mutableStateOf( library.contains( entry ) ) }
+                Column ( modifier = Modifier.width( 150.dp )
+                    .clip(RoundedCornerShape( 10.dp ))
+                    .background(
+                        if ( isAddedToLibrary ) MaterialTheme.colorScheme.primaryContainer
+                        else MaterialTheme.colorScheme.background
+                    )
+                    .clickable {
 
-                Column ( modifier = Modifier.width( 150.dp ).clickable {
-                    entry.navigationTo()
-                }, horizontalAlignment = Alignment.CenterHorizontally , verticalArrangement = Arrangement.Center ) {
+                        if ( isAddedToLibrary ) library.remove( entry )
+                        else library.insert( entry , extension , extensionPackage )
+                        isAddedToLibrary = !isAddedToLibrary
+
+                    }, horizontalAlignment = Alignment.CenterHorizontally , verticalArrangement = Arrangement.Center ) {
                     AnimatedVisibility( cover != null ) {
                         Image( cover!! , entry.name?:"None" , contentScale = ContentScale.FillWidth , modifier = Modifier
                             .fillMaxWidth()

@@ -6,6 +6,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import tanoshi.multiplatform.common.db.Library
 import tanoshi.multiplatform.common.screens.SplashScreen
 import tanoshi.multiplatform.common.util.ApplicationActivityName
 import tanoshi.multiplatform.shared.SharedApplicationData
@@ -65,6 +66,10 @@ class InitializeResources : ApplicationActivity() {
 
             message.value = "Loading Extension"
             extensionManager.loadExtensions()
+            delay( 10 )
+
+            message.value = "Loading Library"
+            _library_ = Library( privateDir )
             delay( 10 )
 
         }

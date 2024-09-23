@@ -6,11 +6,11 @@ import tanoshi.multiplatform.common.util.child
 import java.io.File
 
 open class DB(
-    val dbName : String,
-    val dbVersion : Int,
-    val dbDirectory : File,
-    onCreate : () -> Unit,
-    onVersionChange : ( Int ) -> Unit
+    protected val dbName: String,
+    protected val dbVersion: Int,
+    protected val dbDirectory: File,
+    onCreate: (DB) -> Unit = {} ,
+    onVersionChange: (Int,DB) -> Unit = { _,_ -> }
 ) {
 
     val connection : Database
@@ -18,7 +18,7 @@ open class DB(
             return Database.connect("jdbc:h2:${dbDirectory.child( dbName )}", driver = "org.h2.Driver")
         }
 
-    fun statblishedTransaction( statement : Transaction.() -> Unit ) : Unit = transaction( connection , statement ) 
+    fun stablishedTransaction(statement : Transaction.() -> Unit ) : Unit = transaction( connection , statement )
 
     private object DBInfo : Table( "DBINFO" ) {
         val verison = integer( "version" )
@@ -26,22 +26,20 @@ open class DB(
 
     init {
         val isOnCreate = !dbDirectory.child("$dbName.mv.db").isFile
-        transaction (
-            connection
-        ) {
+        stablishedTransaction {
             SchemaUtils.create(DBInfo)
-            if ( isOnCreate ) {
+            if (isOnCreate) {
                 DBInfo.insert {
                     it[verison] = dbVersion
                 }
-                onCreate()
+                onCreate(this@DB)
             } else DBInfo.selectAll().first()[DBInfo.verison].let { databaseVersion ->
-                if ( databaseVersion != dbVersion ) {
+                if (databaseVersion != dbVersion) {
                     DBInfo.deleteAll()
                     DBInfo.insert {
                         it[verison] = dbVersion
                     }
-                    onVersionChange(databaseVersion)
+                    onVersionChange(databaseVersion,this@DB)
                 }
             }
         }

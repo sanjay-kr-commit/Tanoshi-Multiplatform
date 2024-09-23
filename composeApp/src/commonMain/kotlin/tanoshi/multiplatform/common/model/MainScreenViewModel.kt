@@ -9,5 +9,6 @@ class MainScreenViewModel : ViewModel() {
     
     val navController : NavigationController = navController( startScreen = MainScreen.HomeScreen.name )
     val moreScreenPersistentData = MoreScreenPersistentData()
+    val homeScreenPersistantData = HomeScreenPersistantData()
     
 }

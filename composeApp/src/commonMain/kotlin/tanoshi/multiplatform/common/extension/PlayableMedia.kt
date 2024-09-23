@@ -1,5 +1,8 @@
 package tanoshi.multiplatform.common.extension
 
+import kotlinx.serialization.Serializable
+
+@Serializable
 data class PlayableMedia(
     var mediaUrl : String? = null ,
     var mediaLang : String? = null ,

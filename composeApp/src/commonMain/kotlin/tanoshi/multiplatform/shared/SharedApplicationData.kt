@@ -3,6 +3,7 @@ package tanoshi.multiplatform.shared
 import androidx.compose.runtime.Composable
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
+import tanoshi.multiplatform.common.db.Library
 import tanoshi.multiplatform.common.util.ApplicationActivityName
 import tanoshi.multiplatform.common.util.logger.Logger
 import tanoshi.multiplatform.shared.extension.ExtensionManager
@@ -39,7 +40,7 @@ expect class SharedApplicationData {
 
     val coroutineUnconfinedScope : CoroutineScope
 
-
+    val library : Library
 
 }
 

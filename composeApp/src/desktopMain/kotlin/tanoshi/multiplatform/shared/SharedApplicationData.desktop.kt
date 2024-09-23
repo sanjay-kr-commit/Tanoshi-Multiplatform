@@ -10,6 +10,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
+import tanoshi.multiplatform.common.db.Library
 import tanoshi.multiplatform.common.util.ApplicationActivityName
 import tanoshi.multiplatform.common.util.currentDateTime
 import tanoshi.multiplatform.common.util.logger
@@ -40,7 +41,7 @@ actual open class SharedApplicationData(
 
     actual var extensionComposableView : @Composable () -> Unit = {} ,
     
-    actual var exportedObjects : HashMap<String,Any>? = null
+    actual var exportedObjects : HashMap<String,Any>? = null ,
 
 ) {
 
@@ -57,6 +58,11 @@ actual open class SharedApplicationData(
     var toastMessage : String by mutableStateOf( "" )
 
     actual var activityMap : Map<ApplicationActivityName,()->Unit>? = null
+
+    lateinit var _library_ : Library
+
+    actual val library: Library
+        get() = _library_
 
     lateinit var windowStack : WindowStack
     actual val coroutineIoScope: CoroutineScope = CoroutineScope( Dispatchers.IO + SupervisorJob() )
