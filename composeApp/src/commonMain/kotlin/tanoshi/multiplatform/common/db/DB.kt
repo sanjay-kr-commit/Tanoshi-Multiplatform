@@ -1,6 +1,7 @@
 package tanoshi.multiplatform.common.db
 
 import org.jetbrains.exposed.sql.*
+import org.jetbrains.exposed.sql.transactions.TransactionManager
 import org.jetbrains.exposed.sql.transactions.transaction
 import tanoshi.multiplatform.common.util.child
 import java.io.File
@@ -19,6 +20,17 @@ open class DB(
         }
 
     fun stablishedTransaction(statement : Transaction.() -> Unit ) : Unit = transaction( connection , statement )
+
+    protected fun rawQuery( rawSqlQuery : String , args : ArrayList<Pair<ColumnType<*>,Any>>.() -> Unit ) = stablishedTransaction {
+        TransactionManager.current().connection.let { connection ->
+            connection.prepareStatement(rawSqlQuery, false).let { statement ->
+                statement.fillParameters(
+                    arrayListOf<Pair<ColumnType<*>,Any>>().apply(args)
+                )
+                statement.executeUpdate()
+            }
+        }
+    }
 
     private object DBInfo : Table( "DBINFO" ) {
         val verison = integer( "version" )
