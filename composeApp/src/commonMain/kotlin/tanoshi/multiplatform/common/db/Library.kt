@@ -50,7 +50,7 @@ class Library(
         private fun onCreate(db:DB) = db.stablishedTransaction {
             SchemaUtils.create( LibraryEntry )
         }
-        private fun onVersionChange( previousVersion : Int , db:DB ) {
+        private fun onVersionChange( previousVersion : Int , db:DB ) = db.stablishedTransaction {
             SchemaUtils.drop( LibraryEntry )
             SchemaUtils.create( LibraryEntry )
         }
