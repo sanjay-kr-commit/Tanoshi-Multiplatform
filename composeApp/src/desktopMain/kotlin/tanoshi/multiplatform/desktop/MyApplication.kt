@@ -9,6 +9,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
+import tanoshi.multiplatform.common.db.Preferences.preferenceByGroupName
 import tanoshi.multiplatform.common.screens.LogScreen
 import tanoshi.multiplatform.desktop.util.WindowStack.Companion.startWindowStack
 import tanoshi.multiplatform.desktop.util.customApplication
@@ -25,6 +26,8 @@ fun main() : Unit = SharedApplicationData().run {
             }
         }
     }
+
+    println( "hello.world".preferenceByGroupName )
 
     error?.let {
         println( it.stackTraceToString() )

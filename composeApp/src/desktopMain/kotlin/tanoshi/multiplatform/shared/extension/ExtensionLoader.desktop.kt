@@ -36,7 +36,7 @@ actual class ExtensionLoader {
                 val obj: Any = loadedClass.getDeclaredConstructor().newInstance()
                 if ( classList.contains( className ) ) throw Exception( "Duplicate Class Found" )
                 extensionPackage.loadedExtensionClasses += className to obj as Extension<*>
-                loadExtensionPermission( className , obj as Extension<*> , extensionPackage.extensionDir.child( "$className.config" ) )
+                loadExtensionPermission( className , obj as Extension<*> , extensionPackage.manifest.extensionNamespace!! )
                 classList.add(className )
             } catch ( e : Exception ) {
                 logger?. log {
@@ -62,7 +62,7 @@ actual class ExtensionLoader {
             loadExtensionPermission(
                 className,
                 obj as Extension<*>,
-                extensionPackage.extensionDir.child("$className.config")
+                extensionPackage.manifest.extensionNamespace!!
             )
             extensionPackage.loadedExtensionClasses[className] = obj
         } catch ( e : Exception ) {

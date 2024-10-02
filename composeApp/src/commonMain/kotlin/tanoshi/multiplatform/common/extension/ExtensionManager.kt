@@ -2,19 +2,17 @@ package tanoshi.multiplatform.common.extension
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Icon
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.BrokenImage
 import androidx.compose.material.icons.filled.Error
+import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
-import tanoshi.multiplatform.common.extension.core.Extension
-import tanoshi.multiplatform.common.extension.core.SharedDependencies
-import tanoshi.multiplatform.common.extension.enum.SharedDependencyFields
+import tanoshi.multiplatform.common.db.Preferences.deleteGroup
 import tanoshi.multiplatform.common.util.Manifest.Companion.toManifest
 import tanoshi.multiplatform.common.util.logger.Logger
 import tanoshi.multiplatform.common.util.toFile
@@ -39,10 +37,12 @@ val ExtensionManager.packageList : List<String>
     }
 
 fun ExtensionManager.uninstall(extensionId: String) {
+    extensionId.deleteGroup
     val extensionDir = File( dir , extensionId )
     extensionDir.walk().forEach { it.setWritable( true ) }
     if ( extensionDir.isDirectory ) extensionDir.deleteRecursively()
     if ( extensionDir.isFile ) extensionDir.delete()
+
 }
 
 fun ExtensionManager.extractExtension(file: File, logger: Logger) : File? {
@@ -128,15 +128,5 @@ fun ExtensionManager.extensionIcon( packageName :String ) {
         }
     } ?: run {
         Icon( Icons.Default.BrokenImage , "" )
-    }
-}
-
-fun createExtensionPermissionFile(extension: Extension<*>, file: File) {
-    if ( extension is SharedDependencies ) {
-        file.bufferedWriter().use { permission ->
-            SharedDependencyFields.entries.forEach { entry ->
-                permission.write( "${entry.name}:${entry.defaultValue}\n" )
-            }
-        }
     }
 }

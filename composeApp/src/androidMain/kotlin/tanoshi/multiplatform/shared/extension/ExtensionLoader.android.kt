@@ -5,7 +5,6 @@ import dalvik.system.DexClassLoader
 import tanoshi.multiplatform.common.extension.ExtensionPackage
 import tanoshi.multiplatform.common.extension.core.Extension
 import tanoshi.multiplatform.common.extension.loadExtensionPermission
-import tanoshi.multiplatform.common.util.child
 import tanoshi.multiplatform.common.util.logger.Logger
 import tanoshi.multiplatform.common.util.toast.ToastTimeout
 
@@ -36,7 +35,7 @@ actual class ExtensionLoader {
                 val obj: Any = loadedClass.getDeclaredConstructor().newInstance()
                 if ( classList.contains( className ) ) throw Exception( "Duplicate Class Found" )
                 extensionPackage.loadedExtensionClasses += className to obj as Extension<*>
-                loadExtensionPermission(className, obj as Extension<*>, extensionPackage.extensionDir.child("$className.config"))
+                loadExtensionPermission(className, obj as Extension<*>,extensionPackage.manifest.extensionNamespace!!)
                 classList.add(className )
             } catch ( e : Exception ) {
                 logger?. log {
@@ -55,8 +54,8 @@ actual class ExtensionLoader {
             val obj: Any = loadedClass.getDeclaredConstructor().newInstance()
             loadExtensionPermission(
                 className,
-                obj as Extension<*>,
-                extensionPackage.extensionDir.child("$className.config")
+                obj as Extension<*> ,
+                extensionPackage.manifest.extensionNamespace!!
             )
             extensionPackage.loadedExtensionClasses[className] = obj
         } catch ( e : Exception ) {

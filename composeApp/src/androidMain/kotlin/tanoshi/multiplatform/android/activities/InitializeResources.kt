@@ -20,6 +20,7 @@ import tanoshi.multiplatform.android.extendOnResumeBehaviour
 import tanoshi.multiplatform.android.extendOncreateBehaviour
 import tanoshi.multiplatform.android.ui.theme.TanoshiTheme
 import tanoshi.multiplatform.common.db.Library
+import tanoshi.multiplatform.common.db.Preferences.initializePreference
 import tanoshi.multiplatform.common.screens.SplashScreen
 import tanoshi.multiplatform.common.util.ApplicationActivityName
 import tanoshi.multiplatform.shared.changeActivity
@@ -155,6 +156,14 @@ class InitializeResources : ComponentActivity() {
             }
             delay( 10 )
 
+            message.value = "Loading Library"
+            _library_ = Library( privateDir )
+            delay( 10 )
+
+            message.value = "Loading Preferences"
+            initializePreference( privateDir )
+            delay( 10 )
+
             message.value = "Load Extensions"
             try {
                 extensionManager.loadExtensions()
@@ -166,11 +175,6 @@ class InitializeResources : ComponentActivity() {
                 }
             }
             delay( 10 )
-
-            message.value = "Loading Library"
-            _library_ = Library( privateDir )
-            delay( 10 )
-
 
         }
 

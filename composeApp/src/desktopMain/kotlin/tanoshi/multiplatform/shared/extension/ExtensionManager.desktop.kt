@@ -1,10 +1,11 @@
 package tanoshi.multiplatform.shared.extension
 
 import com.google.gson.Gson
+import tanoshi.multiplatform.common.db.Preferences.addPreference
+import tanoshi.multiplatform.common.db.Preferences.preferenceByGroupName
 import tanoshi.multiplatform.common.extension.ExtensionPackage
 import tanoshi.multiplatform.common.extension.annotations.IconName
 import tanoshi.multiplatform.common.extension.core.Extension
-import tanoshi.multiplatform.common.extension.createExtensionPermissionFile
 import tanoshi.multiplatform.common.extension.extractExtension
 import tanoshi.multiplatform.common.util.Manifest.Companion.toManifest
 import tanoshi.multiplatform.common.util.child
@@ -34,7 +35,7 @@ actual class ExtensionManager {
 
             extensionDir.child( "source.tanoshi" ).copyTo( extensionDir.child( "source.jar" ) )
 
-            val classDependencies = ArrayList<Pair<String,List<String>>>()
+            //val classDependencies = ArrayList<Pair<String,List<String>>>()
             val extensionClasses = ArrayList<String>()
             val extensionIcon = HashMap<String,String>()
 
@@ -63,8 +64,7 @@ actual class ExtensionManager {
                             extensionIcon += className to iconName.icon
                         }
                     }
-                    addDependencyTree( className , classPath , extensionDir , classDependencies )
-                    createExtensionPermissionFile(obj, extensionDir.child( "$className.config" ))
+                    //addDependencyTree( className , classPath , extensionDir , classDependencies )
                 } catch ( e : Exception ) {
                     logger log {
                         ERROR
@@ -74,20 +74,24 @@ actual class ExtensionManager {
                 }
             }
 
-            extensionDir.child( "extensionClasses.json" )
-                .writeText(
-                    gson.toJson( extensionClasses )
-                )
+            val extensionId = extensionDir.name
 
-            extensionDir.child( "extensionIcon.json" )
-                .writeText(
-                    gson.toJson( extensionIcon )
-                )
+            addPreference(
+                "${extensionId}ExtensionName" , gson.toJson( extensionClasses ) ,
+                extensionId
+            )
 
-            extensionDir.child( "extensionClassDependencyTree.json" )
-                .writeText(
-                    gson.toJson( classDependencies )
-                )
+            addPreference(
+                "${extensionId}ExtensionIcon" ,
+                gson.toJson( extensionIcon ) ,
+                extensionId
+            )
+
+//            addPreference(
+//                "${extensionId}ExtensionDependency" ,
+//                gson.toJson( classDependencies ) ,
+//                extensionId
+//            )
 
         }
     }
@@ -122,38 +126,41 @@ actual class ExtensionManager {
     @Suppress("UNCHECKED_CAST")
     actual fun loadExtensions() {
         dir.listFiles()?.forEach { extensionDir ->
-            val path = extensionDir.absolutePath
-            try {
-                val extensionClasses: ArrayList<String> = gson.fromJson(
-                    extensionDir.child("extensionClasses.json").readText(),
-                    ArrayList::class.java
-                ) as ArrayList<String>
-                extensionLoader.loadTanoshiExtension(
-                    ExtensionPackage(
-                        extensionDir.child( "source.jar" ) ,
-                        extensionDir ,
-                        extensionDir.child( "META-INF/MANIFEST.MF" ).toManifest
-                    ) ,
-                    extensionClasses
-                )
-            } catch ( e : Exception ) {
-                logger log {
-                    title = "loading extension ${extensionDir.name}"
-                    e.stackTraceToString()
-                }
-            }
-
-            try {
-                val extensionIcon : HashMap<String,String> = gson.fromJson(
-                    extensionDir.child( "extensionIcon.json" ).readText() ,
-                    HashMap::class.java
-                ) as HashMap<String,String>
-                for ( (name,icon) in extensionIcon ) {
-                    extensionIconPath += name to extensionDir.child( icon ).absolutePath
+            val extensionId = extensionDir.name
+            extensionId.preferenceByGroupName.let { table ->
+                try {
+                    val extensionClasses: ArrayList<String> = gson.fromJson(
+                        table["${extensionId}ExtensionName"] ,
+                        ArrayList::class.java
+                    ) as ArrayList<String>
+                    extensionLoader.loadTanoshiExtension(
+                        ExtensionPackage(
+                            extensionDir.child( "source.jar" ) ,
+                            extensionDir ,
+                            extensionDir.child( "META-INF/MANIFEST.MF" ).toManifest
+                        ) ,
+                        extensionClasses
+                    )
+                } catch ( e : Exception ) {
+                    logger log {
+                        title = "loading extension ${extensionDir.name}"
+                        e.stackTraceToString()
+                    }
                 }
 
-            } catch ( e : Exception ){
-                println( e.stackTraceToString() )
+                try {
+                    val extensionIcon : HashMap<String,String> = gson.fromJson(
+                        table["${extensionId}ExtensionIcon"] ,
+                        HashMap::class.java
+                    ) as HashMap<String,String>
+                    for ( (name,icon) in extensionIcon ) {
+                        extensionIconPath += name to extensionDir.child( icon ).absolutePath
+                    }
+
+                } catch ( e : Exception ){
+                    println( e.stackTraceToString() )
+                }
+
             }
 
         }
