@@ -21,23 +21,27 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.core.app.ActivityCompat
+import tanoshi.multiplatform.android.DelegatedBehaviour
+import tanoshi.multiplatform.android.DelegatedBehaviourHandler
 import tanoshi.multiplatform.android.MyApplication
-import tanoshi.multiplatform.android.extendOnConfigurationChangeBehaviour
-import tanoshi.multiplatform.android.extendOnResumeBehaviour
-import tanoshi.multiplatform.android.extendOncreateBehaviour
 import tanoshi.multiplatform.android.ui.theme.TanoshiTheme
 import tanoshi.multiplatform.common.model.MainScreenViewModel
 import tanoshi.multiplatform.common.screens.MainScreen
 import java.util.*
 
-class MainActivity : ComponentActivity() {
+class MainActivity : ComponentActivity() , DelegatedBehaviour by DelegatedBehaviourHandler() {
 
     private val onResumeTask : Stack<()->Unit> = Stack()
     private lateinit var sharedApplicationData : MyApplication
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        sharedApplicationData = extendOncreateBehaviour(savedInstanceState)
+        sharedApplicationData = application as MyApplication
+        registerLifecycleOwner {
+            extendOnResume = {
+                while ( onResumeTask.isNotEmpty() ) onResumeTask.pop().invoke()
+            }
+        }
         val mainScreenViewModel by viewModels<MainScreenViewModel>()
         setContent {
             TanoshiTheme {
@@ -57,15 +61,9 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    override fun onResume() {
-        super.onResume()
-        extendOnResumeBehaviour()
-        while ( onResumeTask.isNotEmpty() ) onResumeTask.pop().invoke()
-    }
-
     override fun onConfigurationChanged(newConfig: Configuration) {
         super.onConfigurationChanged(newConfig)
-        extendOnConfigurationChangeBehaviour(newConfig)
+        extendOnConfigurationChanged(newConfig)
     }
 
     @Composable

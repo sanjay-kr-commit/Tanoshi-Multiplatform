@@ -14,10 +14,7 @@ import androidx.lifecycle.lifecycleScope
 import dalvik.system.ZipPathValidator
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import tanoshi.multiplatform.android.MyApplication
-import tanoshi.multiplatform.android.extendOnConfigurationChangeBehaviour
-import tanoshi.multiplatform.android.extendOnResumeBehaviour
-import tanoshi.multiplatform.android.extendOncreateBehaviour
+import tanoshi.multiplatform.android.*
 import tanoshi.multiplatform.android.ui.theme.TanoshiTheme
 import tanoshi.multiplatform.common.db.Library
 import tanoshi.multiplatform.common.db.Preferences.initializePreference
@@ -27,13 +24,13 @@ import tanoshi.multiplatform.shared.changeActivity
 import tanoshi.multiplatform.shared.util.toast.showToast
 import java.io.File
 
-class InitializeResources : ComponentActivity() {
+class InitializeResources : ComponentActivity() , DelegatedBehaviour by DelegatedBehaviourHandler() {
 
     private var message = mutableStateOf( "Loading" )
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        extendOncreateBehaviour(savedInstanceState)
+        registerLifecycleOwner()
         setContent {
             TanoshiTheme {
                 SplashScreen( message )
@@ -185,14 +182,9 @@ class InitializeResources : ComponentActivity() {
         finish()
     }
 
-    override fun onResume() {
-        super.onResume()
-        extendOnResumeBehaviour()
-    }
-
     override fun onConfigurationChanged(newConfig: Configuration) {
         super.onConfigurationChanged(newConfig)
-        extendOnConfigurationChangeBehaviour(newConfig)
+        extendOnConfigurationChanged(newConfig)
     }
 
     private fun disableZipValidator() {

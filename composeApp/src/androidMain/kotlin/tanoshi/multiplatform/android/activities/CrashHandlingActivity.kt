@@ -11,20 +11,19 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import tanoshi.multiplatform.android.extendOnConfigurationChangeBehaviour
-import tanoshi.multiplatform.android.extendOnResumeBehaviour
-import tanoshi.multiplatform.android.extendOncreateBehaviour
+import tanoshi.multiplatform.android.*
 import tanoshi.multiplatform.android.ui.theme.TanoshiTheme
 import tanoshi.multiplatform.common.screens.LogScreen
 import tanoshi.multiplatform.shared.SharedApplicationData
 
-class CrashHandlingActivity : ComponentActivity() {
+class CrashHandlingActivity : ComponentActivity() , DelegatedBehaviour by DelegatedBehaviourHandler() {
 
-    lateinit var sharedApplicaData : SharedApplicationData
+    private lateinit var sharedApplicaData : SharedApplicationData
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        sharedApplicaData = extendOncreateBehaviour(savedInstanceState)
+        sharedApplicaData = application as SharedApplicationData
+        registerLifecycleOwner()
         setContent {
             TanoshiTheme {
                 Column( Modifier.fillMaxSize() ) {
@@ -40,14 +39,9 @@ class CrashHandlingActivity : ComponentActivity() {
         }
     }
 
-    override fun onResume() {
-        super.onResume()
-        extendOnResumeBehaviour()
-    }
-
     override fun onConfigurationChanged(newConfig: Configuration) {
         super.onConfigurationChanged(newConfig)
-        extendOnConfigurationChangeBehaviour(newConfig)
+        extendOnConfigurationChanged(newConfig)
     }
 
 }
